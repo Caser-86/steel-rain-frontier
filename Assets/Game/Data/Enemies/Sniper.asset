@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 769f3ac29c71e8e458ca2eb660604313, type: 3}
+  m_Name: Sniper
+  m_EditorClassIdentifier: Assembly-CSharp::SteelRain.Enemies.EnemyDefinition
+  id: sniper
+  displayName: Sniper
+  maxHealth: 2
+  moveSpeed: 1.2
+  detectRange: 12
+  attackRange: 10
+  attackCooldown: 2.2
+  attackPattern: 0
+  projectilePrefab: {fileID: 6888016108284647343, guid: 1747bfb583a882045ae3f4dbfac4b341, type: 3}
+  projectileDamage: 2
+  projectileSpeed: 13

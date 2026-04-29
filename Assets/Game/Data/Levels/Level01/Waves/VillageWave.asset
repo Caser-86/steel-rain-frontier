@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf0daecdedbd9c44c89c04b95d09d4b8, type: 3}
+  m_Name: VillageWave
+  m_EditorClassIdentifier: Assembly-CSharp::SteelRain.Levels.WaveDefinition
+  enemyPrefabs:
+  - {fileID: 7660710527789956920, guid: 6aa130847b4dd584eb1e332944772ca4, type: 3}
+  - {fileID: 944731394458600148, guid: bed172a4627253c4b89422c63d31c2d2, type: 3}
+  - {fileID: 2098821479144187150, guid: 0baa83d0ca00af24b8e9c5f936bb70f1, type: 3}
+  spawnOffsets:
+  - {x: 0, y: 1}
+  - {x: 5, y: 1}
+  - {x: 8, y: 3.5}

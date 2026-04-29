@@ -441,8 +441,8 @@ namespace SteelRain.EditorTools
 
             var healthWidget = healthObject.AddComponent<SteelRain.UI.HealthWidget>();
             var ammoWidget = ammoObject.AddComponent<SteelRain.UI.AmmoWidget>();
-            SetObject(healthWidget, "label", healthObject.GetComponent<TMPro.TMP_Text>());
-            SetObject(ammoWidget, "label", ammoObject.GetComponent<TMPro.TMP_Text>());
+            SetObject(healthWidget, "label", healthObject.GetComponent<UnityEngine.UI.Text>());
+            SetObject(ammoWidget, "label", ammoObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(presenter, "healthWidget", healthWidget);
             SetObject(presenter, "ammoWidget", ammoWidget);
         }
@@ -454,9 +454,10 @@ namespace SteelRain.EditorTools
             var rect = go.AddComponent<RectTransform>();
             rect.sizeDelta = new Vector2(420f, 48f);
             rect.anchoredPosition = anchoredPosition;
-            var label = go.AddComponent<TMPro.TextMeshProUGUI>();
+            var label = go.AddComponent<UnityEngine.UI.Text>();
             label.text = text;
-            label.fontSize = 28f;
+            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.fontSize = 28;
             label.color = Color.white;
             return go;
         }

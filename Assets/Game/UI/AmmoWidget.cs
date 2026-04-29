@@ -1,11 +1,11 @@
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SteelRain.UI
 {
     public sealed class AmmoWidget : MonoBehaviour
     {
-        [SerializeField] private TMP_Text label;
+        [SerializeField] private Text label;
 
         private string weaponName = "";
         private int ammo;

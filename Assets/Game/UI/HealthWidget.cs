@@ -1,11 +1,11 @@
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SteelRain.UI
 {
     public sealed class HealthWidget : MonoBehaviour
     {
-        [SerializeField] private TMP_Text label;
+        [SerializeField] private Text label;
 
         public void SetHealth(int current, int max)
         {

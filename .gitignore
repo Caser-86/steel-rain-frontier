@@ -25,3 +25,5 @@ sysinfo.txt
 *.aab
 *.unitypackage
 crashlytics-build.properties
+*.log
+TestResults-*.xml

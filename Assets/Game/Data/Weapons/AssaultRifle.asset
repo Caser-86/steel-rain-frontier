@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46a91cfec1de82c4081104e55ae1b6f4, type: 3}
+  m_Name: AssaultRifle
+  m_EditorClassIdentifier: Assembly-CSharp::SteelRain.Weapons.WeaponDefinition
+  id: assault_rifle
+  displayName: Assault Rifle
+  startingAmmo: 90
+  forms:
+  - {fileID: 11400000, guid: 79400409b609ca34bbc8d32e6f272326, type: 2}
+  - {fileID: 11400000, guid: e73942fbd16233349a5e2a5191ece104, type: 2}
+  - {fileID: 11400000, guid: a240df686efc4564db757ea515497ff5, type: 2}
+  projectilePrefab: {fileID: 3231230444271653790, guid: 1305e185c29a45449a30c786423f7cba, type: 3}
