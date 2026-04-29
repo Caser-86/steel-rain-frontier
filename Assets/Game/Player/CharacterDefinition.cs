@@ -1,0 +1,17 @@
+using UnityEngine;
+
+namespace SteelRain.Player
+{
+    [CreateAssetMenu(menuName = "Steel Rain/Character Definition")]
+    public sealed class CharacterDefinition : ScriptableObject
+    {
+        public string id = "aila";
+        public string displayName = "Aila";
+        public int maxHealth = 6;
+        public float moveSpeed = 7.5f;
+        public float jumpVelocity = 14f;
+        public float dodgeSpeed = 13f;
+        public float dodgeDuration = 0.18f;
+        public float dodgeCooldown = 0.55f;
+    }
+}
