@@ -10,16 +10,26 @@ namespace SteelRain.UI
 
         private void OnEnable()
         {
-            GameEvents.PlayerHealthChanged += healthWidget.SetHealth;
-            GameEvents.AmmoChanged += ammoWidget.SetAmmo;
-            GameEvents.WeaponFormChanged += ammoWidget.SetForm;
+            if (healthWidget != null)
+                GameEvents.PlayerHealthChanged += healthWidget.SetHealth;
+
+            if (ammoWidget != null)
+            {
+                GameEvents.AmmoChanged += ammoWidget.SetAmmo;
+                GameEvents.WeaponFormChanged += ammoWidget.SetForm;
+            }
         }
 
         private void OnDisable()
         {
-            GameEvents.PlayerHealthChanged -= healthWidget.SetHealth;
-            GameEvents.AmmoChanged -= ammoWidget.SetAmmo;
-            GameEvents.WeaponFormChanged -= ammoWidget.SetForm;
+            if (healthWidget != null)
+                GameEvents.PlayerHealthChanged -= healthWidget.SetHealth;
+
+            if (ammoWidget != null)
+            {
+                GameEvents.AmmoChanged -= ammoWidget.SetAmmo;
+                GameEvents.WeaponFormChanged -= ammoWidget.SetForm;
+            }
         }
     }
 }

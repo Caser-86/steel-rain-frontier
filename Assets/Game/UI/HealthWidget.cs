@@ -9,6 +9,9 @@ namespace SteelRain.UI
 
         public void SetHealth(int current, int max)
         {
+            if (label == null)
+                return;
+
             label.text = $"{current}/{max}";
         }
     }

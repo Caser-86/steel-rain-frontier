@@ -26,6 +26,9 @@ namespace SteelRain.UI
 
         private void Refresh()
         {
+            if (label == null)
+                return;
+
             label.text = $"{weaponName} {ammo} [{formName}]";
         }
     }
