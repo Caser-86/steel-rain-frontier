@@ -39,6 +39,9 @@ namespace SteelRain.Weapons
             if (!other.TryGetComponent(out Health health))
                 return;
 
+            if (health.Team == sourceTeam)
+                return;
+
             health.ApplyDamage(new DamageInfo(damage, sourceTeam, body.linearVelocity.normalized));
 
             if (pierceRemaining > 0)

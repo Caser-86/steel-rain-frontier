@@ -7,7 +7,7 @@ namespace SteelRain.Core
     {
         private readonly T prefab;
         private readonly Transform parent;
-        private readonly Stack<T> inactive = new();
+        private readonly Stack<T> inactive = new Stack<T>();
 
         public ObjectPool(T prefab, Transform parent)
         {

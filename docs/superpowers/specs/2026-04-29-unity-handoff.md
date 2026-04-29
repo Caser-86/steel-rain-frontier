@@ -49,11 +49,12 @@ Open `Level01_VerticalSlice.unity`, press Play, and check:
 
 - Aila moves, jumps, shoots, and switches weapon form with `E`.
 - Rifle soldiers and other wave enemies spawn when crossing segment triggers.
+- Rifle soldiers, grenadiers, drones, flamers, mortar soldiers, and the mini-boss fire enemy projectiles.
 - Checkpoints update when crossed.
 - Mini-boss can take damage and die.
 
 ## Known Limits
 
-- Enemy attack methods are state placeholders; they move and time attacks but do not yet spawn enemy bullets.
-- Camera is static in generated graybox; follow camera should be added after player movement tuning.
+- Enemy projectiles use placeholder straight-line physics; grenades and mortars are readable pressure tools, not final ballistic arcs.
+- Camera follow is generated; Cinemachine can replace it after player movement tuning.
 - HUD canvas is generated but text widgets still need TMP child labels wired if automatic wiring fails.

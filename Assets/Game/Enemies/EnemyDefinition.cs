@@ -13,5 +13,8 @@ namespace SteelRain.Enemies
         public float attackRange = 6f;
         public float attackCooldown = 1.4f;
         public EnemyAttackPattern attackPattern = EnemyAttackPattern.RifleBurst;
+        public EnemyProjectile projectilePrefab;
+        public int projectileDamage = 1;
+        public float projectileSpeed = 9f;
     }
 }

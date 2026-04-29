@@ -24,13 +24,14 @@ namespace SteelRain.EditorTools
             var sprite = EnsureWhiteSprite();
             var aila = CreateAila();
             var projectile = CreateProjectilePrefab(sprite);
+            var enemyProjectile = CreateEnemyProjectilePrefab(sprite);
             var assaultRifle = CreateAssaultRifle(projectile);
             CreateShotgun(projectile);
             CreateRocketLauncher(projectile);
             CreatePlayerPrefab(sprite, aila, assaultRifle);
-            var enemies = CreateEnemyDefinitions();
+            var enemies = CreateEnemyDefinitions(enemyProjectile);
             CreateEnemyPrefabs(sprite, enemies);
-            CreateMiniBossPrefab(sprite);
+            CreateMiniBossPrefab(sprite, enemyProjectile);
             CreateWaveAssets();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -52,7 +53,7 @@ namespace SteelRain.EditorTools
             var player = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
             player.transform.position = new Vector3(0f, 1.5f, 0f);
 
-            CreateCamera();
+            CreateCamera(player.transform);
             CreateGround(sprite);
             CreateHud();
             CreateCheckpointManager(player.transform);
@@ -151,6 +152,23 @@ namespace SteelRain.EditorTools
             collider.isTrigger = true;
             go.AddComponent<Projectile>();
             var prefab = SavePrefab<Projectile>(go, $"{PrefabRoot}/Weapons/Projectile_Bullet.prefab");
+            Object.DestroyImmediate(go);
+            return prefab;
+        }
+
+        private static EnemyProjectile CreateEnemyProjectilePrefab(Sprite sprite)
+        {
+            var go = new GameObject("Projectile_Enemy");
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.color = new Color(1f, 0.25f, 0.1f);
+            go.transform.localScale = new Vector3(0.18f, 0.18f, 1f);
+            var body = go.AddComponent<Rigidbody2D>();
+            body.gravityScale = 0f;
+            var collider = go.AddComponent<CircleCollider2D>();
+            collider.isTrigger = true;
+            go.AddComponent<EnemyProjectile>();
+            var prefab = SavePrefab<EnemyProjectile>(go, $"{PrefabRoot}/Weapons/Projectile_Enemy.prefab");
             Object.DestroyImmediate(go);
             return prefab;
         }
@@ -260,22 +278,34 @@ namespace SteelRain.EditorTools
             Object.DestroyImmediate(go);
         }
 
-        private static EnemyDefinition[] CreateEnemyDefinitions()
+        private static EnemyDefinition[] CreateEnemyDefinitions(EnemyProjectile projectile)
         {
             return new[]
             {
-                CreateEnemy("RifleSoldier", "rifle_soldier", "Rifle Soldier", 3, 2.5f, 9f, 6f, 1.4f, EnemyAttackPattern.RifleBurst),
-                CreateEnemy("Grenadier", "grenadier", "Grenadier", 3, 2f, 9f, 7f, 1.8f, EnemyAttackPattern.GrenadeArc),
-                CreateEnemy("ShieldSoldier", "shield_soldier", "Shield Soldier", 6, 1.6f, 8f, 2f, 1.2f, EnemyAttackPattern.ShieldAdvance),
-                CreateEnemy("Sniper", "sniper", "Sniper", 2, 1.2f, 12f, 10f, 2.2f, EnemyAttackPattern.RifleBurst),
-                CreateEnemy("Drone", "drone", "Drone", 2, 4.2f, 9f, 5f, 1.1f, EnemyAttackPattern.DroneDive),
-                CreateEnemy("Flamer", "flamer", "Flamer", 5, 1.9f, 8f, 3f, 1.5f, EnemyAttackPattern.FlamethrowerCone),
-                CreateEnemy("MortarSoldier", "mortar_soldier", "Mortar Soldier", 4, 1f, 11f, 9f, 2.4f, EnemyAttackPattern.MortarMarker),
-                CreateEnemy("CrawlerMutant", "crawler_mutant", "Crawler Mutant", 3, 3.6f, 7f, 1.4f, 1f, EnemyAttackPattern.ShieldAdvance)
+                CreateEnemy("RifleSoldier", "rifle_soldier", "Rifle Soldier", 3, 2.5f, 9f, 6f, 1.4f, EnemyAttackPattern.RifleBurst, projectile, 1, 9f),
+                CreateEnemy("Grenadier", "grenadier", "Grenadier", 3, 2f, 9f, 7f, 1.8f, EnemyAttackPattern.GrenadeArc, projectile, 2, 7f),
+                CreateEnemy("ShieldSoldier", "shield_soldier", "Shield Soldier", 6, 1.6f, 8f, 2f, 1.2f, EnemyAttackPattern.ShieldAdvance, null, 1, 0f),
+                CreateEnemy("Sniper", "sniper", "Sniper", 2, 1.2f, 12f, 10f, 2.2f, EnemyAttackPattern.RifleBurst, projectile, 2, 13f),
+                CreateEnemy("Drone", "drone", "Drone", 2, 4.2f, 9f, 5f, 1.1f, EnemyAttackPattern.DroneDive, projectile, 1, 11f),
+                CreateEnemy("Flamer", "flamer", "Flamer", 5, 1.9f, 8f, 3f, 1.5f, EnemyAttackPattern.FlamethrowerCone, projectile, 1, 6f),
+                CreateEnemy("MortarSoldier", "mortar_soldier", "Mortar Soldier", 4, 1f, 11f, 9f, 2.4f, EnemyAttackPattern.MortarMarker, projectile, 2, 5f),
+                CreateEnemy("CrawlerMutant", "crawler_mutant", "Crawler Mutant", 3, 3.6f, 7f, 1.4f, 1f, EnemyAttackPattern.ShieldAdvance, null, 1, 0f)
             };
         }
 
-        private static EnemyDefinition CreateEnemy(string assetName, string id, string displayName, int health, float speed, float detectRange, float attackRange, float cooldown, EnemyAttackPattern pattern)
+        private static EnemyDefinition CreateEnemy(
+            string assetName,
+            string id,
+            string displayName,
+            int health,
+            float speed,
+            float detectRange,
+            float attackRange,
+            float cooldown,
+            EnemyAttackPattern pattern,
+            EnemyProjectile projectile,
+            int projectileDamage,
+            float projectileSpeed)
         {
             var enemy = LoadOrCreate<EnemyDefinition>($"{DataRoot}/Enemies/{assetName}.asset");
             enemy.id = id;
@@ -286,6 +316,9 @@ namespace SteelRain.EditorTools
             enemy.attackRange = attackRange;
             enemy.attackCooldown = cooldown;
             enemy.attackPattern = pattern;
+            enemy.projectilePrefab = projectile;
+            enemy.projectileDamage = projectileDamage;
+            enemy.projectileSpeed = projectileSpeed;
             EditorUtility.SetDirty(enemy);
             return enemy;
         }
@@ -307,13 +340,17 @@ namespace SteelRain.EditorTools
                 go.AddComponent<BoxCollider2D>();
                 go.AddComponent<Health>();
                 var controller = go.AddComponent<EnemyController>();
+                var attackOrigin = new GameObject("AttackOrigin").transform;
+                attackOrigin.SetParent(go.transform);
+                attackOrigin.localPosition = new Vector3(0.45f, 0.2f, 0f);
                 SetObject(controller, "definition", definition);
+                SetObject(controller, "attackOrigin", attackOrigin);
                 PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Enemies/{definition.displayName.Replace(" ", "_")}.prefab");
                 Object.DestroyImmediate(go);
             }
         }
 
-        private static void CreateMiniBossPrefab(Sprite sprite)
+        private static void CreateMiniBossPrefab(Sprite sprite, EnemyProjectile projectile)
         {
             var go = new GameObject("MiniBoss_Walker");
             var renderer = go.AddComponent<SpriteRenderer>();
@@ -324,7 +361,12 @@ namespace SteelRain.EditorTools
             body.freezeRotation = true;
             go.AddComponent<BoxCollider2D>();
             go.AddComponent<Health>();
-            go.AddComponent<MiniBossWalker>();
+            var boss = go.AddComponent<MiniBossWalker>();
+            var attackOrigin = new GameObject("AttackOrigin").transform;
+            attackOrigin.SetParent(go.transform);
+            attackOrigin.localPosition = new Vector3(-0.65f, 0.2f, 0f);
+            SetObject(boss, "attackOrigin", attackOrigin);
+            SetObject(boss, "projectilePrefab", projectile);
             PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Enemies/MiniBoss_Walker.prefab");
             Object.DestroyImmediate(go);
         }
@@ -351,7 +393,7 @@ namespace SteelRain.EditorTools
             EditorUtility.SetDirty(wave);
         }
 
-        private static void CreateCamera()
+        private static void CreateCamera(Transform player)
         {
             var cameraObject = new GameObject("Main Camera");
             cameraObject.tag = "MainCamera";
@@ -359,6 +401,8 @@ namespace SteelRain.EditorTools
             camera.orthographic = true;
             camera.orthographicSize = 5.5f;
             cameraObject.transform.position = new Vector3(6f, 3f, -10f);
+            var follow = cameraObject.AddComponent<CameraFollow2D>();
+            SetObject(follow, "target", player);
         }
 
         private static void CreateGround(Sprite sprite)
