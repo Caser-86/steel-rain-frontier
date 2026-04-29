@@ -246,8 +246,9 @@ namespace SteelRain.EditorTools
             go.transform.position = new Vector3(0f, 1.5f, 0f);
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
-            renderer.color = new Color(0.2f, 0.65f, 1f);
-            go.transform.localScale = new Vector3(0.9f, 1.8f, 1f);
+            renderer.color = new Color(0.05f, 0.9f, 1f);
+            renderer.sortingOrder = 20;
+            go.transform.localScale = new Vector3(1.2f, 2.2f, 1f);
 
             var body = go.AddComponent<Rigidbody2D>();
             body.freezeRotation = true;
@@ -330,7 +331,8 @@ namespace SteelRain.EditorTools
                 var go = new GameObject(definition.displayName.Replace(" ", "_"));
                 var renderer = go.AddComponent<SpriteRenderer>();
                 renderer.sprite = sprite;
-                renderer.color = definition.attackPattern == EnemyAttackPattern.DroneDive ? Color.magenta : new Color(0.9f, 0.25f, 0.2f);
+                renderer.color = definition.attackPattern == EnemyAttackPattern.DroneDive ? Color.magenta : new Color(1f, 0.1f, 0.05f);
+                renderer.sortingOrder = 15;
                 go.transform.localScale = definition.attackPattern == EnemyAttackPattern.DroneDive
                     ? new Vector3(0.8f, 0.45f, 1f)
                     : new Vector3(0.8f, 1.35f, 1f);
@@ -355,7 +357,8 @@ namespace SteelRain.EditorTools
             var go = new GameObject("MiniBoss_Walker");
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
-            renderer.color = new Color(0.35f, 0.35f, 0.4f);
+            renderer.color = new Color(1f, 0.55f, 0.05f);
+            renderer.sortingOrder = 14;
             go.transform.localScale = new Vector3(3.2f, 2.4f, 1f);
             var body = go.AddComponent<Rigidbody2D>();
             body.freezeRotation = true;
@@ -400,19 +403,20 @@ namespace SteelRain.EditorTools
             var camera = cameraObject.AddComponent<Camera>();
             camera.orthographic = true;
             camera.orthographicSize = 5.5f;
-            cameraObject.transform.position = new Vector3(6f, 3f, -10f);
+            cameraObject.transform.position = new Vector3(4f, 3f, -10f);
             var follow = cameraObject.AddComponent<CameraFollow2D>();
             SetObject(follow, "target", player);
+            cameraObject.AddComponent<DebugHotkeys>();
         }
 
         private static void CreateGround(Sprite sprite)
         {
-            CreateBlock(sprite, "BeachGround", new Vector2(22f, -0.5f), new Vector2(50f, 1f), new Color(0.7f, 0.6f, 0.3f));
-            CreateBlock(sprite, "VillageGround", new Vector2(70f, -0.5f), new Vector2(55f, 1f), new Color(0.45f, 0.35f, 0.24f));
-            CreateBlock(sprite, "VillageRoofA", new Vector2(65f, 3f), new Vector2(10f, 0.5f), new Color(0.5f, 0.2f, 0.2f));
-            CreateBlock(sprite, "VillageRoofB", new Vector2(82f, 4.2f), new Vector2(12f, 0.5f), new Color(0.5f, 0.2f, 0.2f));
-            CreateBlock(sprite, "TrenchGround", new Vector2(123f, -0.5f), new Vector2(60f, 1f), new Color(0.25f, 0.3f, 0.2f));
-            CreateBlock(sprite, "MiniBossArenaGround", new Vector2(167f, -0.5f), new Vector2(38f, 1f), new Color(0.2f, 0.2f, 0.24f));
+            CreateBlock(sprite, "BeachGround", new Vector2(22f, -0.5f), new Vector2(50f, 1f), new Color(0.95f, 0.82f, 0.28f));
+            CreateBlock(sprite, "VillageGround", new Vector2(70f, -0.5f), new Vector2(55f, 1f), new Color(0.75f, 0.44f, 0.18f));
+            CreateBlock(sprite, "VillageRoofA", new Vector2(65f, 3f), new Vector2(10f, 0.5f), new Color(0.65f, 0.08f, 0.08f));
+            CreateBlock(sprite, "VillageRoofB", new Vector2(82f, 4.2f), new Vector2(12f, 0.5f), new Color(0.65f, 0.08f, 0.08f));
+            CreateBlock(sprite, "TrenchGround", new Vector2(123f, -0.5f), new Vector2(60f, 1f), new Color(0.22f, 0.78f, 0.22f));
+            CreateBlock(sprite, "MiniBossArenaGround", new Vector2(167f, -0.5f), new Vector2(38f, 1f), new Color(0.42f, 0.42f, 0.46f));
         }
 
         private static void CreateBlock(Sprite sprite, string name, Vector2 position, Vector2 size, Color color)
@@ -423,6 +427,7 @@ namespace SteelRain.EditorTools
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.color = color;
+            renderer.sortingOrder = 0;
             go.AddComponent<BoxCollider2D>();
         }
 
