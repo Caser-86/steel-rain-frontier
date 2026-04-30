@@ -4,6 +4,7 @@ using SteelRain.Enemies;
 using SteelRain.Levels;
 using SteelRain.Pickups;
 using SteelRain.Player;
+using SteelRain.VFX;
 using SteelRain.Weapons;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -356,6 +357,7 @@ namespace SteelRain.EditorTools
             var collider = go.AddComponent<BoxCollider2D>();
             collider.size = Vector2.one;
             go.AddComponent<Health>();
+            go.AddComponent<HitFlash>();
             var controller = go.AddComponent<PlayerController2D>();
             var dodge = go.AddComponent<PlayerDodge>();
             var combat = go.AddComponent<PlayerCombat>();
@@ -448,6 +450,7 @@ namespace SteelRain.EditorTools
                 body.gravityScale = definition.attackPattern == EnemyAttackPattern.DroneDive ? 0f : 1f;
                 go.AddComponent<BoxCollider2D>();
                 go.AddComponent<Health>();
+                go.AddComponent<HitFlash>();
                 var controller = go.AddComponent<EnemyController>();
                 var attackOrigin = new GameObject("AttackOrigin").transform;
                 attackOrigin.SetParent(go.transform);
@@ -468,6 +471,7 @@ namespace SteelRain.EditorTools
             body.freezeRotation = true;
             go.AddComponent<BoxCollider2D>();
             go.AddComponent<Health>();
+            go.AddComponent<HitFlash>();
             var boss = go.AddComponent<MiniBossWalker>();
             var attackOrigin = new GameObject("AttackOrigin").transform;
             attackOrigin.SetParent(go.transform);
@@ -565,6 +569,7 @@ namespace SteelRain.EditorTools
             AddVisualQuad(go, "Mat_Crate");
             go.AddComponent<BoxCollider2D>();
             var health = go.AddComponent<Health>();
+            go.AddComponent<HitFlash>();
             SetInt(health, "max", 2);
             var target = go.AddComponent<DestructibleTarget>();
             if (dropPrefab != null)
@@ -579,6 +584,7 @@ namespace SteelRain.EditorTools
             AddVisualQuad(go, "Mat_Barrel");
             go.AddComponent<BoxCollider2D>();
             var health = go.AddComponent<Health>();
+            go.AddComponent<HitFlash>();
             SetInt(health, "max", 1);
             var barrel = go.AddComponent<ExplosiveBarrel>();
             SetInt(barrel, "damage", 3);

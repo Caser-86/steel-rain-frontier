@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 2210492726051577890}
   - component: {fileID: 1917678786174042993}
   - component: {fileID: 7824381087359469092}
+  - component: {fileID: 1055186059149929099}
   - component: {fileID: 4471178993782923872}
   m_Layer: 0
   m_Name: Sniper
@@ -155,6 +156,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: SteelRain::SteelRain.Core.Health
   max: 5
   team: 1
+--- !u!114 &1055186059149929099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6148026750263879793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48db7f98eefacf0469bcb28ac21116dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SteelRain::SteelRain.VFX.HitFlash
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  duration: 0.06
 --- !u!114 &4471178993782923872
 MonoBehaviour:
   m_ObjectHideFlags: 0

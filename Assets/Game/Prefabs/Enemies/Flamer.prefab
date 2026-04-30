@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 1878698272864459743}
   - component: {fileID: 8208533434389130241}
   - component: {fileID: 8242935517555396766}
+  - component: {fileID: 6394599580760181017}
   - component: {fileID: 222279742614870072}
   m_Layer: 0
   m_Name: Flamer
@@ -214,6 +215,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: SteelRain::SteelRain.Core.Health
   max: 5
   team: 1
+--- !u!114 &6394599580760181017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6351970415327381305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48db7f98eefacf0469bcb28ac21116dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SteelRain::SteelRain.VFX.HitFlash
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  duration: 0.06
 --- !u!114 &222279742614870072
 MonoBehaviour:
   m_ObjectHideFlags: 0
