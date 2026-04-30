@@ -2,6 +2,7 @@ using System.IO;
 using SteelRain.Core;
 using SteelRain.Enemies;
 using SteelRain.Levels;
+using SteelRain.Pickups;
 using SteelRain.Player;
 using SteelRain.Weapons;
 using UnityEditor;
@@ -59,20 +60,28 @@ namespace SteelRain.EditorTools
             CreateGround(sprite);
             CreateHud();
             CreateCheckpointManager(player.transform);
-            CreateSegmentTrigger("BeachWaveTrigger", 12f, "BeachWave.asset", player.transform);
-            CreateSegmentTrigger("VillageWaveTrigger", 55f, "VillageWave.asset", player.transform);
-            CreateSegmentTrigger("TrenchWaveTrigger", 105f, "TrenchWave.asset", player.transform);
-            CreateCheckpoint("Checkpoint_A", 45f);
-            CreateCheckpoint("Checkpoint_B", 95f);
-            CreateCheckpoint("Checkpoint_C", 150f);
-            CreateRescueNpc(sprite, 72f);
+            CreateSegmentTrigger("BeachWaveTrigger", 10f, "BeachWave.asset", player.transform);
+            CreateSegmentTrigger("VillageWaveTrigger", 38f, "VillageWave.asset", player.transform);
+            CreateSegmentTrigger("TrenchWaveTrigger", 72f, "TrenchWave.asset", player.transform);
+            CreateCheckpoint("Checkpoint_A", 32f);
+            CreateCheckpoint("Checkpoint_B", 68f);
+            CreateCheckpoint("Checkpoint_C", 104f);
+            CreateRescueNpc(sprite, 48f);
+            CreateUpgradePickup("Upgrade_Lv1_Beach", new Vector2(18f, 1.2f));
+            CreateUpgradePickup("Upgrade_Lv2_Village", new Vector2(48f, 1.2f));
+            CreateUpgradePickup("Upgrade_Backup_HighPlatform", new Vector2(54f, 5.2f));
+            CreateUpgradePickup("Upgrade_Backup_Armory", new Vector2(108f, 1.2f));
+            CreateUpgradePickup("Upgrade_Lv3_BossPrep", new Vector2(112f, 1.2f));
+            CreateCrate("Crate_Beach_A", new Vector2(16f, 1f), null);
+            CreateCrate("Crate_Village_A", new Vector2(42f, 1f), null);
+            CreateCrate("Crate_BossPrep_A", new Vector2(106f, 1f), null);
 
             var miniBoss = PrefabUtility.InstantiatePrefab(miniBossPrefab) as GameObject;
-            miniBoss.transform.position = new Vector3(166f, 2.2f, 0f);
+            miniBoss.transform.position = new Vector3(126f, 2.2f, 0f);
             miniBoss.GetComponent<MiniBossWalker>().AssignTarget(player.transform);
 
-            CreateBlock(sprite, "MiniBossArenaWallLeft", new Vector2(150f, 3f), new Vector2(1f, 6f), "Mat_Wall");
-            CreateBlock(sprite, "MiniBossArenaWallRight", new Vector2(185f, 3f), new Vector2(1f, 6f), "Mat_Wall");
+            CreateBlock(sprite, "MiniBossArenaWallLeft", new Vector2(116f, 3f), new Vector2(1f, 6f), "Mat_Wall");
+            CreateBlock(sprite, "MiniBossArenaWallRight", new Vector2(142f, 3f), new Vector2(1f, 6f), "Mat_Wall");
 
             EditorSceneManager.SaveScene(scene, $"{SceneRoot}/Level01_VerticalSlice.unity");
             Debug.Log("Steel Rain Level01 vertical slice graybox built.");
@@ -141,6 +150,8 @@ namespace SteelRain.EditorTools
             CreateMaterial("Mat_Arena", new Color(0.42f, 0.42f, 0.46f));
             CreateMaterial("Mat_Wall", new Color(0.25f, 0.25f, 0.25f));
             CreateMaterial("Mat_Rescue", Color.green);
+            CreateMaterial("Mat_Upgrade", new Color(0.15f, 0.55f, 1f));
+            CreateMaterial("Mat_Crate", new Color(0.55f, 0.32f, 0.14f));
         }
 
         private static void CreateMaterial(string name, Color color)
@@ -495,8 +506,8 @@ namespace SteelRain.EditorTools
             CreateBlock(sprite, "VillageGround", new Vector2(70f, -0.5f), new Vector2(55f, 1f), "Mat_Village");
             CreateBlock(sprite, "VillageRoofA", new Vector2(65f, 3f), new Vector2(10f, 0.5f), "Mat_Roof");
             CreateBlock(sprite, "VillageRoofB", new Vector2(82f, 4.2f), new Vector2(12f, 0.5f), "Mat_Roof");
-            CreateBlock(sprite, "TrenchGround", new Vector2(123f, -0.5f), new Vector2(60f, 1f), "Mat_Trench");
-            CreateBlock(sprite, "MiniBossArenaGround", new Vector2(167f, -0.5f), new Vector2(38f, 1f), "Mat_Arena");
+            CreateBlock(sprite, "TrenchGround", new Vector2(88f, -0.5f), new Vector2(34f, 1f), "Mat_Trench");
+            CreateBlock(sprite, "MiniBossArenaGround", new Vector2(129f, -0.5f), new Vector2(28f, 1f), "Mat_Arena");
         }
 
         private static void CreateBlock(Sprite sprite, string name, Vector2 position, Vector2 size, string materialName)
@@ -506,6 +517,33 @@ namespace SteelRain.EditorTools
             go.transform.localScale = new Vector3(size.x, size.y, 1f);
             AddVisualQuad(go, materialName);
             go.AddComponent<BoxCollider2D>();
+        }
+
+        private static void CreateUpgradePickup(string name, Vector2 position)
+        {
+            var go = new GameObject(name);
+            go.transform.position = position;
+            go.transform.localScale = new Vector3(0.65f, 0.65f, 1f);
+            AddVisualQuad(go, "Mat_Upgrade");
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            var timed = go.AddComponent<TimedPickup>();
+            go.AddComponent<WeaponUpgradePickup>();
+            SetEnum(timed, "kind", PickupKind.WeaponUpgrade);
+        }
+
+        private static void CreateCrate(string name, Vector2 position, GameObject dropPrefab)
+        {
+            var go = new GameObject(name);
+            go.transform.position = position;
+            go.transform.localScale = new Vector3(0.9f, 0.9f, 1f);
+            AddVisualQuad(go, "Mat_Crate");
+            go.AddComponent<BoxCollider2D>();
+            var health = go.AddComponent<Health>();
+            SetInt(health, "max", 2);
+            var target = go.AddComponent<DestructibleTarget>();
+            if (dropPrefab != null)
+                SetObject(target, "dropPrefab", dropPrefab);
         }
 
         private static void CreateHud()
@@ -656,6 +694,13 @@ namespace SteelRain.EditorTools
         {
             var serializedObject = new SerializedObject(target);
             serializedObject.FindProperty(propertyName).intValue = value;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetEnum(Object target, string propertyName, System.Enum value)
+        {
+            var serializedObject = new SerializedObject(target);
+            serializedObject.FindProperty(propertyName).enumValueIndex = System.Convert.ToInt32(value);
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
