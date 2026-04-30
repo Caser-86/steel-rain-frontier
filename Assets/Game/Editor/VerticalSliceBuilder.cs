@@ -65,6 +65,7 @@ namespace SteelRain.EditorTools
             CreateGround(sprite);
             CreateHud();
             var checkpointManager = CreateCheckpointManager(player.transform);
+            CreatePauseMenu(checkpointManager);
             CreateSaveController(player, checkpointManager);
             CreateSegmentTrigger("BeachWaveTrigger", 10f, "BeachWave.asset", player.transform);
             CreateSegmentTrigger("VillageWaveTrigger", 38f, "VillageWave.asset", player.transform);
@@ -91,6 +92,7 @@ namespace SteelRain.EditorTools
             var miniBoss = PrefabUtility.InstantiatePrefab(miniBossPrefab) as GameObject;
             miniBoss.transform.position = new Vector3(126f, 2.2f, 0f);
             miniBoss.GetComponent<MiniBossWalker>().AssignTarget(player.transform);
+            miniBoss.AddComponent<BossHealthReporter>();
             miniBoss.AddComponent<LevelCompleteOnDeath>();
 
             CreateBlock(sprite, "MiniBossArenaWallLeft", new Vector2(116f, 3f), new Vector2(1f, 6f), "Mat_Wall");
@@ -220,6 +222,7 @@ namespace SteelRain.EditorTools
             CreateMaterial("Mat_Barrel", new Color(1f, 0.12f, 0.05f));
             CreateMaterial("Mat_WeaponShotgun", new Color(0.95f, 0.95f, 0.18f));
             CreateMaterial("Mat_WeaponRocket", new Color(0.8f, 0.18f, 1f));
+            CreateMaterial("Mat_WeakPoint", new Color(1f, 0.9f, 0.05f));
         }
 
         private static void CreateMaterial(string name, Color color)
@@ -535,6 +538,17 @@ namespace SteelRain.EditorTools
             var attackOrigin = new GameObject("AttackOrigin").transform;
             attackOrigin.SetParent(go.transform);
             attackOrigin.localPosition = new Vector3(-0.65f, 0.2f, 0f);
+            var weakPoint = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            weakPoint.name = "WeakPoint";
+            weakPoint.transform.SetParent(go.transform, false);
+            weakPoint.transform.localPosition = new Vector3(0.28f, 0.12f, -0.08f);
+            weakPoint.transform.localScale = new Vector3(0.18f, 0.18f, 1f);
+            var weakPointCollider = weakPoint.GetComponent<Collider>();
+            if (weakPointCollider != null)
+                Object.DestroyImmediate(weakPointCollider);
+            var weakPointRenderer = weakPoint.GetComponent<Renderer>();
+            weakPointRenderer.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/Game/Generated/Mat_WeakPoint.mat");
+            weakPoint.AddComponent<BossWeakPointVisual>();
             SetObject(boss, "attackOrigin", attackOrigin);
             SetObject(boss, "projectilePrefab", projectile);
             PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Enemies/MiniBoss_Walker.prefab");
@@ -698,6 +712,7 @@ namespace SteelRain.EditorTools
             var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Climb: W/S  Fire: J/Mouse  Skill: L  Squad: 1-4/Tab");
             var statusObject = CreateText("MissionStatusLabel", canvas.transform, Vector2.zero, "");
             var advisorObject = CreateText("AiAdvisorLabel", canvas.transform, new Vector2(24f, -90f), "");
+            CreateBossHealthWidget(canvas.transform);
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
@@ -724,6 +739,56 @@ namespace SteelRain.EditorTools
             advisorLabel.alignment = TextAnchor.UpperLeft;
             advisorLabel.fontSize = 20;
             advisorLabel.color = new Color(0.7f, 1f, 0.95f);
+        }
+
+        private static SteelRain.UI.BossHealthWidget CreateBossHealthWidget(Transform parent)
+        {
+            var root = new GameObject("BossHealthBar");
+            root.transform.SetParent(parent, false);
+            var rect = root.AddComponent<RectTransform>();
+            SetAnchor(rect, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+            rect.anchoredPosition = new Vector2(0f, -72f);
+            rect.sizeDelta = new Vector2(560f, 58f);
+            root.AddComponent<CanvasGroup>();
+
+            var background = root.AddComponent<UnityEngine.UI.Image>();
+            background.color = new Color(0.02f, 0.02f, 0.02f, 0.78f);
+
+            var fillObject = new GameObject("BossHealthFill");
+            fillObject.transform.SetParent(root.transform, false);
+            var fillRect = fillObject.AddComponent<RectTransform>();
+            SetAnchor(fillRect, new Vector2(0f, 0.45f), new Vector2(1f, 0.78f), new Vector2(0.5f, 0.5f));
+            fillRect.offsetMin = new Vector2(10f, 0f);
+            fillRect.offsetMax = new Vector2(-10f, 0f);
+            var fill = fillObject.AddComponent<UnityEngine.UI.Image>();
+            fill.color = new Color(1f, 0.22f, 0.08f, 0.95f);
+            fill.type = UnityEngine.UI.Image.Type.Filled;
+            fill.fillMethod = UnityEngine.UI.Image.FillMethod.Horizontal;
+
+            var labelObject = CreateText("BossHealthLabel", root.transform, new Vector2(0f, 12f), "Siege Walker 35/35");
+            var labelRect = labelObject.GetComponent<RectTransform>();
+            SetAnchor(labelRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f));
+            labelRect.offsetMin = new Vector2(0f, 12f);
+            labelRect.offsetMax = new Vector2(0f, 0f);
+            var label = labelObject.GetComponent<UnityEngine.UI.Text>();
+            label.alignment = TextAnchor.MiddleCenter;
+            label.fontSize = 21;
+
+            var phaseObject = CreateText("BossPhaseLabel", root.transform, new Vector2(0f, -18f), "PHASE 1: ADVANCING");
+            var phaseRect = phaseObject.GetComponent<RectTransform>();
+            SetAnchor(phaseRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f));
+            phaseRect.offsetMin = new Vector2(0f, -2f);
+            phaseRect.offsetMax = new Vector2(0f, -34f);
+            var phaseLabel = phaseObject.GetComponent<UnityEngine.UI.Text>();
+            phaseLabel.alignment = TextAnchor.MiddleCenter;
+            phaseLabel.fontSize = 18;
+            phaseLabel.color = new Color(1f, 0.86f, 0.22f);
+
+            var widget = root.AddComponent<SteelRain.UI.BossHealthWidget>();
+            SetObject(widget, "fill", fill);
+            SetObject(widget, "label", label);
+            SetObject(widget, "phaseLabel", phaseLabel);
+            return widget;
         }
 
         private static GameObject CreateText(string name, Transform parent, Vector2 anchoredPosition, string text)
@@ -766,6 +831,39 @@ namespace SteelRain.EditorTools
             label.fontSize = 24;
             label.color = Color.white;
             return button;
+        }
+
+        private static void CreatePauseMenu(CheckpointManager checkpoints)
+        {
+            var canvas = new GameObject("Pause Canvas");
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.AddComponent<UnityEngine.UI.CanvasScaler>();
+            canvas.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+
+            var panel = new GameObject("PausePanel");
+            panel.transform.SetParent(canvas.transform, false);
+            var rect = panel.AddComponent<RectTransform>();
+            SetAnchor(rect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f));
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            var image = panel.AddComponent<UnityEngine.UI.Image>();
+            image.color = new Color(0f, 0.02f, 0.03f, 0.82f);
+
+            var title = CreateText("PauseTitle", panel.transform, new Vector2(0f, 150f), "PAUSED");
+            SetAnchor(title.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            var titleLabel = title.GetComponent<UnityEngine.UI.Text>();
+            titleLabel.alignment = TextAnchor.MiddleCenter;
+            titleLabel.fontSize = 44;
+            titleLabel.color = new Color(1f, 0.92f, 0.22f);
+
+            var controller = canvas.AddComponent<SteelRain.UI.PauseMenuController>();
+            CreateMenuButton(panel.transform, "ResumeButton", "Resume", new Vector2(0f, 70f), controller.Resume);
+            CreateMenuButton(panel.transform, "RestartCheckpointButton", "Restart Checkpoint", new Vector2(0f, 10f), controller.RestartCheckpoint);
+            CreateMenuButton(panel.transform, "MainMenuButton", "Main Menu", new Vector2(0f, -50f), controller.MainMenu);
+            CreateMenuButton(panel.transform, "QuitGameButton", "Quit Game", new Vector2(0f, -110f), controller.QuitGame);
+            SetObject(controller, "panel", panel);
+            SetObject(controller, "checkpoints", checkpoints);
+            panel.SetActive(false);
         }
 
         private static void SetAnchor(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot)
