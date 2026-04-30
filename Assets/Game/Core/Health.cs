@@ -15,6 +15,7 @@ namespace SteelRain.Core
         public event Action<int, int> Changed;
         public event Action<DamageInfo> Damaged;
         public event Action Died;
+        public event Func<DamageInfo, DamageInfo> DamageFilter;
 
         private bool dead;
         private float invulnerableUntil;
@@ -46,8 +47,12 @@ namespace SteelRain.Core
             if (Time.time < invulnerableUntil)
                 return;
 
-            Current = Mathf.Max(0, Current - info.Amount);
-            Damaged?.Invoke(info);
+            var finalInfo = DamageFilter != null ? DamageFilter.Invoke(info) : info;
+            if (finalInfo.Amount <= 0)
+                return;
+
+            Current = Mathf.Max(0, Current - finalInfo.Amount);
+            Damaged?.Invoke(finalInfo);
             Changed?.Invoke(Current, max);
 
             if (Current == 0)

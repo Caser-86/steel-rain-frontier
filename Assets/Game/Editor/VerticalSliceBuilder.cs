@@ -517,6 +517,8 @@ namespace SteelRain.EditorTools
                 go.AddComponent<BoxCollider2D>();
                 go.AddComponent<Health>();
                 go.AddComponent<HitFlash>();
+                if (definition.id == "shield_soldier")
+                    go.AddComponent<ShieldGuard>();
                 var controller = go.AddComponent<EnemyController>();
                 var attackOrigin = new GameObject("AttackOrigin").transform;
                 attackOrigin.SetParent(go.transform);
@@ -684,6 +686,20 @@ namespace SteelRain.EditorTools
             var barrel = go.AddComponent<ExplosiveBarrel>();
             SetInt(barrel, "damage", 3);
             SetFloat(barrel, "radius", 2.5f);
+            CreateExplosionPreview(go.transform, 2.5f);
+        }
+
+        private static void CreateExplosionPreview(Transform parent, float radius)
+        {
+            var preview = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            preview.name = "ExplosionRadiusPreview";
+            preview.transform.SetParent(parent, false);
+            preview.transform.localPosition = new Vector3(0f, 0f, 0.08f);
+            var collider = preview.GetComponent<Collider>();
+            if (collider != null)
+                Object.DestroyImmediate(collider);
+            var previewComponent = preview.AddComponent<ExplosionRadiusPreview>();
+            SetFloat(previewComponent, "radius", radius);
         }
 
         private static GameObject CreateHealthPickupPrefab(string name, PickupKind kind, int healAmount, string materialName)

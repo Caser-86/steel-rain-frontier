@@ -13,6 +13,7 @@ namespace SteelRain.Enemies
 
         private Health health;
         private Rigidbody2D body;
+        private ShieldGuard shieldGuard;
         private GameObject warningObject;
         private float nextAttackTime;
         private float warningUntil;
@@ -22,6 +23,7 @@ namespace SteelRain.Enemies
         {
             health = GetComponent<Health>();
             body = GetComponent<Rigidbody2D>();
+            shieldGuard = GetComponent<ShieldGuard>();
             health.Initialize(definition.maxHealth, Team.Enemy);
             health.Died += () => Destroy(gameObject);
             warningObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -50,6 +52,8 @@ namespace SteelRain.Enemies
             var delta = target.position - transform.position;
             var distance = Mathf.Abs(delta.x);
             var direction = Mathf.Sign(delta.x);
+            if (shieldGuard != null)
+                shieldGuard.SetFacing(direction);
 
             if (distance > definition.detectRange)
             {

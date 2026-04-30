@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b2833185fea5b14b9e26b496bce3290, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: SteelRain::SteelRain.Core.Health
   max: 5
   team: 1
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48db7f98eefacf0469bcb28ac21116dd, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: SteelRain::SteelRain.VFX.HitFlash
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   duration: 0.06
@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1e965e40070c1484698c0ff79687f9d9, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: SteelRain::SteelRain.Enemies.EnemyController
   definition: {fileID: 11400000, guid: ccbbbbc9301dd1147bbfeff8a0b545c0, type: 2}
   target: {fileID: 0}
