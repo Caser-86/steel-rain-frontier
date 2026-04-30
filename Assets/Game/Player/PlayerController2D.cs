@@ -1,4 +1,5 @@
 using SteelRain.Core;
+using SteelRain.Levels;
 using UnityEngine;
 
 namespace SteelRain.Player
@@ -22,9 +23,13 @@ namespace SteelRain.Player
         private Vector2 moveInput;
         private bool jumpQueued;
         private bool crouching;
+        private bool climbing;
+        private bool climbJumpQueued;
+        private ClimbZone climbZone;
 
         public bool IsGrounded { get; private set; }
         public bool IsCrouching => crouching;
+        public bool IsClimbing => climbing;
         public Vector2 AimDirection { get; private set; } = Vector2.right;
         public CharacterDefinition Character => character;
         public int CurrentHealth => health != null ? health.Current : 0;
@@ -72,12 +77,22 @@ namespace SteelRain.Player
         private void Update()
         {
             moveInput.x = ReadHorizontal();
-            crouching = Input.GetAxisRaw("Vertical") < -0.5f || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
+            moveInput.y = ReadVertical();
+            crouching = moveInput.y < -0.5f && !climbing;
 
             if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space))
                 jumpQueued = true;
 
-            var aim = new Vector2(ReadHorizontal(), ReadVertical());
+            if (climbZone != null && Mathf.Abs(moveInput.y) > 0.1f)
+                climbing = true;
+
+            if (jumpQueued && climbing)
+            {
+                climbing = false;
+                climbJumpQueued = true;
+            }
+
+            var aim = new Vector2(moveInput.x, moveInput.y);
             if (aim.sqrMagnitude > 0.1f)
                 AimDirection = aim.normalized;
         }
@@ -113,14 +128,27 @@ namespace SteelRain.Player
             var speed = crouching ? character.moveSpeed * character.crouchSpeedMultiplier : character.moveSpeed;
             velocity.x = moveInput.x * speed;
 
-            if (jumpQueued && IsGrounded && !crouching)
+            if (climbing)
+            {
+                body.gravityScale = 0f;
+                velocity.y = moveInput.y * character.climbSpeed;
+            }
+            else
+            {
+                body.gravityScale = character.gravityScale;
+            }
+
+            if (climbJumpQueued)
+                velocity.y = character.jumpVelocity * 0.75f;
+            else if (jumpQueued && IsGrounded && !crouching && !climbing)
                 velocity.y = character.jumpVelocity;
 
-            if (velocity.y < 0f)
+            if (!climbing && velocity.y < 0f)
                 velocity.y += Physics2D.gravity.y * (character.fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
 
             body.linearVelocity = velocity;
             jumpQueued = false;
+            climbJumpQueued = false;
         }
 
         private void ApplyCrouchShape()
@@ -136,6 +164,21 @@ namespace SteelRain.Player
 
             if (visual != null)
                 visual.localScale = new Vector3(standingVisualScale.x, standingVisualScale.y * heightMultiplier, standingVisualScale.z);
+        }
+
+        public void SetClimbZone(ClimbZone zone, bool inside)
+        {
+            if (inside)
+            {
+                climbZone = zone;
+                return;
+            }
+
+            if (climbZone != zone)
+                return;
+
+            climbZone = null;
+            climbing = false;
         }
     }
 }

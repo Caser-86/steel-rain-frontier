@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using SteelRain.Core;
 using SteelRain.Enemies;
 using SteelRain.Levels;
@@ -71,6 +71,7 @@ namespace SteelRain.EditorTools
             CreateUpgradePickup("Upgrade_Lv1_Beach", new Vector2(18f, 1.2f));
             CreateUpgradePickup("Upgrade_Lv2_Village", new Vector2(48f, 1.2f));
             CreateUpgradePickup("Upgrade_Backup_HighPlatform", new Vector2(54f, 5.2f));
+            CreateClimbZone("ShortLadder_HighPlatform", new Vector2(54f, 2.55f), new Vector2(0.65f, 4.8f));
             CreateUpgradePickup("Upgrade_Backup_Armory", new Vector2(108f, 1.2f));
             CreateUpgradePickup("Upgrade_Lv3_BossPrep", new Vector2(112f, 1.2f));
             CreateCrate("Crate_Beach_A", new Vector2(16f, 1f), smallHealthPickup);
@@ -154,6 +155,7 @@ namespace SteelRain.EditorTools
             CreateMaterial("Mat_Upgrade", new Color(0.15f, 0.55f, 1f));
             CreateMaterial("Mat_Crate", new Color(0.55f, 0.32f, 0.14f));
             CreateMaterial("Mat_HealthPickup", new Color(0.15f, 1f, 0.25f));
+            CreateMaterial("Mat_Ladder", new Color(0.45f, 0.62f, 0.75f));
         }
 
         private static void CreateMaterial(string name, Color color)
@@ -539,6 +541,17 @@ namespace SteelRain.EditorTools
             SetEnum(timed, "kind", PickupKind.WeaponUpgrade);
         }
 
+        private static void CreateClimbZone(string name, Vector2 position, Vector2 size)
+        {
+            var go = new GameObject(name);
+            go.transform.position = position;
+            go.transform.localScale = new Vector3(size.x, size.y, 1f);
+            AddVisualQuad(go, "Mat_Ladder");
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            go.AddComponent<ClimbZone>();
+        }
+
         private static void CreateCrate(string name, Vector2 position, GameObject dropPrefab)
         {
             var go = new GameObject(name);
@@ -579,7 +592,7 @@ namespace SteelRain.EditorTools
 
             var healthObject = CreateText("HealthLabel", canvas.transform, new Vector2(24f, -24f), "6/6");
             var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle 90 [Auto]");
-            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Fire: J/Mouse  Forms: E  Skill: L  Squad: 1-4/Tab  Quit: Esc/Q");
+            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Climb: W/S  Fire: J/Mouse  Skill: L  Squad: 1-4/Tab");
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
