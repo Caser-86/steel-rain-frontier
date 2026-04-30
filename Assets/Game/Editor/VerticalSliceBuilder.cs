@@ -572,6 +572,7 @@ namespace SteelRain.EditorTools
             var pickup = go.AddComponent<WeaponPickup>();
             go.AddComponent<PickupMotion>();
             SetObject(pickup, "weapon", weapon);
+            AddWorldLabel(go.transform, weapon.displayName.ToUpperInvariant(), new Vector3(0f, 0.95f, -0.05f), 0.12f, Color.white);
         }
 
         private static void CreateClimbZone(string name, Vector2 position, Vector2 size)
@@ -765,6 +766,22 @@ namespace SteelRain.EditorTools
 
             var renderer = visual.GetComponent<MeshRenderer>();
             renderer.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>($"Assets/Game/Generated/{materialName}.mat");
+        }
+
+        private static void AddWorldLabel(Transform parent, string text, Vector3 localPosition, float scale, Color color)
+        {
+            var labelObject = new GameObject("WorldLabel");
+            labelObject.transform.SetParent(parent, false);
+            labelObject.transform.localPosition = localPosition;
+            labelObject.transform.localScale = Vector3.one * scale;
+
+            var label = labelObject.AddComponent<TextMesh>();
+            label.text = text;
+            label.anchor = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignment.Center;
+            label.characterSize = 0.32f;
+            label.fontSize = 48;
+            label.color = color;
         }
 
         private static void SetObject(Object target, string propertyName, Object value)
