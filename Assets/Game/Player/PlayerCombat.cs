@@ -11,6 +11,7 @@ namespace SteelRain.Player
         [SerializeField] private WeaponDefinition startingWeapon;
 
         private WeaponRuntime currentWeapon;
+        private CharacterRuntime characterRuntime;
         private float nextFireTime;
         public int CurrentWeaponLevel => currentWeapon.Level;
 
@@ -41,6 +42,12 @@ namespace SteelRain.Player
         {
             currentWeapon = new WeaponRuntime(weapon, weapon.startingAmmo);
             nextFireTime = 0f;
+            if (characterRuntime != null)
+            {
+                characterRuntime.SelectedWeaponId = weapon.id;
+                ApplyStoredWeaponLevel();
+            }
+
             GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
             GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
@@ -49,8 +56,38 @@ namespace SteelRain.Player
         public void UpgradeCurrentWeapon()
         {
             currentWeapon.Upgrade();
+            StoreCurrentWeaponLevel();
             GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
+        }
+
+        public void ApplyCharacterRuntime(CharacterRuntime runtime)
+        {
+            characterRuntime = runtime;
+            if (currentWeapon == null)
+                return;
+
+            characterRuntime.SelectedWeaponId = currentWeapon.Definition.id;
+            ApplyStoredWeaponLevel();
+            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
+            GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
+        }
+
+        public void StoreCurrentWeaponLevel()
+        {
+            if (characterRuntime == null || currentWeapon == null)
+                return;
+
+            characterRuntime.SelectedWeaponId = currentWeapon.Definition.id;
+            characterRuntime.SetWeaponLevel(currentWeapon.Definition.id, currentWeapon.Level);
+        }
+
+        private void ApplyStoredWeaponLevel()
+        {
+            currentWeapon.ResetUpgrades();
+            var level = characterRuntime.GetWeaponLevel(currentWeapon.Definition.id);
+            for (var i = 0; i < level; i++)
+                currentWeapon.Upgrade();
         }
 
         private void TryFire()
@@ -74,7 +111,7 @@ namespace SteelRain.Player
             {
                 var direction = Quaternion.Euler(0f, 0f, startAngle + step * i) * controller.AimDirection;
                 var projectile = Instantiate(currentWeapon.Definition.projectilePrefab, muzzle.position, Quaternion.identity);
-                projectile.Launch(direction, form, Team.Player);
+                projectile.Launch(direction, form, Team.Player, currentWeapon.GetDamage());
             }
         }
     }

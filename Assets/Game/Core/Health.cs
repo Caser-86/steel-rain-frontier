@@ -25,10 +25,15 @@ namespace SteelRain.Core
 
         public void Initialize(int maxHealth, Team assignedTeam)
         {
+            Initialize(maxHealth, assignedTeam, maxHealth);
+        }
+
+        public void Initialize(int maxHealth, Team assignedTeam, int currentHealth)
+        {
             max = Mathf.Max(1, maxHealth);
             team = assignedTeam;
-            Current = max;
-            dead = false;
+            Current = Mathf.Clamp(currentHealth, 0, max);
+            dead = Current == 0;
             Changed?.Invoke(Current, max);
         }
 

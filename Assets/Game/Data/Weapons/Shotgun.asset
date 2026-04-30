@@ -15,6 +15,10 @@ MonoBehaviour:
   id: shotgun
   displayName: Shotgun
   startingAmmo: 36
+  baseAmmoInfinite: 1
+  levelOneLabel: Firepower Boost
+  levelTwoLabel: Evolved Form
+  levelThreeLabel: Tactical Awakening
   forms:
   - {fileID: 11400000, guid: 857914f7743da4143a16fad572cec7fc, type: 2}
   - {fileID: 11400000, guid: 143bc9a379bacf44eb17aa87a802436f, type: 2}

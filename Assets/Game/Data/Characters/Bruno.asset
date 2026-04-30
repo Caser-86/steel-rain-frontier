@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 077f622727bdc004d9a51776668d06ef, type: 3}
-  m_Name: Aila
-  m_EditorClassIdentifier: Assembly-CSharp::SteelRain.Player.CharacterDefinition
-  id: aila
-  displayName: Aila
-  maxHealth: 6
-  moveSpeed: 7.8
-  jumpVelocity: 10.4
-  gravityScale: 3
-  fallGravityMultiplier: 1.25
-  dodgeSpeed: 12
-  dodgeDuration: 0.16
-  dodgeCooldown: 0.55
-  skillId: 0
-  crouchSpeedMultiplier: 0.45
+  m_Name: Bruno
+  m_EditorClassIdentifier: SteelRain::SteelRain.Player.CharacterDefinition
+  id: bruno
+  displayName: Bruno
+  maxHealth: 9
+  moveSpeed: 6.2
+  jumpVelocity: 8.2
+  gravityScale: 3.6
+  fallGravityMultiplier: 1.45
+  dodgeSpeed: 10.5
+  dodgeDuration: 0.14
+  dodgeCooldown: 0.8
+  skillId: 1
+  crouchSpeedMultiplier: 0.38
   crouchColliderHeightMultiplier: 0.6
-  climbSpeed: 3.6
-  skillCooldown: 10
+  climbSpeed: 2.5
+  skillCooldown: 14

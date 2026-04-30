@@ -23,13 +23,13 @@ namespace SteelRain.EditorTools
             EnsureFolders();
             var sprite = EnsureWhiteSprite();
             EnsureMaterials();
-            var aila = CreateAila();
+            var characters = CreateCharacters();
             var projectile = CreateProjectilePrefab(sprite);
             var enemyProjectile = CreateEnemyProjectilePrefab(sprite);
             var assaultRifle = CreateAssaultRifle(projectile);
             CreateShotgun(projectile);
             CreateRocketLauncher(projectile);
-            CreatePlayerPrefab(sprite, aila, assaultRifle);
+            CreatePlayerPrefab(sprite, characters, assaultRifle);
             var enemies = CreateEnemyDefinitions(enemyProjectile);
             CreateEnemyPrefabs(sprite, enemies);
             CreateMiniBossPrefab(sprite, enemyProjectile);
@@ -157,21 +157,46 @@ namespace SteelRain.EditorTools
             EditorUtility.SetDirty(material);
         }
 
-        private static CharacterDefinition CreateAila()
+        private static CharacterDefinition[] CreateCharacters()
         {
-            var aila = LoadOrCreate<CharacterDefinition>($"{DataRoot}/Characters/Aila.asset");
-            aila.id = "aila";
-            aila.displayName = "Aila";
-            aila.maxHealth = 6;
-            aila.moveSpeed = 7.5f;
-            ApplyJumpProfile(aila, CharacterSkillId.BreakthroughFire);
-            aila.dodgeSpeed = 12f;
-            aila.dodgeDuration = 0.16f;
-            aila.dodgeCooldown = 0.65f;
-            aila.crouchSpeedMultiplier = 0.45f;
-            aila.crouchColliderHeightMultiplier = 0.6f;
-            EditorUtility.SetDirty(aila);
-            return aila;
+            return new[]
+            {
+                CreateCharacter("Aila", "aila", "Aila", 6, 7.8f, 12f, 0.16f, 0.55f, 0.45f, 3.6f, 10f, CharacterSkillId.BreakthroughFire),
+                CreateCharacter("Bruno", "bruno", "Bruno", 9, 6.2f, 10.5f, 0.14f, 0.8f, 0.38f, 2.5f, 14f, CharacterSkillId.TrenchShield),
+                CreateCharacter("Mara", "mara", "Mara", 6, 7f, 11f, 0.15f, 0.7f, 0.42f, 3.1f, 16f, CharacterSkillId.BombardmentMatrix),
+                CreateCharacter("Niko", "niko", "Niko", 5, 7.4f, 12f, 0.16f, 0.6f, 0.48f, 4.5f, 18f, CharacterSkillId.TimeRift)
+            };
+        }
+
+        private static CharacterDefinition CreateCharacter(
+            string assetName,
+            string id,
+            string displayName,
+            int maxHealth,
+            float moveSpeed,
+            float dodgeSpeed,
+            float dodgeDuration,
+            float dodgeCooldown,
+            float crouchSpeedMultiplier,
+            float climbSpeed,
+            float skillCooldown,
+            CharacterSkillId skillId)
+        {
+            var character = LoadOrCreate<CharacterDefinition>($"{DataRoot}/Characters/{assetName}.asset");
+            character.id = id;
+            character.displayName = displayName;
+            character.maxHealth = maxHealth;
+            character.moveSpeed = moveSpeed;
+            ApplyJumpProfile(character, skillId);
+            character.dodgeSpeed = dodgeSpeed;
+            character.dodgeDuration = dodgeDuration;
+            character.dodgeCooldown = dodgeCooldown;
+            character.crouchSpeedMultiplier = crouchSpeedMultiplier;
+            character.crouchColliderHeightMultiplier = 0.6f;
+            character.climbSpeed = climbSpeed;
+            character.skillCooldown = skillCooldown;
+            EditorUtility.SetDirty(character);
+            return character;
         }
 
         private static void ApplyJumpProfile(CharacterDefinition character, CharacterSkillId skillId)
@@ -299,7 +324,7 @@ namespace SteelRain.EditorTools
             return weapon;
         }
 
-        private static void CreatePlayerPrefab(Sprite sprite, CharacterDefinition aila, WeaponDefinition startingWeapon)
+        private static void CreatePlayerPrefab(Sprite sprite, CharacterDefinition[] characters, WeaponDefinition startingWeapon)
         {
             var go = new GameObject("Player_Aila");
             go.tag = "Player";
@@ -315,6 +340,7 @@ namespace SteelRain.EditorTools
             var controller = go.AddComponent<PlayerController2D>();
             var dodge = go.AddComponent<PlayerDodge>();
             var combat = go.AddComponent<PlayerCombat>();
+            var squad = go.AddComponent<PlayerSquad>();
 
             var groundCheck = new GameObject("GroundCheck").transform;
             groundCheck.SetParent(go.transform);
@@ -324,13 +350,16 @@ namespace SteelRain.EditorTools
             muzzle.SetParent(go.transform);
             muzzle.localPosition = new Vector3(0.65f, 0.05f, 0f);
 
-            SetObject(controller, "character", aila);
+            SetObject(controller, "character", characters[0]);
             SetObject(controller, "groundCheck", groundCheck);
             SetInt(controller, "groundMask", 1);
             SetObject(dodge, "controller", controller);
             SetObject(combat, "controller", controller);
             SetObject(combat, "muzzle", muzzle);
             SetObject(combat, "startingWeapon", startingWeapon);
+            SetObject(squad, "controller", controller);
+            SetObject(squad, "combat", combat);
+            SetObjectArray(squad, "members", characters);
 
             PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Player/Player_Aila.prefab");
             Object.DestroyImmediate(go);
@@ -609,6 +638,17 @@ namespace SteelRain.EditorTools
         {
             var serializedObject = new SerializedObject(target);
             serializedObject.FindProperty(propertyName).objectReferenceValue = value;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetObjectArray(Object target, string propertyName, Object[] values)
+        {
+            var serializedObject = new SerializedObject(target);
+            var property = serializedObject.FindProperty(propertyName);
+            property.arraySize = values.Length;
+            for (var i = 0; i < values.Length; i++)
+                property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 

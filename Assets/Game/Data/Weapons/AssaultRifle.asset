@@ -15,6 +15,10 @@ MonoBehaviour:
   id: assault_rifle
   displayName: Assault Rifle
   startingAmmo: 90
+  baseAmmoInfinite: 1
+  levelOneLabel: Firepower Boost
+  levelTwoLabel: Evolved Form
+  levelThreeLabel: Tactical Awakening
   forms:
   - {fileID: 11400000, guid: 79400409b609ca34bbc8d32e6f272326, type: 2}
   - {fileID: 11400000, guid: e73942fbd16233349a5e2a5191ece104, type: 2}

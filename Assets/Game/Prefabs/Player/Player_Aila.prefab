@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 8139552491765376624}
   - component: {fileID: 3027176112289356821}
   - component: {fileID: 8529419595081604339}
+  - component: {fileID: 7154351552937065045}
   m_Layer: 0
   m_Name: Player_Aila
   m_TagString: Player
@@ -263,6 +264,25 @@ MonoBehaviour:
   controller: {fileID: 8139552491765376624}
   muzzle: {fileID: 6140075168551244823}
   startingWeapon: {fileID: 11400000, guid: 322de1ebb687c0745b4c81cde5b96802, type: 2}
+--- !u!114 &7154351552937065045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2373124906219185121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff3f9b6d94437bb4a9d96b354919a25d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SteelRain::SteelRain.Player.PlayerSquad
+  controller: {fileID: 8139552491765376624}
+  combat: {fileID: 8529419595081604339}
+  members:
+  - {fileID: 11400000, guid: 34ddc061c2b58704aa2f19f4ca3250fc, type: 2}
+  - {fileID: 11400000, guid: c956931c6edbde942a07ecf5b0f58853, type: 2}
+  - {fileID: 11400000, guid: 1f38e7acd5c5a3040821538ecdca52bd, type: 2}
+  - {fileID: 11400000, guid: 65cfe8864c06c6e46848942a2979b816, type: 2}
 --- !u!1 &5751029273322845159
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 077f622727bdc004d9a51776668d06ef, type: 3}
-  m_Name: Aila
-  m_EditorClassIdentifier: Assembly-CSharp::SteelRain.Player.CharacterDefinition
-  id: aila
-  displayName: Aila
+  m_Name: Mara
+  m_EditorClassIdentifier: SteelRain::SteelRain.Player.CharacterDefinition
+  id: mara
+  displayName: Mara
   maxHealth: 6
-  moveSpeed: 7.8
-  jumpVelocity: 10.4
-  gravityScale: 3
-  fallGravityMultiplier: 1.25
-  dodgeSpeed: 12
-  dodgeDuration: 0.16
-  dodgeCooldown: 0.55
-  skillId: 0
-  crouchSpeedMultiplier: 0.45
+  moveSpeed: 7
+  jumpVelocity: 9
+  gravityScale: 3.3
+  fallGravityMultiplier: 1.35
+  dodgeSpeed: 11
+  dodgeDuration: 0.15
+  dodgeCooldown: 0.7
+  skillId: 2
+  crouchSpeedMultiplier: 0.42
   crouchColliderHeightMultiplier: 0.6
-  climbSpeed: 3.6
-  skillCooldown: 10
+  climbSpeed: 3.1
+  skillCooldown: 16

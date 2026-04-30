@@ -15,6 +15,10 @@ MonoBehaviour:
   id: rocket_launcher
   displayName: Rocket Launcher
   startingAmmo: 12
+  baseAmmoInfinite: 1
+  levelOneLabel: Firepower Boost
+  levelTwoLabel: Evolved Form
+  levelThreeLabel: Tactical Awakening
   forms:
   - {fileID: 11400000, guid: 6d22dc10138db7445b4aa7ec9b7a6a5e, type: 2}
   - {fileID: 11400000, guid: 246c1fb824f1d274d8a6a034a3ec225c, type: 2}

@@ -21,8 +21,13 @@ namespace SteelRain.Weapons
 
         public void Launch(Vector2 direction, WeaponFormDefinition form, Team team)
         {
+            Launch(direction, form, team, form.damage);
+        }
+
+        public void Launch(Vector2 direction, WeaponFormDefinition form, Team team, int damageOverride)
+        {
             sourceTeam = team;
-            damage = form.damage;
+            damage = damageOverride;
             pierceRemaining = form.pierceCount;
             despawnAt = Time.time + lifetime;
             body.linearVelocity = direction.normalized * form.projectileSpeed;

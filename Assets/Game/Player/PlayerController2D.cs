@@ -22,6 +22,7 @@ namespace SteelRain.Player
         public bool IsCrouching => crouching;
         public Vector2 AimDirection { get; private set; } = Vector2.right;
         public CharacterDefinition Character => character;
+        public int CurrentHealth => health != null ? health.Current : 0;
 
         private void Awake()
         {
@@ -40,6 +41,16 @@ namespace SteelRain.Player
 
             health.Changed -= GameEvents.RaisePlayerHealthChanged;
             health.Died -= GameEvents.RaisePlayerDied;
+        }
+
+        public void AssignCharacter(CharacterDefinition definition, int currentHealth)
+        {
+            character = definition;
+            if (body != null)
+                body.gravityScale = character.gravityScale;
+
+            if (health != null)
+                health.Initialize(character.maxHealth, Team.Player, currentHealth);
         }
 
         private void Update()
