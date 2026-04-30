@@ -553,6 +553,7 @@ namespace SteelRain.EditorTools
             collider.isTrigger = true;
             var timed = go.AddComponent<TimedPickup>();
             go.AddComponent<WeaponUpgradePickup>();
+            go.AddComponent<PickupMotion>();
             SetEnum(timed, "kind", PickupKind.WeaponUpgrade);
         }
 
@@ -568,6 +569,7 @@ namespace SteelRain.EditorTools
             var collider = go.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
             var pickup = go.AddComponent<WeaponPickup>();
+            go.AddComponent<PickupMotion>();
             SetObject(pickup, "weapon", weapon);
         }
 
@@ -621,6 +623,7 @@ namespace SteelRain.EditorTools
             collider.isTrigger = true;
             var timed = go.AddComponent<TimedPickup>();
             var pickup = go.AddComponent<HealthPickup>();
+            go.AddComponent<PickupMotion>();
             SetEnum(timed, "kind", kind);
             SetInt(pickup, "amount", healAmount);
             var prefab = PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Pickups/{name}.prefab");

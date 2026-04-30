@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 1245140137953977703}
   - component: {fileID: 1527636487548721876}
   - component: {fileID: 481166901398525904}
+  - component: {fileID: 1635586855365491086}
   m_Layer: 0
   m_Name: Pickup_SmallHealth
   m_TagString: Untagged
@@ -197,3 +198,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: SteelRain::SteelRain.Pickups.HealthPickup
   amount: 1
+--- !u!114 &1635586855365491086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7091502112890630148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f330575cb97df448e30fa609a9a7c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SteelRain::SteelRain.Pickups.PickupMotion
+  bobHeight: 0.12
+  bobSpeed: 3.2
+  pulseScale: 0.08
