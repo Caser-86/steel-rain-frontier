@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 3027176112289356821}
   - component: {fileID: 8529419595081604339}
   - component: {fileID: 7154351552937065045}
+  - component: {fileID: 3540322536362312445}
   m_Layer: 0
   m_Name: Player_Aila
   m_TagString: Player
@@ -283,6 +284,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c956931c6edbde942a07ecf5b0f58853, type: 2}
   - {fileID: 11400000, guid: 1f38e7acd5c5a3040821538ecdca52bd, type: 2}
   - {fileID: 11400000, guid: 65cfe8864c06c6e46848942a2979b816, type: 2}
+--- !u!114 &3540322536362312445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2373124906219185121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25d86323b3c039f4f848648faea153b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: SteelRain::SteelRain.Player.PlayerSkillController
+  combat: {fileID: 8529419595081604339}
+  health: {fileID: 5704491539822877381}
 --- !u!1 &5751029273322845159
 GameObject:
   m_ObjectHideFlags: 0

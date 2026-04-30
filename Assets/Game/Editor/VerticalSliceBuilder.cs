@@ -352,6 +352,7 @@ namespace SteelRain.EditorTools
             var dodge = go.AddComponent<PlayerDodge>();
             var combat = go.AddComponent<PlayerCombat>();
             var squad = go.AddComponent<PlayerSquad>();
+            var skill = go.AddComponent<PlayerSkillController>();
 
             var groundCheck = new GameObject("GroundCheck").transform;
             groundCheck.SetParent(go.transform);
@@ -371,6 +372,8 @@ namespace SteelRain.EditorTools
             SetObject(squad, "controller", controller);
             SetObject(squad, "combat", combat);
             SetObjectArray(squad, "members", characters);
+            SetObject(skill, "combat", combat);
+            SetObject(skill, "health", go.GetComponent<Health>());
 
             PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Player/Player_Aila.prefab");
             Object.DestroyImmediate(go);
@@ -556,7 +559,7 @@ namespace SteelRain.EditorTools
 
             var healthObject = CreateText("HealthLabel", canvas.transform, new Vector2(24f, -24f), "6/6");
             var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle 90 [Auto]");
-            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Fire: J/Mouse  Forms: E  Squad: 1-4/Tab  Quit: Esc/Q");
+            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Fire: J/Mouse  Forms: E  Skill: L  Squad: 1-4/Tab  Quit: Esc/Q");
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));

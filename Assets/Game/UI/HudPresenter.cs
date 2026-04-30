@@ -19,6 +19,7 @@ namespace SteelRain.UI
                 GameEvents.WeaponFormChanged += ammoWidget.SetForm;
                 GameEvents.WeaponLevelChanged += ammoWidget.SetWeaponLevel;
                 GameEvents.PlayerCharacterChanged += ammoWidget.SetCharacter;
+                GameEvents.SkillStatusChanged += ammoWidget.SetSkillStatus;
             }
         }
 
@@ -33,6 +34,7 @@ namespace SteelRain.UI
                 GameEvents.WeaponFormChanged -= ammoWidget.SetForm;
                 GameEvents.WeaponLevelChanged -= ammoWidget.SetWeaponLevel;
                 GameEvents.PlayerCharacterChanged -= ammoWidget.SetCharacter;
+                GameEvents.SkillStatusChanged -= ammoWidget.SetSkillStatus;
             }
         }
     }

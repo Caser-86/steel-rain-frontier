@@ -12,6 +12,7 @@ namespace SteelRain.UI
         private string formName = "";
         private int weaponLevel;
         private string characterName = "Aila";
+        private string skillStatus = "Skill Locked";
 
         public void SetAmmo(string newWeaponName, int newAmmo)
         {
@@ -38,13 +39,19 @@ namespace SteelRain.UI
             Refresh();
         }
 
+        public void SetSkillStatus(string newSkillStatus)
+        {
+            skillStatus = newSkillStatus;
+            Refresh();
+        }
+
         private void Refresh()
         {
             if (label == null)
                 return;
 
             var ammoText = ammo < 0 ? "INF" : ammo.ToString();
-            label.text = $"{characterName} | {weaponName} Lv{weaponLevel} {ammoText} [{formName}]";
+            label.text = $"{characterName} | {weaponName} Lv{weaponLevel} {ammoText} [{formName}] | {skillStatus}";
         }
     }
 }

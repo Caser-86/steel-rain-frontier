@@ -9,6 +9,7 @@ namespace SteelRain.Core
         public static event Action<string> WeaponFormChanged;
         public static event Action<int> WeaponLevelChanged;
         public static event Action<string> PlayerCharacterChanged;
+        public static event Action<string> SkillStatusChanged;
         public static event Action CheckpointReached;
         public static event Action PlayerDied;
 
@@ -26,6 +27,9 @@ namespace SteelRain.Core
 
         public static void RaisePlayerCharacterChanged(string displayName) =>
             PlayerCharacterChanged?.Invoke(displayName);
+
+        public static void RaiseSkillStatusChanged(string status) =>
+            SkillStatusChanged?.Invoke(status);
 
         public static void RaiseCheckpointReached() =>
             CheckpointReached?.Invoke();

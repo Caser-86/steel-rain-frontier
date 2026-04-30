@@ -17,6 +17,7 @@ namespace SteelRain.Core
         public event Action Died;
 
         private bool dead;
+        private float invulnerableUntil;
 
         private void Awake()
         {
@@ -42,6 +43,9 @@ namespace SteelRain.Core
             if (dead || info.Amount <= 0 || info.SourceTeam == team)
                 return;
 
+            if (Time.time < invulnerableUntil)
+                return;
+
             Current = Mathf.Max(0, Current - info.Amount);
             Damaged?.Invoke(info);
             Changed?.Invoke(Current, max);
@@ -51,6 +55,11 @@ namespace SteelRain.Core
                 dead = true;
                 Died?.Invoke();
             }
+        }
+
+        public void SetInvulnerable(float duration)
+        {
+            invulnerableUntil = Mathf.Max(invulnerableUntil, Time.time + duration);
         }
     }
 }
