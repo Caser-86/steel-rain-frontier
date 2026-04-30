@@ -164,9 +164,7 @@ namespace SteelRain.EditorTools
             aila.displayName = "Aila";
             aila.maxHealth = 6;
             aila.moveSpeed = 7.5f;
-            aila.jumpVelocity = 9.5f;
-            aila.gravityScale = 3.2f;
-            aila.fallGravityMultiplier = 1.35f;
+            ApplyJumpProfile(aila, CharacterSkillId.BreakthroughFire);
             aila.dodgeSpeed = 12f;
             aila.dodgeDuration = 0.16f;
             aila.dodgeCooldown = 0.65f;
@@ -174,6 +172,35 @@ namespace SteelRain.EditorTools
             aila.crouchColliderHeightMultiplier = 0.6f;
             EditorUtility.SetDirty(aila);
             return aila;
+        }
+
+        private static void ApplyJumpProfile(CharacterDefinition character, CharacterSkillId skillId)
+        {
+            character.skillId = skillId;
+
+            switch (skillId)
+            {
+                case CharacterSkillId.BreakthroughFire:
+                    character.jumpVelocity = 10.4f;
+                    character.gravityScale = 3f;
+                    character.fallGravityMultiplier = 1.25f;
+                    break;
+                case CharacterSkillId.TrenchShield:
+                    character.jumpVelocity = 8.2f;
+                    character.gravityScale = 3.6f;
+                    character.fallGravityMultiplier = 1.45f;
+                    break;
+                case CharacterSkillId.BombardmentMatrix:
+                    character.jumpVelocity = 9f;
+                    character.gravityScale = 3.3f;
+                    character.fallGravityMultiplier = 1.35f;
+                    break;
+                case CharacterSkillId.TimeRift:
+                    character.jumpVelocity = 9.8f;
+                    character.gravityScale = 3.1f;
+                    character.fallGravityMultiplier = 1.25f;
+                    break;
+            }
         }
 
         private static Projectile CreateProjectilePrefab(Sprite sprite)

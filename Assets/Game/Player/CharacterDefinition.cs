@@ -9,9 +9,9 @@ namespace SteelRain.Player
         public string displayName = "Aila";
         public int maxHealth = 6;
         public float moveSpeed = 7.5f;
-        public float jumpVelocity = 9.5f;
-        public float gravityScale = 3.2f;
-        public float fallGravityMultiplier = 1.35f;
+        public float jumpVelocity = 10.4f;
+        public float gravityScale = 3f;
+        public float fallGravityMultiplier = 1.25f;
         public float dodgeSpeed = 13f;
         public float dodgeDuration = 0.18f;
         public float dodgeCooldown = 0.55f;
