@@ -61,5 +61,14 @@ namespace SteelRain.Core
         {
             invulnerableUntil = Mathf.Max(invulnerableUntil, Time.time + duration);
         }
+
+        public void Heal(int amount)
+        {
+            if (dead || amount <= 0)
+                return;
+
+            Current = Mathf.Min(max, Current + amount);
+            Changed?.Invoke(Current, max);
+        }
     }
 }

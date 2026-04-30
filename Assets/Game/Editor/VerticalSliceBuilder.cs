@@ -53,6 +53,7 @@ namespace SteelRain.EditorTools
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game/Generated/white-square.png");
             var playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabRoot}/Player/Player_Aila.prefab");
             var miniBossPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabRoot}/Enemies/MiniBoss_Walker.prefab");
+            var smallHealthPickup = CreateHealthPickupPrefab("Pickup_SmallHealth", PickupKind.SmallHealth, 1, "Mat_HealthPickup");
             var player = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
             player.transform.position = new Vector3(0f, 1.5f, 0f);
 
@@ -72,9 +73,9 @@ namespace SteelRain.EditorTools
             CreateUpgradePickup("Upgrade_Backup_HighPlatform", new Vector2(54f, 5.2f));
             CreateUpgradePickup("Upgrade_Backup_Armory", new Vector2(108f, 1.2f));
             CreateUpgradePickup("Upgrade_Lv3_BossPrep", new Vector2(112f, 1.2f));
-            CreateCrate("Crate_Beach_A", new Vector2(16f, 1f), null);
-            CreateCrate("Crate_Village_A", new Vector2(42f, 1f), null);
-            CreateCrate("Crate_BossPrep_A", new Vector2(106f, 1f), null);
+            CreateCrate("Crate_Beach_A", new Vector2(16f, 1f), smallHealthPickup);
+            CreateCrate("Crate_Village_A", new Vector2(42f, 1f), smallHealthPickup);
+            CreateCrate("Crate_BossPrep_A", new Vector2(106f, 1f), smallHealthPickup);
 
             var miniBoss = PrefabUtility.InstantiatePrefab(miniBossPrefab) as GameObject;
             miniBoss.transform.position = new Vector3(126f, 2.2f, 0f);
@@ -152,6 +153,7 @@ namespace SteelRain.EditorTools
             CreateMaterial("Mat_Rescue", Color.green);
             CreateMaterial("Mat_Upgrade", new Color(0.15f, 0.55f, 1f));
             CreateMaterial("Mat_Crate", new Color(0.55f, 0.32f, 0.14f));
+            CreateMaterial("Mat_HealthPickup", new Color(0.15f, 1f, 0.25f));
         }
 
         private static void CreateMaterial(string name, Color color)
@@ -547,6 +549,22 @@ namespace SteelRain.EditorTools
             var target = go.AddComponent<DestructibleTarget>();
             if (dropPrefab != null)
                 SetObject(target, "dropPrefab", dropPrefab);
+        }
+
+        private static GameObject CreateHealthPickupPrefab(string name, PickupKind kind, int healAmount, string materialName)
+        {
+            var go = new GameObject(name);
+            go.transform.localScale = new Vector3(0.55f, 0.55f, 1f);
+            AddVisualQuad(go, materialName);
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            var timed = go.AddComponent<TimedPickup>();
+            var pickup = go.AddComponent<HealthPickup>();
+            SetEnum(timed, "kind", kind);
+            SetInt(pickup, "amount", healAmount);
+            var prefab = PrefabUtility.SaveAsPrefabAsset(go, $"{PrefabRoot}/Pickups/{name}.prefab");
+            Object.DestroyImmediate(go);
+            return prefab;
         }
 
         private static void CreateHud()
