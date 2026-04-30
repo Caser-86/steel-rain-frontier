@@ -8,10 +8,8 @@ namespace SteelRain.Enemies
     public sealed class BossHealthReporter : MonoBehaviour
     {
         [SerializeField] private string displayName = "Siege Walker";
-        [SerializeField] private float enragedThreshold = 0.5f;
-
         private Health health;
-        private bool enraged;
+        private BossPhase currentPhase = BossPhase.Advancing;
 
         private void Awake()
         {
@@ -23,7 +21,7 @@ namespace SteelRain.Enemies
         private void Start()
         {
             PublishHealth(health.Current, health.Max);
-            GameEvents.RaiseBossPhaseChanged("PHASE 1: ADVANCING");
+            PublishPhase(BossPhase.Advancing);
         }
 
         private void OnDestroy()
@@ -39,13 +37,9 @@ namespace SteelRain.Enemies
         {
             PublishHealth(current, max);
 
-            if (!enraged && current > 0 && current <= Mathf.CeilToInt(max * enragedThreshold))
-            {
-                enraged = true;
-                GameEvents.RaiseBossPhaseChanged("PHASE 2: RAGE - CORE EXPOSED");
-                CameraShake.ShakeGlobal(0.28f, 0.35f);
-                ImpactBurst.Spawn(transform.position + Vector3.up * 0.6f, new Color(1f, 0.2f, 0.05f, 0.85f), 0.9f, 4.2f, 0.32f);
-            }
+            var nextPhase = BossPhaseTactics.GetPhase(current, max);
+            if (current > 0 && nextPhase != currentPhase)
+                PublishPhase(nextPhase);
         }
 
         private void OnDied()
@@ -57,6 +51,20 @@ namespace SteelRain.Enemies
         private void PublishHealth(int current, int max)
         {
             GameEvents.RaiseBossHealthChanged(displayName, current, max);
+        }
+
+        private void PublishPhase(BossPhase phase)
+        {
+            currentPhase = phase;
+            GameEvents.RaiseBossPhaseChanged(BossPhaseTactics.GetPhaseLabel(phase));
+            if (phase == BossPhase.Advancing)
+                return;
+
+            var burstColor = phase == BossPhase.CoreExposed
+                ? new Color(1f, 0.85f, 0.05f, 0.9f)
+                : new Color(1f, 0.2f, 0.05f, 0.85f);
+            CameraShake.ShakeGlobal(0.28f, phase == BossPhase.CoreExposed ? 0.42f : 0.35f);
+            ImpactBurst.Spawn(transform.position + Vector3.up * 0.6f, burstColor, 0.9f, phase == BossPhase.CoreExposed ? 5f : 4.2f, 0.32f);
         }
     }
 }

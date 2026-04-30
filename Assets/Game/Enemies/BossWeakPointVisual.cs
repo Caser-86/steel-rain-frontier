@@ -45,7 +45,7 @@ namespace SteelRain.Enemies
 
         private void OnBossPhaseChanged(string phaseName)
         {
-            if (phaseName.Contains("CORE EXPOSED"))
+            if (phaseName.Contains("CORE EXPOSED") || phaseName.Contains("CORE OVERLOAD"))
             {
                 exposed = true;
                 ApplyColor(exposedColor);

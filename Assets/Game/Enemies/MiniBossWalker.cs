@@ -27,6 +27,7 @@ namespace SteelRain.Enemies
         private Collider2D bodyCollider;
         private float nextGunTime;
         private float nextJumpTime;
+        private float weakPointOpenUntil;
         private bool wasAirborne;
 
         private void Awake()
@@ -46,7 +47,7 @@ namespace SteelRain.Enemies
             var delta = target.position - transform.position;
             var absX = Mathf.Abs(delta.x);
             var grounded = IsGrounded();
-            var enraged = IsEnraged();
+            var phase = CurrentPhase;
 
             if (grounded)
             {
@@ -55,11 +56,12 @@ namespace SteelRain.Enemies
 
                 wasAirborne = false;
                 var direction = Mathf.Sign(delta.x);
-                var desiredSpeed = absX > 3.5f ? direction * moveSpeed * (enraged ? 1.35f : 1f) : 0f;
+                var speedMultiplier = phase == BossPhase.Advancing ? 1f : phase == BossPhase.Enraged ? 1.35f : 1.1f;
+                var desiredSpeed = absX > 3.5f ? direction * moveSpeed * speedMultiplier : 0f;
                 body.linearVelocity = new Vector2(desiredSpeed, body.linearVelocity.y);
 
                 if (Time.time >= nextJumpTime && absX < 8f)
-                    Jump(direction, enraged);
+                    Jump(direction, phase);
             }
             else
             {
@@ -74,8 +76,11 @@ namespace SteelRain.Enemies
 
             if (Time.time >= nextGunTime)
             {
-                nextGunTime = Time.time + (IsEnraged() ? gunCooldown * 0.65f : gunCooldown);
-                FireBurst();
+                var phase = CurrentPhase;
+                nextGunTime = Time.time + GetGunCooldown(phase);
+                FireBurst(phase);
+                if (phase == BossPhase.CoreExposed)
+                    OpenWeakPointWindow();
             }
         }
 
@@ -92,20 +97,19 @@ namespace SteelRain.Enemies
             target = newTarget;
         }
 
-        private void FireBurst()
+        private void FireBurst(BossPhase phase)
         {
             if (projectilePrefab == null)
                 return;
 
             var baseDirection = ((Vector2)target.position - (Vector2)transform.position).normalized;
-            Fire(Quaternion.Euler(0f, 0f, -9f) * baseDirection);
-            Fire(baseDirection);
-            Fire(Quaternion.Euler(0f, 0f, 9f) * baseDirection);
-
-            if (IsEnraged())
+            var count = BossPhaseTactics.GetBurstProjectileCount(phase);
+            var angle = phase == BossPhase.CoreExposed ? 14f : 36f;
+            var startAngle = -angle * 0.5f;
+            var step = count == 1 ? 0f : angle / (count - 1);
+            for (var i = 0; i < count; i++)
             {
-                Fire(Quaternion.Euler(0f, 0f, -18f) * baseDirection);
-                Fire(Quaternion.Euler(0f, 0f, 18f) * baseDirection);
+                Fire(Quaternion.Euler(0f, 0f, startAngle + step * i) * baseDirection);
             }
         }
 
@@ -116,10 +120,11 @@ namespace SteelRain.Enemies
             projectile.Launch(direction, projectileDamage, projectileSpeed);
         }
 
-        private void Jump(float direction, bool enraged)
+        private void Jump(float direction, BossPhase phase)
         {
-            nextJumpTime = Time.time + (enraged ? jumpCooldown * 0.7f : jumpCooldown);
-            body.linearVelocity = new Vector2(direction * jumpLungeSpeed * (enraged ? 1.25f : 1f), jumpVelocity);
+            var jumpMultiplier = phase == BossPhase.Advancing ? 1f : phase == BossPhase.Enraged ? 1.25f : 0.9f;
+            nextJumpTime = Time.time + (phase == BossPhase.Enraged ? jumpCooldown * 0.7f : jumpCooldown);
+            body.linearVelocity = new Vector2(direction * jumpLungeSpeed * jumpMultiplier, jumpVelocity);
             wasAirborne = true;
         }
 
@@ -140,17 +145,33 @@ namespace SteelRain.Enemies
             return false;
         }
 
-        private bool IsEnraged()
+        private BossPhase CurrentPhase => health != null
+            ? BossPhaseTactics.GetPhase(health.Current, health.Max)
+            : BossPhase.Advancing;
+
+        private float GetGunCooldown(BossPhase phase)
         {
-            return health != null && health.Current <= health.Max / 2;
+            return phase switch
+            {
+                BossPhase.Enraged => gunCooldown * 0.65f,
+                BossPhase.CoreExposed => gunCooldown * 1.25f,
+                _ => gunCooldown
+            };
+        }
+
+        private void OpenWeakPointWindow()
+        {
+            weakPointOpenUntil = Time.time + BossPhaseTactics.GetWeakPointWindow(BossPhase.CoreExposed);
+            ImpactBurst.Spawn(transform.position + Vector3.up * 0.6f, new Color(1f, 0.85f, 0.05f, 0.9f), 0.4f, 2.8f, 0.22f);
         }
 
         private void Stomp()
         {
-            var enraged = IsEnraged();
-            CameraShake.ShakeGlobal(0.22f, enraged ? 0.28f : 0.2f);
-            ImpactBurst.Spawn(transform.position, new Color(1f, enraged ? 0.15f : 0.65f, 0.05f, 0.65f), 1.2f, stompRadius * 2f, 0.24f);
-            var hits = Physics2D.OverlapCircleAll(transform.position, stompRadius);
+            var phase = CurrentPhase;
+            var radius = Time.time < weakPointOpenUntil ? stompRadius * 0.75f : stompRadius;
+            CameraShake.ShakeGlobal(0.22f, phase == BossPhase.Advancing ? 0.2f : 0.28f);
+            ImpactBurst.Spawn(transform.position, new Color(1f, phase == BossPhase.Advancing ? 0.65f : 0.15f, 0.05f, 0.65f), 1.2f, radius * 2f, 0.24f);
+            var hits = Physics2D.OverlapCircleAll(transform.position, radius);
             foreach (var hit in hits)
             {
                 if (!hit.TryGetComponent(out Health targetHealth))
