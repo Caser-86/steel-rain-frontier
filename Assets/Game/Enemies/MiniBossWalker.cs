@@ -147,7 +147,9 @@ namespace SteelRain.Enemies
 
         private void Stomp()
         {
-            CameraShake.ShakeGlobal(0.22f, IsEnraged() ? 0.28f : 0.2f);
+            var enraged = IsEnraged();
+            CameraShake.ShakeGlobal(0.22f, enraged ? 0.28f : 0.2f);
+            ImpactBurst.Spawn(transform.position, new Color(1f, enraged ? 0.15f : 0.65f, 0.05f, 0.65f), 1.2f, stompRadius * 2f, 0.24f);
             var hits = Physics2D.OverlapCircleAll(transform.position, stompRadius);
             foreach (var hit in hits)
             {

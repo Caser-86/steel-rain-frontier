@@ -32,6 +32,7 @@ namespace SteelRain.Levels
 
             exploded = true;
             CameraShake.ShakeGlobal(0.18f, 0.22f);
+            ImpactBurst.Spawn(transform.position, new Color(1f, 0.45f, 0.08f, 0.85f), 0.6f, radius * 2f, 0.28f);
             var hits = Physics2D.OverlapCircleAll(transform.position, radius);
             foreach (var hit in hits)
             {
