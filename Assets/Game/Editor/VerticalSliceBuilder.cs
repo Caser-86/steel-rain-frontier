@@ -643,25 +643,25 @@ namespace SteelRain.EditorTools
             var healthObject = CreateText("HealthLabel", canvas.transform, new Vector2(24f, -24f), "6/6");
             var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle 90 [Auto]");
             var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Climb: W/S  Fire: J/Mouse  Skill: L  Squad: 1-4/Tab");
-            var victoryObject = CreateText("VictoryLabel", canvas.transform, Vector2.zero, "");
+            var statusObject = CreateText("MissionStatusLabel", canvas.transform, Vector2.zero, "");
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
-            SetAnchor(victoryObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
-            victoryObject.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 180f);
+            SetAnchor(statusObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            statusObject.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 180f);
 
             var healthWidget = healthObject.AddComponent<SteelRain.UI.HealthWidget>();
             var ammoWidget = ammoObject.AddComponent<SteelRain.UI.AmmoWidget>();
-            var victoryWidget = victoryObject.AddComponent<SteelRain.UI.VictoryWidget>();
+            var statusWidget = statusObject.AddComponent<SteelRain.UI.MissionStatusWidget>();
             SetObject(healthWidget, "label", healthObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(ammoWidget, "label", ammoObject.GetComponent<UnityEngine.UI.Text>());
-            SetObject(victoryWidget, "label", victoryObject.GetComponent<UnityEngine.UI.Text>());
+            SetObject(statusWidget, "label", statusObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(presenter, "healthWidget", healthWidget);
             SetObject(presenter, "ammoWidget", ammoWidget);
-            var victoryLabel = victoryObject.GetComponent<UnityEngine.UI.Text>();
-            victoryLabel.alignment = TextAnchor.MiddleCenter;
-            victoryLabel.fontSize = 46;
-            victoryLabel.color = new Color(1f, 0.92f, 0.2f);
+            var statusLabel = statusObject.GetComponent<UnityEngine.UI.Text>();
+            statusLabel.alignment = TextAnchor.MiddleCenter;
+            statusLabel.fontSize = 46;
+            statusLabel.color = new Color(1f, 0.92f, 0.2f);
         }
 
         private static GameObject CreateText(string name, Transform parent, Vector2 anchoredPosition, string text)

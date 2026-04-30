@@ -12,6 +12,7 @@ namespace SteelRain.Core
         public static event Action<string> SkillStatusChanged;
         public static event Action CheckpointReached;
         public static event Action PlayerDied;
+        public static event Action SquadDefeated;
         public static event Action LevelCompleted;
 
         public static void RaisePlayerHealthChanged(int current, int max) =>
@@ -37,6 +38,9 @@ namespace SteelRain.Core
 
         public static void RaisePlayerDied() =>
             PlayerDied?.Invoke();
+
+        public static void RaiseSquadDefeated() =>
+            SquadDefeated?.Invoke();
 
         public static void RaiseLevelCompleted() =>
             LevelCompleted?.Invoke();

@@ -66,8 +66,13 @@ namespace SteelRain.Player
             StoreActiveRuntime();
             runtimes[activeIndex].ClearCurrentWeaponUpgradeOnDeath();
             var nextIndex = FindNextAliveIndex(activeIndex);
-            if (nextIndex != activeIndex)
-                ApplyRuntime(nextIndex, false);
+            if (nextIndex == activeIndex)
+            {
+                GameEvents.RaiseSquadDefeated();
+                return;
+            }
+
+            ApplyRuntime(nextIndex, false);
         }
 
         private int FindNextAliveIndex(int fromIndex)
