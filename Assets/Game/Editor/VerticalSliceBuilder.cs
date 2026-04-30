@@ -455,14 +455,14 @@ namespace SteelRain.EditorTools
         {
             return new[]
             {
-                CreateEnemy("RifleSoldier", "rifle_soldier", "Rifle Soldier", 3, 2.5f, 9f, 6f, 1.4f, EnemyAttackPattern.RifleBurst, projectile, 1, 9f, 0.55f),
-                CreateEnemy("Grenadier", "grenadier", "Grenadier", 3, 2f, 9f, 7f, 1.8f, EnemyAttackPattern.GrenadeArc, projectile, 2, 7f),
-                CreateEnemy("ShieldSoldier", "shield_soldier", "Shield Soldier", 6, 1.6f, 8f, 2f, 1.2f, EnemyAttackPattern.ShieldAdvance, null, 1, 0f),
-                CreateEnemy("Sniper", "sniper", "Sniper", 2, 1.2f, 12f, 10f, 2.2f, EnemyAttackPattern.RifleBurst, projectile, 2, 13f, 0.65f),
-                CreateEnemy("Drone", "drone", "Drone", 2, 4.2f, 9f, 5f, 1.1f, EnemyAttackPattern.DroneDive, projectile, 1, 11f),
+                CreateEnemy("RifleSoldier", "rifle_soldier", "Rifle Soldier", 3, 2.5f, 9f, 6f, 1.4f, EnemyAttackPattern.RifleBurst, projectile, 1, 9f, 0.55f, 2.2f, true),
+                CreateEnemy("Grenadier", "grenadier", "Grenadier", 3, 2f, 9f, 7f, 1.8f, EnemyAttackPattern.GrenadeArc, projectile, 2, 7f, 0f, 2.5f, true),
+                CreateEnemy("ShieldSoldier", "shield_soldier", "Shield Soldier", 6, 1.6f, 8f, 2f, 1.2f, EnemyAttackPattern.ShieldAdvance, null, 1, 0f, 0f, 0f, false),
+                CreateEnemy("Sniper", "sniper", "Sniper", 2, 1.2f, 12f, 10f, 2.2f, EnemyAttackPattern.SniperShot, projectile, 2, 13f, 0.65f, 4f, true),
+                CreateEnemy("Drone", "drone", "Drone", 2, 4.2f, 9f, 5f, 1.1f, EnemyAttackPattern.DroneDive, projectile, 1, 11f, 0f, 0f, false),
                 CreateEnemy("Flamer", "flamer", "Flamer", 5, 1.9f, 8f, 3f, 1.5f, EnemyAttackPattern.FlamethrowerCone, projectile, 1, 6f),
                 CreateEnemy("MortarSoldier", "mortar_soldier", "Mortar Soldier", 4, 1f, 11f, 9f, 2.4f, EnemyAttackPattern.MortarMarker, projectile, 2, 5f),
-                CreateEnemy("CrawlerMutant", "crawler_mutant", "Crawler Mutant", 3, 3.6f, 7f, 1.4f, 1f, EnemyAttackPattern.ShieldAdvance, null, 1, 0f)
+                CreateEnemy("CrawlerMutant", "crawler_mutant", "Crawler Mutant", 3, 3.6f, 7f, 1.4f, 1f, EnemyAttackPattern.ShieldAdvance, null, 1, 0f, 0f, 0f, false)
             };
         }
 
@@ -479,7 +479,9 @@ namespace SteelRain.EditorTools
             EnemyProjectile projectile,
             int projectileDamage,
             float projectileSpeed,
-            float aimHeightOffset = 0f)
+            float aimHeightOffset = 0f,
+            float retreatRange = 1.8f,
+            bool canRetreat = true)
         {
             var enemy = LoadOrCreate<EnemyDefinition>($"{DataRoot}/Enemies/{assetName}.asset");
             enemy.id = id;
@@ -489,6 +491,8 @@ namespace SteelRain.EditorTools
             enemy.detectRange = detectRange;
             enemy.attackRange = attackRange;
             enemy.attackCooldown = cooldown;
+            enemy.retreatRange = retreatRange;
+            enemy.canRetreat = canRetreat;
             enemy.attackPattern = pattern;
             enemy.projectilePrefab = projectile;
             enemy.projectileDamage = projectileDamage;

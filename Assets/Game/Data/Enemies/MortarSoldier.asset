@@ -19,7 +19,9 @@ MonoBehaviour:
   detectRange: 11
   attackRange: 9
   attackCooldown: 2.4
-  attackPattern: 5
+  retreatRange: 1.8
+  canRetreat: 1
+  attackPattern: 6
   projectilePrefab: {fileID: 6888016108284647343, guid: 1747bfb583a882045ae3f4dbfac4b341, type: 3}
   projectileDamage: 2
   projectileSpeed: 5

@@ -12,6 +12,8 @@ namespace SteelRain.Enemies
         public float detectRange = 9f;
         public float attackRange = 6f;
         public float attackCooldown = 1.4f;
+        public float retreatRange = 1.8f;
+        public bool canRetreat = true;
         public EnemyAttackPattern attackPattern = EnemyAttackPattern.RifleBurst;
         public EnemyProjectile projectilePrefab;
         public int projectileDamage = 1;
