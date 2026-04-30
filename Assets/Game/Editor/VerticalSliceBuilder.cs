@@ -75,8 +75,11 @@ namespace SteelRain.EditorTools
             CreateUpgradePickup("Upgrade_Backup_Armory", new Vector2(108f, 1.2f));
             CreateUpgradePickup("Upgrade_Lv3_BossPrep", new Vector2(112f, 1.2f));
             CreateCrate("Crate_Beach_A", new Vector2(16f, 1f), smallHealthPickup);
+            CreateExplosiveBarrel("Barrel_Beach_A", new Vector2(22f, 1f));
             CreateCrate("Crate_Village_A", new Vector2(42f, 1f), smallHealthPickup);
+            CreateExplosiveBarrel("Barrel_Village_A", new Vector2(50f, 1f));
             CreateCrate("Crate_BossPrep_A", new Vector2(106f, 1f), smallHealthPickup);
+            CreateExplosiveBarrel("Barrel_BossPrep_A", new Vector2(118f, 1f));
 
             var miniBoss = PrefabUtility.InstantiatePrefab(miniBossPrefab) as GameObject;
             miniBoss.transform.position = new Vector3(126f, 2.2f, 0f);
@@ -156,6 +159,7 @@ namespace SteelRain.EditorTools
             CreateMaterial("Mat_Crate", new Color(0.55f, 0.32f, 0.14f));
             CreateMaterial("Mat_HealthPickup", new Color(0.15f, 1f, 0.25f));
             CreateMaterial("Mat_Ladder", new Color(0.45f, 0.62f, 0.75f));
+            CreateMaterial("Mat_Barrel", new Color(1f, 0.12f, 0.05f));
         }
 
         private static void CreateMaterial(string name, Color color)
@@ -566,6 +570,20 @@ namespace SteelRain.EditorTools
                 SetObject(target, "dropPrefab", dropPrefab);
         }
 
+        private static void CreateExplosiveBarrel(string name, Vector2 position)
+        {
+            var go = new GameObject(name);
+            go.transform.position = position;
+            go.transform.localScale = new Vector3(0.75f, 1f, 1f);
+            AddVisualQuad(go, "Mat_Barrel");
+            go.AddComponent<BoxCollider2D>();
+            var health = go.AddComponent<Health>();
+            SetInt(health, "max", 1);
+            var barrel = go.AddComponent<ExplosiveBarrel>();
+            SetInt(barrel, "damage", 3);
+            SetFloat(barrel, "radius", 2.5f);
+        }
+
         private static GameObject CreateHealthPickupPrefab(string name, PickupKind kind, int healAmount, string materialName)
         {
             var go = new GameObject(name);
@@ -730,6 +748,13 @@ namespace SteelRain.EditorTools
         {
             var serializedObject = new SerializedObject(target);
             serializedObject.FindProperty(propertyName).intValue = value;
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetFloat(Object target, string propertyName, float value)
+        {
+            var serializedObject = new SerializedObject(target);
+            serializedObject.FindProperty(propertyName).floatValue = value;
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
