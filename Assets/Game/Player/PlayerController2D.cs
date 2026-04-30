@@ -19,12 +19,14 @@ namespace SteelRain.Player
         private bool crouching;
 
         public bool IsGrounded { get; private set; }
+        public bool IsCrouching => crouching;
         public Vector2 AimDirection { get; private set; } = Vector2.right;
         public CharacterDefinition Character => character;
 
         private void Awake()
         {
             body = GetComponent<Rigidbody2D>();
+            body.gravityScale = character.gravityScale;
             health = GetComponent<Health>();
             health.Initialize(character.maxHealth, Team.Player);
             health.Changed += GameEvents.RaisePlayerHealthChanged;
@@ -80,10 +82,14 @@ namespace SteelRain.Player
             IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundMask);
 
             var velocity = body.linearVelocity;
-            velocity.x = moveInput.x * character.moveSpeed;
+            var speed = crouching ? character.moveSpeed * character.crouchSpeedMultiplier : character.moveSpeed;
+            velocity.x = moveInput.x * speed;
 
             if (jumpQueued && IsGrounded && !crouching)
                 velocity.y = character.jumpVelocity;
+
+            if (velocity.y < 0f)
+                velocity.y += Physics2D.gravity.y * (character.fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
 
             body.linearVelocity = velocity;
             jumpQueued = false;

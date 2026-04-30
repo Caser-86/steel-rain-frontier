@@ -164,10 +164,14 @@ namespace SteelRain.EditorTools
             aila.displayName = "Aila";
             aila.maxHealth = 6;
             aila.moveSpeed = 7.5f;
-            aila.jumpVelocity = 14f;
-            aila.dodgeSpeed = 13f;
-            aila.dodgeDuration = 0.18f;
-            aila.dodgeCooldown = 0.55f;
+            aila.jumpVelocity = 9.5f;
+            aila.gravityScale = 3.2f;
+            aila.fallGravityMultiplier = 1.35f;
+            aila.dodgeSpeed = 12f;
+            aila.dodgeDuration = 0.16f;
+            aila.dodgeCooldown = 0.65f;
+            aila.crouchSpeedMultiplier = 0.45f;
+            aila.crouchColliderHeightMultiplier = 0.6f;
             EditorUtility.SetDirty(aila);
             return aila;
         }
