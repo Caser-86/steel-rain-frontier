@@ -22,6 +22,7 @@ namespace SteelRain.EditorTools
         {
             EnsureFolders();
             var sprite = EnsureWhiteSprite();
+            EnsureMaterials();
             var aila = CreateAila();
             var projectile = CreateProjectilePrefab(sprite);
             var enemyProjectile = CreateEnemyProjectilePrefab(sprite);
@@ -43,6 +44,7 @@ namespace SteelRain.EditorTools
         {
             BuildAssets();
             EnsureFolders();
+            EnsureMaterials();
 
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             scene.name = "Level01_VerticalSlice";
@@ -69,8 +71,8 @@ namespace SteelRain.EditorTools
             miniBoss.transform.position = new Vector3(166f, 2.2f, 0f);
             miniBoss.GetComponent<MiniBossWalker>().AssignTarget(player.transform);
 
-            CreateBlock(sprite, "MiniBossArenaWallLeft", new Vector2(150f, 3f), new Vector2(1f, 6f), new Color(0.25f, 0.25f, 0.25f));
-            CreateBlock(sprite, "MiniBossArenaWallRight", new Vector2(185f, 3f), new Vector2(1f, 6f), new Color(0.25f, 0.25f, 0.25f));
+            CreateBlock(sprite, "MiniBossArenaWallLeft", new Vector2(150f, 3f), new Vector2(1f, 6f), "Mat_Wall");
+            CreateBlock(sprite, "MiniBossArenaWallRight", new Vector2(185f, 3f), new Vector2(1f, 6f), "Mat_Wall");
 
             EditorSceneManager.SaveScene(scene, $"{SceneRoot}/Level01_VerticalSlice.unity");
             Debug.Log("Steel Rain Level01 vertical slice graybox built.");
@@ -124,6 +126,37 @@ namespace SteelRain.EditorTools
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
+        private static void EnsureMaterials()
+        {
+            CreateMaterial("Mat_Player", new Color(0.05f, 0.95f, 1f));
+            CreateMaterial("Mat_Enemy", new Color(1f, 0.08f, 0.04f));
+            CreateMaterial("Mat_Drone", new Color(1f, 0f, 1f));
+            CreateMaterial("Mat_Boss", new Color(1f, 0.55f, 0.05f));
+            CreateMaterial("Mat_PlayerProjectile", Color.yellow);
+            CreateMaterial("Mat_EnemyProjectile", new Color(1f, 0.25f, 0.1f));
+            CreateMaterial("Mat_Beach", new Color(0.95f, 0.82f, 0.28f));
+            CreateMaterial("Mat_Village", new Color(0.75f, 0.44f, 0.18f));
+            CreateMaterial("Mat_Roof", new Color(0.65f, 0.08f, 0.08f));
+            CreateMaterial("Mat_Trench", new Color(0.22f, 0.78f, 0.22f));
+            CreateMaterial("Mat_Arena", new Color(0.42f, 0.42f, 0.46f));
+            CreateMaterial("Mat_Wall", new Color(0.25f, 0.25f, 0.25f));
+            CreateMaterial("Mat_Rescue", Color.green);
+        }
+
+        private static void CreateMaterial(string name, Color color)
+        {
+            var path = $"Assets/Game/Generated/{name}.mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Sprites/Default"));
+                AssetDatabase.CreateAsset(material, path);
+            }
+
+            material.color = color;
+            EditorUtility.SetDirty(material);
+        }
+
         private static CharacterDefinition CreateAila()
         {
             var aila = LoadOrCreate<CharacterDefinition>($"{DataRoot}/Characters/Aila.asset");
@@ -142,9 +175,7 @@ namespace SteelRain.EditorTools
         private static Projectile CreateProjectilePrefab(Sprite sprite)
         {
             var go = new GameObject("Projectile_Bullet");
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = Color.yellow;
+            AddVisualQuad(go, "Mat_PlayerProjectile");
             go.transform.localScale = new Vector3(0.22f, 0.08f, 1f);
             var body = go.AddComponent<Rigidbody2D>();
             body.gravityScale = 0f;
@@ -159,9 +190,7 @@ namespace SteelRain.EditorTools
         private static EnemyProjectile CreateEnemyProjectilePrefab(Sprite sprite)
         {
             var go = new GameObject("Projectile_Enemy");
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = new Color(1f, 0.25f, 0.1f);
+            AddVisualQuad(go, "Mat_EnemyProjectile");
             go.transform.localScale = new Vector3(0.18f, 0.18f, 1f);
             var body = go.AddComponent<Rigidbody2D>();
             body.gravityScale = 0f;
@@ -244,11 +273,8 @@ namespace SteelRain.EditorTools
             var go = new GameObject("Player_Aila");
             go.tag = "Player";
             go.transform.position = new Vector3(0f, 1.5f, 0f);
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = new Color(0.05f, 0.9f, 1f);
-            renderer.sortingOrder = 20;
-            go.transform.localScale = new Vector3(1.2f, 2.2f, 1f);
+            AddVisualQuad(go, "Mat_Player");
+            go.transform.localScale = new Vector3(1.8f, 2.8f, 1f);
 
             var body = go.AddComponent<Rigidbody2D>();
             body.freezeRotation = true;
@@ -329,10 +355,7 @@ namespace SteelRain.EditorTools
             foreach (var definition in definitions)
             {
                 var go = new GameObject(definition.displayName.Replace(" ", "_"));
-                var renderer = go.AddComponent<SpriteRenderer>();
-                renderer.sprite = sprite;
-                renderer.color = definition.attackPattern == EnemyAttackPattern.DroneDive ? Color.magenta : new Color(1f, 0.1f, 0.05f);
-                renderer.sortingOrder = 15;
+                AddVisualQuad(go, definition.attackPattern == EnemyAttackPattern.DroneDive ? "Mat_Drone" : "Mat_Enemy");
                 go.transform.localScale = definition.attackPattern == EnemyAttackPattern.DroneDive
                     ? new Vector3(0.8f, 0.45f, 1f)
                     : new Vector3(0.8f, 1.35f, 1f);
@@ -355,10 +378,7 @@ namespace SteelRain.EditorTools
         private static void CreateMiniBossPrefab(Sprite sprite, EnemyProjectile projectile)
         {
             var go = new GameObject("MiniBoss_Walker");
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = new Color(1f, 0.55f, 0.05f);
-            renderer.sortingOrder = 14;
+            AddVisualQuad(go, "Mat_Boss");
             go.transform.localScale = new Vector3(3.2f, 2.4f, 1f);
             var body = go.AddComponent<Rigidbody2D>();
             body.freezeRotation = true;
@@ -411,23 +431,20 @@ namespace SteelRain.EditorTools
 
         private static void CreateGround(Sprite sprite)
         {
-            CreateBlock(sprite, "BeachGround", new Vector2(22f, -0.5f), new Vector2(50f, 1f), new Color(0.95f, 0.82f, 0.28f));
-            CreateBlock(sprite, "VillageGround", new Vector2(70f, -0.5f), new Vector2(55f, 1f), new Color(0.75f, 0.44f, 0.18f));
-            CreateBlock(sprite, "VillageRoofA", new Vector2(65f, 3f), new Vector2(10f, 0.5f), new Color(0.65f, 0.08f, 0.08f));
-            CreateBlock(sprite, "VillageRoofB", new Vector2(82f, 4.2f), new Vector2(12f, 0.5f), new Color(0.65f, 0.08f, 0.08f));
-            CreateBlock(sprite, "TrenchGround", new Vector2(123f, -0.5f), new Vector2(60f, 1f), new Color(0.22f, 0.78f, 0.22f));
-            CreateBlock(sprite, "MiniBossArenaGround", new Vector2(167f, -0.5f), new Vector2(38f, 1f), new Color(0.42f, 0.42f, 0.46f));
+            CreateBlock(sprite, "BeachGround", new Vector2(22f, -0.5f), new Vector2(50f, 1f), "Mat_Beach");
+            CreateBlock(sprite, "VillageGround", new Vector2(70f, -0.5f), new Vector2(55f, 1f), "Mat_Village");
+            CreateBlock(sprite, "VillageRoofA", new Vector2(65f, 3f), new Vector2(10f, 0.5f), "Mat_Roof");
+            CreateBlock(sprite, "VillageRoofB", new Vector2(82f, 4.2f), new Vector2(12f, 0.5f), "Mat_Roof");
+            CreateBlock(sprite, "TrenchGround", new Vector2(123f, -0.5f), new Vector2(60f, 1f), "Mat_Trench");
+            CreateBlock(sprite, "MiniBossArenaGround", new Vector2(167f, -0.5f), new Vector2(38f, 1f), "Mat_Arena");
         }
 
-        private static void CreateBlock(Sprite sprite, string name, Vector2 position, Vector2 size, Color color)
+        private static void CreateBlock(Sprite sprite, string name, Vector2 position, Vector2 size, string materialName)
         {
             var go = new GameObject(name);
             go.transform.position = position;
             go.transform.localScale = new Vector3(size.x, size.y, 1f);
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = color;
-            renderer.sortingOrder = 0;
+            AddVisualQuad(go, materialName);
             go.AddComponent<BoxCollider2D>();
         }
 
@@ -441,8 +458,10 @@ namespace SteelRain.EditorTools
 
             var healthObject = CreateText("HealthLabel", canvas.transform, new Vector2(24f, -24f), "6/6");
             var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle 90 [Auto]");
+            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D or Arrows  Jump: Space  Fire: Ctrl/Mouse  Switch: E  Quit: Esc/Q");
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
+            SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
 
             var healthWidget = healthObject.AddComponent<SteelRain.UI.HealthWidget>();
             var ammoWidget = ammoObject.AddComponent<SteelRain.UI.AmmoWidget>();
@@ -511,9 +530,7 @@ namespace SteelRain.EditorTools
         {
             var go = new GameObject("RescueNpc_Village");
             go.transform.position = new Vector3(x, 1.5f, 0f);
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = sprite;
-            renderer.color = Color.green;
+            AddVisualQuad(go, "Mat_Rescue");
             go.transform.localScale = new Vector3(0.7f, 1.2f, 1f);
             var collider = go.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
@@ -541,6 +558,20 @@ namespace SteelRain.EditorTools
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             return prefab.GetComponent<T>();
+        }
+
+        private static void AddVisualQuad(GameObject parent, string materialName)
+        {
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            visual.name = "Visual";
+            visual.transform.SetParent(parent.transform, false);
+
+            var collider = visual.GetComponent<Collider>();
+            if (collider != null)
+                Object.DestroyImmediate(collider);
+
+            var renderer = visual.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>($"Assets/Game/Generated/{materialName}.mat");
         }
 
         private static void SetObject(Object target, string propertyName, Object value)

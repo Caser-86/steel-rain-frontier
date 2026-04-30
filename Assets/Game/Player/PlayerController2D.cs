@@ -42,15 +42,37 @@ namespace SteelRain.Player
 
         private void Update()
         {
-            moveInput.x = Input.GetAxisRaw("Horizontal");
-            crouching = Input.GetAxisRaw("Vertical") < -0.5f;
+            moveInput.x = ReadHorizontal();
+            crouching = Input.GetAxisRaw("Vertical") < -0.5f || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
 
-            if (Input.GetButtonDown("Jump"))
+            if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space))
                 jumpQueued = true;
 
-            var aim = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            var aim = new Vector2(ReadHorizontal(), ReadVertical());
             if (aim.sqrMagnitude > 0.1f)
                 AimDirection = aim.normalized;
+        }
+
+        private static float ReadHorizontal()
+        {
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+                return -1f;
+
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+                return 1f;
+
+            return Input.GetAxisRaw("Horizontal");
+        }
+
+        private static float ReadVertical()
+        {
+            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+                return -1f;
+
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+                return 1f;
+
+            return Input.GetAxisRaw("Vertical");
         }
 
         private void FixedUpdate()

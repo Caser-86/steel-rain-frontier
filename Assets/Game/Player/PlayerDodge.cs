@@ -21,7 +21,7 @@ namespace SteelRain.Player
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.K))
                 TryDodge();
         }
 

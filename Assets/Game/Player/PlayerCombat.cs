@@ -25,7 +25,7 @@ namespace SteelRain.Player
             if (Input.GetKeyDown(KeyCode.E))
                 CycleForm();
 
-            if (Input.GetButton("Fire1"))
+            if (Input.GetButton("Fire1") || Input.GetKey(KeyCode.J) || Input.GetKey(KeyCode.LeftControl) || Input.GetMouseButton(0))
                 TryFire();
         }
 
