@@ -49,7 +49,7 @@ Modify:
 - `Assets/Game/Weapons/WeaponPickup.cs` keeps weapon pickups separate from upgrade pickups.
 - `Assets/Game/Core/GameEvents.cs` adds weapon level and character switch HUD events.
 - `Assets/Game/UI/HudPresenter.cs` subscribes to new HUD events after widgets exist.
-- `Assets/Game/Editor/VerticalSliceBuilder.cs` generates compact Level 01 pickups, destructible crates, and four character definitions.
+- `Assets/Game/Editor/VerticalSliceBuilder.cs` generates compact Level 01 pickups, destructible crates, five Level 01 upgrade capsules, and four character definitions.
 
 Create:
 
@@ -868,12 +868,14 @@ CreateCheckpoint("Checkpoint_B", 68f);
 CreateCheckpoint("Checkpoint_C", 104f);
 ```
 
-Place three upgrade capsules:
+Place five upgrade capsules: three critical-path capsules and two backups. All use `WeaponUpgradePickup` and `TimedPickup` with `PickupKind.WeaponUpgrade`, so they never expire.
 
 ```csharp
 CreateUpgradePickup("Upgrade_Lv1_Beach", new Vector2(18f, 1.2f));
 CreateUpgradePickup("Upgrade_Lv2_Village", new Vector2(48f, 1.2f));
 CreateUpgradePickup("Upgrade_Lv3_BossPrep", new Vector2(112f, 1.2f));
+CreateUpgradePickup("Upgrade_Backup_HighPlatform", new Vector2(54f, 5.2f));
+CreateUpgradePickup("Upgrade_Backup_Armory", new Vector2(108f, 1.2f));
 ```
 
 Move mini boss:
@@ -962,7 +964,8 @@ Check:
 - `Space` lower jump, not huge jump.
 - `S` crouches or slows low posture.
 - `J` or mouse fires infinite base ammo.
-- Three blue upgrade capsules stay forever until picked.
+- Five blue upgrade capsules exist in Level 01; three are on the critical path and two are backups.
+- Upgrade capsules stay forever until picked.
 - Lv1 makes damage stronger.
 - Lv2 changes weapon feel.
 - Lv3 unlocks active character skill UI or state.
