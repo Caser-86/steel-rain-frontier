@@ -106,7 +106,8 @@ namespace SteelRain.Enemies
 
         private Vector2 DirectionToTarget()
         {
-            return ((Vector2)target.position - (Vector2)transform.position).normalized;
+            var targetPoint = (Vector2)target.position + Vector2.up * definition.aimHeightOffset;
+            return (targetPoint - (Vector2)transform.position).normalized;
         }
 
         public void AssignTarget(Transform newTarget)

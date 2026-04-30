@@ -16,5 +16,6 @@ namespace SteelRain.Enemies
         public EnemyProjectile projectilePrefab;
         public int projectileDamage = 1;
         public float projectileSpeed = 9f;
+        public float aimHeightOffset;
     }
 }

@@ -23,3 +23,4 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6888016108284647343, guid: 1747bfb583a882045ae3f4dbfac4b341, type: 3}
   projectileDamage: 1
   projectileSpeed: 11
+  aimHeightOffset: 0
