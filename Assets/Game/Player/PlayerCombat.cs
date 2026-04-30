@@ -16,6 +16,7 @@ namespace SteelRain.Player
         private float firepowerUntil;
         private float fireRateMultiplier = 1f;
         private float damageMultiplier = 1f;
+        private bool missionEnded;
 
         public int CurrentWeaponLevel => currentWeapon.Level;
         public CharacterRuntime CurrentCharacterRuntime => characterRuntime;
@@ -28,8 +29,23 @@ namespace SteelRain.Player
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
 
+        private void OnEnable()
+        {
+            GameEvents.LevelCompleted += EndMissionCombat;
+            GameEvents.SquadDefeated += EndMissionCombat;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.LevelCompleted -= EndMissionCombat;
+            GameEvents.SquadDefeated -= EndMissionCombat;
+        }
+
         private void Update()
         {
+            if (missionEnded)
+                return;
+
             if (Input.GetKeyDown(KeyCode.E))
                 CycleForm();
 
@@ -134,5 +150,10 @@ namespace SteelRain.Player
 
         private float CurrentFireRateMultiplier => Time.time < firepowerUntil ? fireRateMultiplier : 1f;
         private float CurrentDamageMultiplier => Time.time < firepowerUntil ? damageMultiplier : 1f;
+
+        private void EndMissionCombat()
+        {
+            missionEnded = true;
+        }
     }
 }

@@ -14,15 +14,20 @@ namespace SteelRain.Player
         private int activeIndex;
         private float nextSwitchTime;
         private bool initialized;
+        private bool missionEnded;
 
         private void OnEnable()
         {
             GameEvents.PlayerDied += ActiveCharacterDied;
+            GameEvents.LevelCompleted += EndMissionSquad;
+            GameEvents.SquadDefeated += EndMissionSquad;
         }
 
         private void OnDisable()
         {
             GameEvents.PlayerDied -= ActiveCharacterDied;
+            GameEvents.LevelCompleted -= EndMissionSquad;
+            GameEvents.SquadDefeated -= EndMissionSquad;
         }
 
         private void Start()
@@ -43,7 +48,7 @@ namespace SteelRain.Player
 
         private void Update()
         {
-            if (!initialized || Time.time < nextSwitchTime)
+            if (!initialized || missionEnded || Time.time < nextSwitchTime)
                 return;
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -60,7 +65,7 @@ namespace SteelRain.Player
 
         public void ActiveCharacterDied()
         {
-            if (!initialized)
+            if (!initialized || missionEnded)
                 return;
 
             StoreActiveRuntime();
@@ -113,6 +118,11 @@ namespace SteelRain.Player
 
             runtimes[activeIndex].CurrentHealth = controller.CurrentHealth;
             combat.StoreCurrentWeaponLevel();
+        }
+
+        private void EndMissionSquad()
+        {
+            missionEnded = true;
         }
     }
 }

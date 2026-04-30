@@ -26,6 +26,7 @@ namespace SteelRain.Player
         private bool climbing;
         private bool climbJumpQueued;
         private ClimbZone climbZone;
+        private bool missionEnded;
 
         public bool IsGrounded { get; private set; }
         public bool IsCrouching => crouching;
@@ -55,6 +56,18 @@ namespace SteelRain.Player
             health.Died += GameEvents.RaisePlayerDied;
         }
 
+        private void OnEnable()
+        {
+            GameEvents.LevelCompleted += EndMissionControl;
+            GameEvents.SquadDefeated += EndMissionControl;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.LevelCompleted -= EndMissionControl;
+            GameEvents.SquadDefeated -= EndMissionControl;
+        }
+
         private void OnDestroy()
         {
             if (health == null)
@@ -76,6 +89,16 @@ namespace SteelRain.Player
 
         private void Update()
         {
+            if (missionEnded)
+            {
+                moveInput = Vector2.zero;
+                jumpQueued = false;
+                climbJumpQueued = false;
+                crouching = false;
+                climbing = false;
+                return;
+            }
+
             moveInput.x = ReadHorizontal();
             moveInput.y = ReadVertical();
             crouching = moveInput.y < -0.5f && !climbing;
@@ -121,6 +144,13 @@ namespace SteelRain.Player
 
         private void FixedUpdate()
         {
+            if (missionEnded)
+            {
+                body.linearVelocity = Vector2.zero;
+                ApplyCrouchShape();
+                return;
+            }
+
             IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundMask);
             ApplyCrouchShape();
 
@@ -179,6 +209,11 @@ namespace SteelRain.Player
 
             climbZone = null;
             climbing = false;
+        }
+
+        private void EndMissionControl()
+        {
+            missionEnded = true;
         }
     }
 }

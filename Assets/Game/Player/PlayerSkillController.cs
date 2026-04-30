@@ -8,8 +8,25 @@ namespace SteelRain.Player
         [SerializeField] private PlayerCombat combat;
         [SerializeField] private Health health;
 
+        private bool missionEnded;
+
+        private void OnEnable()
+        {
+            GameEvents.LevelCompleted += EndMissionSkill;
+            GameEvents.SquadDefeated += EndMissionSkill;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.LevelCompleted -= EndMissionSkill;
+            GameEvents.SquadDefeated -= EndMissionSkill;
+        }
+
         private void Update()
         {
+            if (missionEnded)
+                return;
+
             var runtime = combat != null ? combat.CurrentCharacterRuntime : null;
             if (runtime == null)
                 return;
@@ -49,6 +66,11 @@ namespace SteelRain.Player
 
             runtime.SkillCooldownRemaining = runtime.Definition.skillCooldown;
             RefreshStatus(runtime);
+        }
+
+        private void EndMissionSkill()
+        {
+            missionEnded = true;
         }
 
         private void RefreshStatus(CharacterRuntime runtime)

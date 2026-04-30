@@ -1,4 +1,5 @@
 using System.Collections;
+using SteelRain.Core;
 using UnityEngine;
 
 namespace SteelRain.Player
@@ -11,6 +12,7 @@ namespace SteelRain.Player
         private Rigidbody2D body;
         private float nextAllowedTime;
         private bool dodging;
+        private bool missionEnded;
 
         public bool IsDodging => dodging;
 
@@ -19,15 +21,30 @@ namespace SteelRain.Player
             body = GetComponent<Rigidbody2D>();
         }
 
+        private void OnEnable()
+        {
+            GameEvents.LevelCompleted += EndMissionDodge;
+            GameEvents.SquadDefeated += EndMissionDodge;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.LevelCompleted -= EndMissionDodge;
+            GameEvents.SquadDefeated -= EndMissionDodge;
+        }
+
         private void Update()
         {
+            if (missionEnded)
+                return;
+
             if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.K))
                 TryDodge();
         }
 
         public void TryDodge()
         {
-            if (dodging || Time.time < nextAllowedTime)
+            if (missionEnded || dodging || Time.time < nextAllowedTime)
                 return;
 
             StartCoroutine(DodgeRoutine());
@@ -42,6 +59,12 @@ namespace SteelRain.Player
             body.linearVelocity = new Vector2(direction * controller.Character.dodgeSpeed, 0f);
 
             yield return new WaitForSeconds(controller.Character.dodgeDuration);
+            dodging = false;
+        }
+
+        private void EndMissionDodge()
+        {
+            missionEnded = true;
             dodging = false;
         }
     }
