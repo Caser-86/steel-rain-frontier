@@ -13,5 +13,9 @@ namespace SteelRain.Player
         public float dodgeSpeed = 13f;
         public float dodgeDuration = 0.18f;
         public float dodgeCooldown = 0.55f;
+        public CharacterSkillId skillId = CharacterSkillId.BreakthroughFire;
+        public float crouchSpeedMultiplier = 0.45f;
+        public float climbSpeed = 3.5f;
+        public float skillCooldown = 10f;
     }
 }
