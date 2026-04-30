@@ -10,6 +10,8 @@ namespace SteelRain.UI
         [SerializeField] private Button continueButton;
         [SerializeField] private Text statusLabel;
 
+        private bool pendingNewGameOverwrite;
+
         private const string LevelSceneName = "Level01_VerticalSlice";
         public const string NewGameSceneName = "CharacterSelect";
         public const string LevelSelectSceneName = "LevelSelect";
@@ -38,8 +40,20 @@ namespace SteelRain.UI
 
         public void NewGame()
         {
+            if (SaveService.HasSave && !pendingNewGameOverwrite)
+            {
+                pendingNewGameOverwrite = true;
+                SetStatus(FormatOverwritePrompt(SaveService.CurrentSlot));
+                return;
+            }
+
             SaveService.Delete();
             SceneManager.LoadScene(NewGameSceneName);
+        }
+
+        public static string FormatOverwritePrompt(int slot)
+        {
+            return $"Slot {SaveService.NormalizeSlot(slot)} has save. Press NEW GAME again to overwrite.";
         }
 
         public void OpenLevelSelect()

@@ -204,9 +204,10 @@ namespace SteelRain.EditorTools
             var slotOne = CreateMenuButton(canvas.transform, "SlotOneButton", "Slot 1 - Empty", new Vector2(0f, 105f), controller.SelectSlotOne);
             var slotTwo = CreateMenuButton(canvas.transform, "SlotTwoButton", "Slot 2 - Empty", new Vector2(0f, 45f), controller.SelectSlotTwo);
             var slotThree = CreateMenuButton(canvas.transform, "SlotThreeButton", "Slot 3 - Empty", new Vector2(0f, -15f), controller.SelectSlotThree);
-            CreateMenuButton(canvas.transform, "BackButton", "BACK", new Vector2(0f, -105f), controller.BackToMainMenu);
+            CreateMenuButton(canvas.transform, "DeleteButton", "DELETE CURRENT", new Vector2(0f, -90f), controller.DeleteCurrentSlot);
+            CreateMenuButton(canvas.transform, "BackButton", "BACK", new Vector2(0f, -150f), controller.BackToMainMenu);
 
-            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -185f), "Current slot: 1");
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -220f), "Current slot: 1");
             SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
             status.GetComponent<RectTransform>().sizeDelta = new Vector2(820f, 48f);
             var statusText = status.GetComponent<UnityEngine.UI.Text>();

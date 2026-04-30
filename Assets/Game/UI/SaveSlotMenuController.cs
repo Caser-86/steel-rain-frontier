@@ -15,6 +15,8 @@ namespace SteelRain.UI
         [SerializeField] private Text slotTwoLabel;
         [SerializeField] private Text slotThreeLabel;
 
+        private bool pendingDeleteConfirm;
+
         private void Start()
         {
             Refresh();
@@ -43,7 +45,30 @@ namespace SteelRain.UI
         public void SelectSlot(int slot)
         {
             SaveService.SetCurrentSlot(slot);
+            pendingDeleteConfirm = false;
             SetStatus($"Current slot: {SaveService.CurrentSlot}");
+            Refresh();
+        }
+
+        public void DeleteCurrentSlot()
+        {
+            if (!SaveService.HasSave)
+            {
+                pendingDeleteConfirm = false;
+                SetStatus($"Slot {SaveService.CurrentSlot} is already empty.");
+                return;
+            }
+
+            if (!pendingDeleteConfirm)
+            {
+                pendingDeleteConfirm = true;
+                SetStatus(FormatDeleteConfirmPrompt(SaveService.CurrentSlot));
+                return;
+            }
+
+            SaveService.Delete();
+            pendingDeleteConfirm = false;
+            SetStatus($"Slot {SaveService.CurrentSlot} cleared.");
             Refresh();
         }
 
@@ -55,6 +80,11 @@ namespace SteelRain.UI
 
             var savedTime = FormatSavedTime(save.savedAtUtc);
             return $"Slot {normalizedSlot} - {save.levelId} - {savedTime}";
+        }
+
+        public static string FormatDeleteConfirmPrompt(int slot)
+        {
+            return $"Press DELETE again to clear Slot {SaveService.NormalizeSlot(slot)}";
         }
 
         private static string FormatSavedTime(string savedAtUtc)

@@ -23,4 +23,10 @@ public sealed class SaveSlotMenuTests
 
         Assert.AreEqual("Slot 2 - Level01 - 2026-04-30 08:00", SaveSlotMenuController.FormatSlotLabel(2, save));
     }
+
+    [Test]
+    public void SaveSlotMenu_DeletePromptNamesCurrentSlot()
+    {
+        Assert.AreEqual("Press DELETE again to clear Slot 3", SaveSlotMenuController.FormatDeleteConfirmPrompt(3));
+    }
 }
