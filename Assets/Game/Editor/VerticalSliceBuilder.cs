@@ -4,6 +4,7 @@ using SteelRain.Enemies;
 using SteelRain.Levels;
 using SteelRain.Pickups;
 using SteelRain.Player;
+using SteelRain.Save;
 using SteelRain.VFX;
 using SteelRain.Weapons;
 using UnityEditor;
@@ -63,7 +64,8 @@ namespace SteelRain.EditorTools
             CreateCamera(player.transform);
             CreateGround(sprite);
             CreateHud();
-            CreateCheckpointManager(player.transform);
+            var checkpointManager = CreateCheckpointManager(player.transform);
+            CreateSaveController(player, checkpointManager);
             CreateSegmentTrigger("BeachWaveTrigger", 10f, "BeachWave.asset", player.transform);
             CreateSegmentTrigger("VillageWaveTrigger", 38f, "VillageWave.asset", player.transform);
             CreateSegmentTrigger("TrenchWaveTrigger", 72f, "TrenchWave.asset", player.transform);
@@ -96,6 +98,56 @@ namespace SteelRain.EditorTools
 
             EditorSceneManager.SaveScene(scene, $"{SceneRoot}/Level01_VerticalSlice.unity");
             Debug.Log("Steel Rain Level01 vertical slice graybox built.");
+        }
+
+        [MenuItem("Steel Rain/Build Main Menu")]
+        public static void BuildMainMenu()
+        {
+            EnsureFolders();
+
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            scene.name = "MainMenu";
+
+            var cameraObject = new GameObject("Main Camera");
+            cameraObject.tag = "MainCamera";
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.04f, 0.05f, 0.07f);
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+
+            var canvas = new GameObject("Main Menu Canvas");
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.AddComponent<UnityEngine.UI.CanvasScaler>();
+            canvas.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+
+            var eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            var title = CreateText("Title", canvas.transform, new Vector2(0f, 180f), "STEEL RAIN FRONTIER");
+            SetAnchor(title.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            title.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 72f);
+            var titleText = title.GetComponent<UnityEngine.UI.Text>();
+            titleText.alignment = TextAnchor.MiddleCenter;
+            titleText.fontSize = 42;
+            titleText.color = new Color(0.2f, 0.95f, 1f);
+
+            var controllerObject = new GameObject("MainMenuController");
+            var controller = controllerObject.AddComponent<SteelRain.UI.MainMenuController>();
+            var continueButton = CreateMenuButton(canvas.transform, "ContinueButton", "CONTINUE", new Vector2(0f, 80f), controller.ContinueGame);
+            CreateMenuButton(canvas.transform, "NewGameButton", "NEW GAME", new Vector2(0f, 20f), controller.NewGame);
+            CreateMenuButton(canvas.transform, "SettingsButton", "SETTINGS", new Vector2(0f, -40f), controller.OpenSettings);
+            CreateMenuButton(canvas.transform, "QuitButton", "QUIT", new Vector2(0f, -100f), controller.QuitGame);
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -175f), "");
+            SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            status.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 48f);
+            status.GetComponent<UnityEngine.UI.Text>().alignment = TextAnchor.MiddleCenter;
+            status.GetComponent<UnityEngine.UI.Text>().fontSize = 22;
+            SetObject(controller, "continueButton", continueButton);
+            SetObject(controller, "statusLabel", status.GetComponent<UnityEngine.UI.Text>());
+
+            EditorSceneManager.SaveScene(scene, $"{SceneRoot}/MainMenu.unity");
+            Debug.Log("Steel Rain main menu built.");
         }
 
         private static void EnsureFolders()
@@ -645,24 +697,33 @@ namespace SteelRain.EditorTools
             var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle 90 [Auto]");
             var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Climb: W/S  Fire: J/Mouse  Skill: L  Squad: 1-4/Tab");
             var statusObject = CreateText("MissionStatusLabel", canvas.transform, Vector2.zero, "");
+            var advisorObject = CreateText("AiAdvisorLabel", canvas.transform, new Vector2(24f, -90f), "");
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
             SetAnchor(statusObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            SetAnchor(advisorObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
             statusObject.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 180f);
+            advisorObject.GetComponent<RectTransform>().sizeDelta = new Vector2(660f, 120f);
 
             var healthWidget = healthObject.AddComponent<SteelRain.UI.HealthWidget>();
             var ammoWidget = ammoObject.AddComponent<SteelRain.UI.AmmoWidget>();
             var statusWidget = statusObject.AddComponent<SteelRain.UI.MissionStatusWidget>();
+            var advisorWidget = advisorObject.AddComponent<SteelRain.UI.AiAdvisorWidget>();
             SetObject(healthWidget, "label", healthObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(ammoWidget, "label", ammoObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(statusWidget, "label", statusObject.GetComponent<UnityEngine.UI.Text>());
+            SetObject(advisorWidget, "label", advisorObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(presenter, "healthWidget", healthWidget);
             SetObject(presenter, "ammoWidget", ammoWidget);
             var statusLabel = statusObject.GetComponent<UnityEngine.UI.Text>();
             statusLabel.alignment = TextAnchor.MiddleCenter;
             statusLabel.fontSize = 46;
             statusLabel.color = new Color(1f, 0.92f, 0.2f);
+            var advisorLabel = advisorObject.GetComponent<UnityEngine.UI.Text>();
+            advisorLabel.alignment = TextAnchor.UpperLeft;
+            advisorLabel.fontSize = 20;
+            advisorLabel.color = new Color(0.7f, 1f, 0.95f);
         }
 
         private static GameObject CreateText(string name, Transform parent, Vector2 anchoredPosition, string text)
@@ -680,6 +741,33 @@ namespace SteelRain.EditorTools
             return go;
         }
 
+        private static UnityEngine.UI.Button CreateMenuButton(Transform parent, string name, string text, Vector2 anchoredPosition, UnityEngine.Events.UnityAction action)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rect = go.AddComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(280f, 48f);
+            rect.anchoredPosition = anchoredPosition;
+            SetAnchor(rect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+
+            var image = go.AddComponent<UnityEngine.UI.Image>();
+            image.color = new Color(0.08f, 0.16f, 0.2f, 0.95f);
+            var button = go.AddComponent<UnityEngine.UI.Button>();
+            button.targetGraphic = image;
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick, action);
+
+            var labelObject = CreateText($"{name}_Text", go.transform, Vector2.zero, text);
+            var labelRect = labelObject.GetComponent<RectTransform>();
+            SetAnchor(labelRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f));
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            var label = labelObject.GetComponent<UnityEngine.UI.Text>();
+            label.alignment = TextAnchor.MiddleCenter;
+            label.fontSize = 24;
+            label.color = Color.white;
+            return button;
+        }
+
         private static void SetAnchor(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot)
         {
             rect.anchorMin = anchorMin;
@@ -687,12 +775,28 @@ namespace SteelRain.EditorTools
             rect.pivot = pivot;
         }
 
-        private static void CreateCheckpointManager(Transform player)
+        private static CheckpointManager CreateCheckpointManager(Transform player)
         {
             var managerObject = new GameObject("CheckpointManager");
             var manager = managerObject.AddComponent<CheckpointManager>();
             SetObject(manager, "player", player);
             SetVector3(manager, "fallbackSpawn", new Vector3(0f, 1.5f, 0f));
+            return manager;
+        }
+
+        private static void CreateSaveController(GameObject player, CheckpointManager checkpointManager)
+        {
+            var go = new GameObject("SaveGameController");
+            var save = go.AddComponent<SaveGameController>();
+            SetObject(save, "checkpoints", checkpointManager);
+            SetObject(save, "squad", player.GetComponent<PlayerSquad>());
+            SetObject(save, "combat", player.GetComponent<PlayerCombat>());
+            SetObjectArray(save, "weapons", new Object[]
+            {
+                AssetDatabase.LoadAssetAtPath<WeaponDefinition>($"{DataRoot}/Weapons/AssaultRifle.asset"),
+                AssetDatabase.LoadAssetAtPath<WeaponDefinition>($"{DataRoot}/Weapons/Shotgun.asset"),
+                AssetDatabase.LoadAssetAtPath<WeaponDefinition>($"{DataRoot}/Weapons/RocketLauncher.asset")
+            });
         }
 
         private static void CreateSegmentTrigger(string name, float x, string waveAsset, Transform player)

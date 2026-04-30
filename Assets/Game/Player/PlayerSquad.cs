@@ -15,6 +15,7 @@ namespace SteelRain.Player
         private float nextSwitchTime;
         private bool initialized;
         private bool missionEnded;
+        public int ActiveIndex => activeIndex;
 
         private void OnEnable()
         {
@@ -109,6 +110,30 @@ namespace SteelRain.Player
             controller.AssignCharacter(runtime.Definition, runtime.CurrentHealth);
             combat.ApplyCharacterRuntime(runtime);
             GameEvents.RaisePlayerCharacterChanged(runtime.Definition.displayName);
+        }
+
+        public int[] CaptureHealth()
+        {
+            StoreActiveRuntime();
+            var health = new int[runtimes.Count];
+            for (var i = 0; i < runtimes.Count; i++)
+                health[i] = runtimes[i].CurrentHealth;
+
+            return health;
+        }
+
+        public void RestoreState(int selectedIndex, int[] health)
+        {
+            if (!initialized || runtimes.Count == 0)
+                return;
+
+            for (var i = 0; i < runtimes.Count; i++)
+            {
+                if (health != null && i < health.Length)
+                    runtimes[i].CurrentHealth = Mathf.Clamp(health[i], 0, runtimes[i].Definition.maxHealth);
+            }
+
+            ApplyRuntime(Mathf.Clamp(selectedIndex, 0, runtimes.Count - 1), false);
         }
 
         private void StoreActiveRuntime()

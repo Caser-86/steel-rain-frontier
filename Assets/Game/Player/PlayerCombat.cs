@@ -19,6 +19,7 @@ namespace SteelRain.Player
         private bool missionEnded;
 
         public int CurrentWeaponLevel => currentWeapon.Level;
+        public string CurrentWeaponId => currentWeapon.Definition.id;
         public CharacterRuntime CurrentCharacterRuntime => characterRuntime;
 
         private void Awake()
@@ -87,6 +88,14 @@ namespace SteelRain.Player
             GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
             return true;
+        }
+
+        public void SetCurrentWeaponLevel(int level)
+        {
+            currentWeapon.SetLevel(level);
+            StoreCurrentWeaponLevel();
+            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
+            GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
 
         public void ApplyCharacterRuntime(CharacterRuntime runtime)
