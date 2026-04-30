@@ -12,11 +12,13 @@ namespace SteelRain.Player
 
         private WeaponRuntime currentWeapon;
         private float nextFireTime;
+        public int CurrentWeaponLevel => currentWeapon.Level;
 
         private void Awake()
         {
             currentWeapon = new WeaponRuntime(startingWeapon, startingWeapon.startingAmmo);
             GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
+            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
 
@@ -40,6 +42,14 @@ namespace SteelRain.Player
             currentWeapon = new WeaponRuntime(weapon, weapon.startingAmmo);
             nextFireTime = 0f;
             GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
+            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
+            GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
+        }
+
+        public void UpgradeCurrentWeapon()
+        {
+            currentWeapon.Upgrade();
+            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
 
@@ -49,7 +59,7 @@ namespace SteelRain.Player
             if (Time.time < nextFireTime || !currentWeapon.ConsumeAmmo())
                 return;
 
-            nextFireTime = Time.time + 1f / form.fireRate;
+            nextFireTime = Time.time + 1f / currentWeapon.GetFireRate();
             FirePattern(form);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
