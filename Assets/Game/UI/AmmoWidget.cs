@@ -10,6 +10,8 @@ namespace SteelRain.UI
         private string weaponName = "";
         private int ammo;
         private string formName = "";
+        private int weaponLevel;
+        private string characterName = "Aila";
 
         public void SetAmmo(string newWeaponName, int newAmmo)
         {
@@ -24,12 +26,25 @@ namespace SteelRain.UI
             Refresh();
         }
 
+        public void SetWeaponLevel(int newWeaponLevel)
+        {
+            weaponLevel = newWeaponLevel;
+            Refresh();
+        }
+
+        public void SetCharacter(string newCharacterName)
+        {
+            characterName = newCharacterName;
+            Refresh();
+        }
+
         private void Refresh()
         {
             if (label == null)
                 return;
 
-            label.text = $"{weaponName} {ammo} [{formName}]";
+            var ammoText = ammo < 0 ? "INF" : ammo.ToString();
+            label.text = $"{characterName} | {weaponName} Lv{weaponLevel} {ammoText} [{formName}]";
         }
     }
 }
