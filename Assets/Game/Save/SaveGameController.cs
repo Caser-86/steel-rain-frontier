@@ -43,6 +43,7 @@ namespace SteelRain.Save
         private void SaveCompleted()
         {
             SaveService.Save(Capture(true));
+            GameEvents.RaiseSaveCompleted();
         }
 
         private SaveData Capture(bool completed)

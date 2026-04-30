@@ -16,6 +16,7 @@ namespace SteelRain.Core
         public static event Action LevelCompleted;
         public static event Action<string, int, int> BossHealthChanged;
         public static event Action<string> BossPhaseChanged;
+        public static event Action SaveCompleted;
 
         public static void RaisePlayerHealthChanged(int current, int max) =>
             PlayerHealthChanged?.Invoke(current, max);
@@ -52,5 +53,8 @@ namespace SteelRain.Core
 
         public static void RaiseBossPhaseChanged(string phaseName) =>
             BossPhaseChanged?.Invoke(phaseName);
+
+        public static void RaiseSaveCompleted() =>
+            SaveCompleted?.Invoke();
     }
 }

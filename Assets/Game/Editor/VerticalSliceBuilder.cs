@@ -708,29 +708,58 @@ namespace SteelRain.EditorTools
             var presenter = canvas.AddComponent<SteelRain.UI.HudPresenter>();
 
             var healthObject = CreateText("HealthLabel", canvas.transform, new Vector2(24f, -24f), "6/6");
-            var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle 90 [Auto]");
-            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Climb: W/S  Fire: J/Mouse  Skill: L  Squad: 1-4/Tab");
+            var characterObject = CreateText("CharacterStatusLabel", canvas.transform, new Vector2(24f, -64f), "Aila | Skill Locked | Switch 1-4 / Tab");
+            var weaponObject = CreateText("WeaponUpgradeLabel", canvas.transform, new Vector2(-24f, -24f), "Assault Rifle [Auto] INF | Lv0 Base firepower");
+            var ammoObject = CreateText("AmmoLabel", canvas.transform, new Vector2(-24f, -66f), "");
+            var helpObject = CreateText("HelpLabel", canvas.transform, new Vector2(24f, 24f), "Move: A/D  Jump: Space  Crouch: S  Climb: W/S  Fire: J/Mouse  Skill: L  Squad: 1-4/Tab  Pause: Esc");
             var statusObject = CreateText("MissionStatusLabel", canvas.transform, Vector2.zero, "");
             var advisorObject = CreateText("AiAdvisorLabel", canvas.transform, new Vector2(24f, -90f), "");
+            var toastObject = CreateText("ToastLabel", canvas.transform, new Vector2(0f, 112f), "");
             CreateBossHealthWidget(canvas.transform);
             SetAnchor(healthObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
+            SetAnchor(characterObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
+            SetAnchor(weaponObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(ammoObject.GetComponent<RectTransform>(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f));
             SetAnchor(helpObject.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0f));
             SetAnchor(statusObject.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
             SetAnchor(advisorObject.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f));
+            SetAnchor(toastObject.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+            characterObject.GetComponent<RectTransform>().sizeDelta = new Vector2(600f, 38f);
+            weaponObject.GetComponent<RectTransform>().sizeDelta = new Vector2(640f, 42f);
+            ammoObject.GetComponent<RectTransform>().sizeDelta = new Vector2(640f, 30f);
             statusObject.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 180f);
             advisorObject.GetComponent<RectTransform>().sizeDelta = new Vector2(660f, 120f);
+            toastObject.GetComponent<RectTransform>().sizeDelta = new Vector2(520f, 48f);
 
             var healthWidget = healthObject.AddComponent<SteelRain.UI.HealthWidget>();
             var ammoWidget = ammoObject.AddComponent<SteelRain.UI.AmmoWidget>();
+            var characterWidget = characterObject.AddComponent<SteelRain.UI.CharacterStatusWidget>();
+            var weaponWidget = weaponObject.AddComponent<SteelRain.UI.WeaponUpgradeWidget>();
             var statusWidget = statusObject.AddComponent<SteelRain.UI.MissionStatusWidget>();
             var advisorWidget = advisorObject.AddComponent<SteelRain.UI.AiAdvisorWidget>();
+            var toastWidget = toastObject.AddComponent<SteelRain.UI.ToastWidget>();
             SetObject(healthWidget, "label", healthObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(ammoWidget, "label", ammoObject.GetComponent<UnityEngine.UI.Text>());
+            SetObject(characterWidget, "label", characterObject.GetComponent<UnityEngine.UI.Text>());
+            SetObject(weaponWidget, "label", weaponObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(statusWidget, "label", statusObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(advisorWidget, "label", advisorObject.GetComponent<UnityEngine.UI.Text>());
+            SetObject(toastWidget, "label", toastObject.GetComponent<UnityEngine.UI.Text>());
             SetObject(presenter, "healthWidget", healthWidget);
             SetObject(presenter, "ammoWidget", ammoWidget);
+            SetObject(presenter, "characterStatusWidget", characterWidget);
+            SetObject(presenter, "weaponUpgradeWidget", weaponWidget);
+            var characterLabel = characterObject.GetComponent<UnityEngine.UI.Text>();
+            characterLabel.fontSize = 20;
+            characterLabel.color = new Color(0.85f, 1f, 0.95f);
+            var weaponLabel = weaponObject.GetComponent<UnityEngine.UI.Text>();
+            weaponLabel.alignment = TextAnchor.UpperRight;
+            weaponLabel.fontSize = 22;
+            weaponLabel.color = new Color(1f, 0.92f, 0.45f);
+            var ammoLabel = ammoObject.GetComponent<UnityEngine.UI.Text>();
+            ammoLabel.alignment = TextAnchor.UpperRight;
+            ammoLabel.fontSize = 15;
+            ammoLabel.color = new Color(0.7f, 0.86f, 1f, 0.72f);
             var statusLabel = statusObject.GetComponent<UnityEngine.UI.Text>();
             statusLabel.alignment = TextAnchor.MiddleCenter;
             statusLabel.fontSize = 46;
@@ -739,6 +768,10 @@ namespace SteelRain.EditorTools
             advisorLabel.alignment = TextAnchor.UpperLeft;
             advisorLabel.fontSize = 20;
             advisorLabel.color = new Color(0.7f, 1f, 0.95f);
+            var toastLabel = toastObject.GetComponent<UnityEngine.UI.Text>();
+            toastLabel.alignment = TextAnchor.MiddleCenter;
+            toastLabel.fontSize = 26;
+            toastLabel.color = new Color(0.65f, 1f, 0.5f);
         }
 
         private static SteelRain.UI.BossHealthWidget CreateBossHealthWidget(Transform parent)
