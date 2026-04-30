@@ -14,6 +14,11 @@ namespace SteelRain.Player
 
         private Rigidbody2D body;
         private Health health;
+        private BoxCollider2D bodyCollider;
+        private Transform visual;
+        private Vector2 standingColliderSize;
+        private Vector2 standingColliderOffset;
+        private Vector3 standingVisualScale;
         private Vector2 moveInput;
         private bool jumpQueued;
         private bool crouching;
@@ -28,6 +33,17 @@ namespace SteelRain.Player
         {
             body = GetComponent<Rigidbody2D>();
             body.gravityScale = character.gravityScale;
+            bodyCollider = GetComponent<BoxCollider2D>();
+            if (bodyCollider != null)
+            {
+                standingColliderSize = bodyCollider.size;
+                standingColliderOffset = bodyCollider.offset;
+            }
+
+            visual = transform.Find("Visual");
+            if (visual != null)
+                standingVisualScale = visual.localScale;
+
             health = GetComponent<Health>();
             health.Initialize(character.maxHealth, Team.Player);
             health.Changed += GameEvents.RaisePlayerHealthChanged;
@@ -91,6 +107,7 @@ namespace SteelRain.Player
         private void FixedUpdate()
         {
             IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundMask);
+            ApplyCrouchShape();
 
             var velocity = body.linearVelocity;
             var speed = crouching ? character.moveSpeed * character.crouchSpeedMultiplier : character.moveSpeed;
@@ -104,6 +121,21 @@ namespace SteelRain.Player
 
             body.linearVelocity = velocity;
             jumpQueued = false;
+        }
+
+        private void ApplyCrouchShape()
+        {
+            var heightMultiplier = crouching ? character.crouchColliderHeightMultiplier : 1f;
+
+            if (bodyCollider != null)
+            {
+                bodyCollider.size = new Vector2(standingColliderSize.x, standingColliderSize.y * heightMultiplier);
+                var heightDelta = standingColliderSize.y - bodyCollider.size.y;
+                bodyCollider.offset = standingColliderOffset + Vector2.down * (heightDelta * 0.5f);
+            }
+
+            if (visual != null)
+                visual.localScale = new Vector3(standingVisualScale.x, standingVisualScale.y * heightMultiplier, standingVisualScale.z);
         }
     }
 }
