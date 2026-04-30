@@ -1,5 +1,6 @@
 using SteelRain.Player;
 using UnityEngine;
+using SteelRain.Core;
 
 namespace SteelRain.Pickups
 {
@@ -10,7 +11,9 @@ namespace SteelRain.Pickups
             if (!other.TryGetComponent(out PlayerCombat combat))
                 return;
 
-            combat.UpgradeCurrentWeapon();
+            if (!combat.UpgradeCurrentWeapon() && other.TryGetComponent(out Health health))
+                health.SetInvulnerable(3f);
+
             gameObject.SetActive(false);
         }
     }

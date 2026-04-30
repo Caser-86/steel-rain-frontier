@@ -58,12 +58,16 @@ namespace SteelRain.Player
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
 
-        public void UpgradeCurrentWeapon()
+        public bool UpgradeCurrentWeapon()
         {
+            if (currentWeapon.Level >= 3)
+                return false;
+
             currentWeapon.Upgrade();
             StoreCurrentWeaponLevel();
             GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
+            return true;
         }
 
         public void ApplyCharacterRuntime(CharacterRuntime runtime)
