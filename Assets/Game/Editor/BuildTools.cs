@@ -17,6 +17,7 @@ namespace SteelRain.EditorTools
                 scenes = new[]
                 {
                     "Assets/Scenes/MainMenu.unity",
+                    "Assets/Scenes/CharacterSelect.unity",
                     "Assets/Scenes/Level01_VerticalSlice.unity"
                 },
                 locationPathName = outputPath,

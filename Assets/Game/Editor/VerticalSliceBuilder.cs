@@ -164,6 +164,59 @@ namespace SteelRain.EditorTools
             Debug.Log("Steel Rain main menu built.");
         }
 
+        [MenuItem("Steel Rain/Build Character Select")]
+        public static void BuildCharacterSelect()
+        {
+            EnsureFolders();
+
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            scene.name = "CharacterSelect";
+
+            var cameraObject = new GameObject("Main Camera");
+            cameraObject.tag = "MainCamera";
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.03f, 0.06f, 0.07f);
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+
+            var canvas = new GameObject("Character Select Canvas");
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.AddComponent<UnityEngine.UI.CanvasScaler>();
+            canvas.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+
+            var eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            var title = CreateText("Title", canvas.transform, new Vector2(0f, 210f), "SELECT SQUAD LEAD");
+            SetAnchor(title.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            title.GetComponent<RectTransform>().sizeDelta = new Vector2(780f, 64f);
+            var titleText = title.GetComponent<UnityEngine.UI.Text>();
+            titleText.alignment = TextAnchor.MiddleCenter;
+            titleText.fontSize = 38;
+            titleText.color = new Color(0.2f, 0.95f, 1f);
+
+            var controllerObject = new GameObject("CharacterSelectController");
+            var controller = controllerObject.AddComponent<SteelRain.UI.CharacterSelectController>();
+
+            CreateMenuButton(canvas.transform, "AilaButton", "AILA - Dash Assault", new Vector2(0f, 120f), controller.SelectAila);
+            CreateMenuButton(canvas.transform, "BrunoButton", "BRUNO - Siege Shield", new Vector2(0f, 60f), controller.SelectBruno);
+            CreateMenuButton(canvas.transform, "MaraButton", "MARA - Overdrive Medic", new Vector2(0f, 0f), controller.SelectMara);
+            CreateMenuButton(canvas.transform, "NikoButton", "NIKO - Time Rift", new Vector2(0f, -60f), controller.SelectNiko);
+            CreateMenuButton(canvas.transform, "BackButton", "BACK", new Vector2(0f, -140f), controller.BackToMainMenu);
+
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -215f), "");
+            SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            status.GetComponent<RectTransform>().sizeDelta = new Vector2(820f, 48f);
+            var statusText = status.GetComponent<UnityEngine.UI.Text>();
+            statusText.alignment = TextAnchor.MiddleCenter;
+            statusText.fontSize = 20;
+            SetObject(controller, "statusLabel", statusText);
+
+            EditorSceneManager.SaveScene(scene, $"{SceneRoot}/CharacterSelect.unity");
+            Debug.Log("Steel Rain character select built.");
+        }
+
         private static void EnsureFolders()
         {
             CreateFolder("Assets/Game", "Generated");

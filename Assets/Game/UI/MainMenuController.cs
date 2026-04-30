@@ -11,6 +11,7 @@ namespace SteelRain.UI
         [SerializeField] private Text statusLabel;
 
         private const string LevelSceneName = "Level01_VerticalSlice";
+        public const string NewGameSceneName = "CharacterSelect";
 
         private void Start()
         {
@@ -36,7 +37,7 @@ namespace SteelRain.UI
         public void NewGame()
         {
             SaveService.Delete();
-            SceneManager.LoadScene(LevelSceneName);
+            SceneManager.LoadScene(NewGameSceneName);
         }
 
         public void OpenSettings()
