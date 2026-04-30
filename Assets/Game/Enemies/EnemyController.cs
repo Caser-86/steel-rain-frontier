@@ -103,7 +103,7 @@ namespace SteelRain.Enemies
 
         private void FirePattern()
         {
-            if (definition.projectilePrefab == null || target == null)
+            if (target == null)
                 return;
 
             switch (definition.attackPattern)
@@ -112,7 +112,7 @@ namespace SteelRain.Enemies
                     Fire(Vector2.Lerp(Vector2.up, DirectionToTarget(), 0.6f).normalized, 0.75f);
                     break;
                 case EnemyAttackPattern.MortarMarker:
-                    Fire(Vector2.up, 0.55f);
+                    SpawnStrikeMarker(1.35f, 0.12f);
                     break;
                 case EnemyAttackPattern.DroneDive:
                     Fire(DirectionToTarget(), 1.2f);
@@ -146,9 +146,26 @@ namespace SteelRain.Enemies
 
         private void Fire(Vector2 direction, float speedMultiplier)
         {
+            if (definition.projectilePrefab == null)
+                return;
+
             var origin = attackOrigin != null ? attackOrigin.position : transform.position;
             var projectile = Instantiate(definition.projectilePrefab, origin, Quaternion.identity);
             projectile.Launch(direction, definition.projectileDamage, definition.projectileSpeed * speedMultiplier);
+        }
+
+        private void SpawnStrikeMarker(float radius, float delay)
+        {
+            var landing = EnemyStrikeMath.ClampLandingPoint(transform.position, target.position, definition.attackRange);
+            var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            go.name = "EnemyStrikeMarker";
+            go.transform.position = new Vector3(landing.x, 0.08f, -0.35f);
+            var collider = go.GetComponent<Collider>();
+            if (collider != null)
+                Destroy(collider);
+
+            var marker = go.AddComponent<EnemyStrikeMarker>();
+            marker.Configure(radius, delay, definition.projectileDamage);
         }
 
         private void ShowWarning()
@@ -162,6 +179,18 @@ namespace SteelRain.Enemies
                 warningObject.transform.SetParent(null);
                 warningObject.transform.position = target != null ? new Vector3(target.position.x, 0.06f, -0.35f) : transform.position;
                 warningObject.transform.localScale = new Vector3(1.6f, 0.08f, 1f);
+                return;
+            }
+
+            if (definition.attackPattern == EnemyAttackPattern.GrenadeArc)
+            {
+                warningObject.transform.SetParent(null);
+                var landing = target != null
+                    ? EnemyStrikeMath.ClampLandingPoint(transform.position, target.position, definition.attackRange)
+                    : (Vector2)transform.position;
+                warningObject.transform.position = new Vector3(landing.x, 0.06f, -0.35f);
+                warningObject.transform.localRotation = Quaternion.identity;
+                warningObject.transform.localScale = new Vector3(1.2f, 0.08f, 1f);
                 return;
             }
 
