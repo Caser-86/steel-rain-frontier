@@ -45,12 +45,15 @@ namespace SteelRain.Player
 
         public void EquipWeapon(WeaponDefinition weapon)
         {
+            var carriedLevel = currentWeapon != null ? currentWeapon.Level : 0;
+            StoreCurrentWeaponLevel();
             currentWeapon = new WeaponRuntime(weapon, weapon.startingAmmo);
             nextFireTime = 0f;
             if (characterRuntime != null)
             {
                 characterRuntime.SelectedWeaponId = weapon.id;
-                ApplyStoredWeaponLevel();
+                ApplyStoredWeaponLevel(carriedLevel);
+                StoreCurrentWeaponLevel();
             }
 
             GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
@@ -91,12 +94,10 @@ namespace SteelRain.Player
             characterRuntime.SetWeaponLevel(currentWeapon.Definition.id, currentWeapon.Level);
         }
 
-        private void ApplyStoredWeaponLevel()
+        private void ApplyStoredWeaponLevel(int minimumLevel = 0)
         {
-            currentWeapon.ResetUpgrades();
-            var level = characterRuntime.GetWeaponLevel(currentWeapon.Definition.id);
-            for (var i = 0; i < level; i++)
-                currentWeapon.Upgrade();
+            var level = Mathf.Max(minimumLevel, characterRuntime.GetWeaponLevel(currentWeapon.Definition.id));
+            currentWeapon.SetLevel(level);
         }
 
         private void TryFire()

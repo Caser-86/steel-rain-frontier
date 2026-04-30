@@ -54,6 +54,8 @@ namespace SteelRain.EditorTools
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Game/Generated/white-square.png");
             var playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabRoot}/Player/Player_Aila.prefab");
             var miniBossPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabRoot}/Enemies/MiniBoss_Walker.prefab");
+            var shotgun = AssetDatabase.LoadAssetAtPath<WeaponDefinition>($"{DataRoot}/Weapons/Shotgun.asset");
+            var rocketLauncher = AssetDatabase.LoadAssetAtPath<WeaponDefinition>($"{DataRoot}/Weapons/RocketLauncher.asset");
             var smallHealthPickup = CreateHealthPickupPrefab("Pickup_SmallHealth", PickupKind.SmallHealth, 1, "Mat_HealthPickup");
             var player = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
             player.transform.position = new Vector3(0f, 1.5f, 0f);
@@ -70,9 +72,11 @@ namespace SteelRain.EditorTools
             CreateCheckpoint("Checkpoint_C", 104f);
             CreateRescueNpc(sprite, 48f);
             CreateUpgradePickup("Upgrade_Lv1_Beach", new Vector2(18f, 1.2f));
+            CreateWeaponPickup("Weapon_Shotgun_BeachCache", new Vector2(30f, 1.2f), shotgun, "Mat_WeaponShotgun");
             CreateUpgradePickup("Upgrade_Lv2_Village", new Vector2(48f, 1.2f));
             CreateUpgradePickup("Upgrade_Backup_HighPlatform", new Vector2(54f, 5.2f));
             CreateClimbZone("ShortLadder_HighPlatform", new Vector2(54f, 2.55f), new Vector2(0.65f, 4.8f));
+            CreateWeaponPickup("Weapon_RocketLauncher_TrenchCache", new Vector2(86f, 1.2f), rocketLauncher, "Mat_WeaponRocket");
             CreateUpgradePickup("Upgrade_Backup_Armory", new Vector2(108f, 1.2f));
             CreateUpgradePickup("Upgrade_Lv3_BossPrep", new Vector2(112f, 1.2f));
             CreateCrate("Crate_Beach_A", new Vector2(16f, 1f), smallHealthPickup);
@@ -161,6 +165,8 @@ namespace SteelRain.EditorTools
             CreateMaterial("Mat_HealthPickup", new Color(0.15f, 1f, 0.25f));
             CreateMaterial("Mat_Ladder", new Color(0.45f, 0.62f, 0.75f));
             CreateMaterial("Mat_Barrel", new Color(1f, 0.12f, 0.05f));
+            CreateMaterial("Mat_WeaponShotgun", new Color(0.95f, 0.95f, 0.18f));
+            CreateMaterial("Mat_WeaponRocket", new Color(0.8f, 0.18f, 1f));
         }
 
         private static void CreateMaterial(string name, Color color)
@@ -548,6 +554,21 @@ namespace SteelRain.EditorTools
             var timed = go.AddComponent<TimedPickup>();
             go.AddComponent<WeaponUpgradePickup>();
             SetEnum(timed, "kind", PickupKind.WeaponUpgrade);
+        }
+
+        private static void CreateWeaponPickup(string name, Vector2 position, WeaponDefinition weapon, string materialName)
+        {
+            if (weapon == null)
+                return;
+
+            var go = new GameObject(name);
+            go.transform.position = position;
+            go.transform.localScale = new Vector3(0.75f, 0.55f, 1f);
+            AddVisualQuad(go, materialName);
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            var pickup = go.AddComponent<WeaponPickup>();
+            SetObject(pickup, "weapon", weapon);
         }
 
         private static void CreateClimbZone(string name, Vector2 position, Vector2 size)

@@ -35,6 +35,11 @@ namespace SteelRain.Weapons
             return Level;
         }
 
+        public void SetLevel(int level)
+        {
+            Level = Math.Clamp(level, 0, 3);
+        }
+
         public void ResetUpgrades()
         {
             Level = 0;
