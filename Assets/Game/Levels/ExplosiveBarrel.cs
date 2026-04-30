@@ -1,4 +1,5 @@
 using SteelRain.Core;
+using SteelRain.VFX;
 using UnityEngine;
 
 namespace SteelRain.Levels
@@ -30,6 +31,7 @@ namespace SteelRain.Levels
                 return;
 
             exploded = true;
+            CameraShake.ShakeGlobal(0.18f, 0.22f);
             var hits = Physics2D.OverlapCircleAll(transform.position, radius);
             foreach (var hit in hits)
             {

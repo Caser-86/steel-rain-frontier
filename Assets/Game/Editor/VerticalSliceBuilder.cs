@@ -510,6 +510,7 @@ namespace SteelRain.EditorTools
             cameraObject.transform.position = new Vector3(4f, 3f, -10f);
             var follow = cameraObject.AddComponent<CameraFollow2D>();
             SetObject(follow, "target", player);
+            cameraObject.AddComponent<SteelRain.VFX.CameraShake>();
             cameraObject.AddComponent<DebugHotkeys>();
         }
 

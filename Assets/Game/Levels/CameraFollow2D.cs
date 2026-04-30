@@ -1,4 +1,5 @@
 using UnityEngine;
+using SteelRain.VFX;
 
 namespace SteelRain.Levels
 {
@@ -9,13 +10,20 @@ namespace SteelRain.Levels
         [SerializeField] private float smoothTime = 0.18f;
 
         private Vector3 velocity;
+        private CameraShake shake;
+
+        private void Awake()
+        {
+            shake = GetComponent<CameraShake>();
+        }
 
         private void LateUpdate()
         {
             if (target == null)
                 return;
 
-            var desired = target.position + offset;
+            var shakeOffset = shake != null ? shake.Offset : Vector3.zero;
+            var desired = target.position + offset + shakeOffset;
             transform.position = Vector3.SmoothDamp(transform.position, desired, ref velocity, smoothTime);
         }
     }

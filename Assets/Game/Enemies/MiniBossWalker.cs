@@ -1,4 +1,5 @@
 using SteelRain.Core;
+using SteelRain.VFX;
 using UnityEngine;
 
 namespace SteelRain.Enemies
@@ -146,6 +147,7 @@ namespace SteelRain.Enemies
 
         private void Stomp()
         {
+            CameraShake.ShakeGlobal(0.22f, IsEnraged() ? 0.28f : 0.2f);
             var hits = Physics2D.OverlapCircleAll(transform.position, stompRadius);
             foreach (var hit in hits)
             {
