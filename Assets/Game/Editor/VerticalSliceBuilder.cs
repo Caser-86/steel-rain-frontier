@@ -148,11 +148,12 @@ namespace SteelRain.EditorTools
 
             var controllerObject = new GameObject("MainMenuController");
             var controller = controllerObject.AddComponent<SteelRain.UI.MainMenuController>();
-            var continueButton = CreateMenuButton(canvas.transform, "ContinueButton", "CONTINUE", new Vector2(0f, 80f), controller.ContinueGame);
-            CreateMenuButton(canvas.transform, "NewGameButton", "NEW GAME", new Vector2(0f, 20f), controller.NewGame);
-            CreateMenuButton(canvas.transform, "SettingsButton", "SETTINGS", new Vector2(0f, -40f), controller.OpenSettings);
-            CreateMenuButton(canvas.transform, "QuitButton", "QUIT", new Vector2(0f, -100f), controller.QuitGame);
-            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -175f), "");
+            var continueButton = CreateMenuButton(canvas.transform, "ContinueButton", "CONTINUE", new Vector2(0f, 100f), controller.ContinueGame);
+            CreateMenuButton(canvas.transform, "NewGameButton", "NEW GAME", new Vector2(0f, 40f), controller.NewGame);
+            CreateMenuButton(canvas.transform, "LevelSelectButton", "LEVEL SELECT", new Vector2(0f, -20f), controller.OpenLevelSelect);
+            CreateMenuButton(canvas.transform, "SettingsButton", "SETTINGS", new Vector2(0f, -80f), controller.OpenSettings);
+            CreateMenuButton(canvas.transform, "QuitButton", "QUIT", new Vector2(0f, -140f), controller.QuitGame);
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -210f), "");
             SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
             status.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 48f);
             status.GetComponent<UnityEngine.UI.Text>().alignment = TextAnchor.MiddleCenter;
@@ -162,6 +163,57 @@ namespace SteelRain.EditorTools
 
             EditorSceneManager.SaveScene(scene, $"{SceneRoot}/MainMenu.unity");
             Debug.Log("Steel Rain main menu built.");
+        }
+
+        [MenuItem("Steel Rain/Build Level Select")]
+        public static void BuildLevelSelect()
+        {
+            EnsureFolders();
+
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            scene.name = "LevelSelect";
+
+            var cameraObject = new GameObject("Main Camera");
+            cameraObject.tag = "MainCamera";
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.04f, 0.05f, 0.07f);
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+
+            var canvas = new GameObject("Level Select Canvas");
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.AddComponent<UnityEngine.UI.CanvasScaler>();
+            canvas.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+
+            var eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            var title = CreateText("Title", canvas.transform, new Vector2(0f, 190f), "LEVEL SELECT");
+            SetAnchor(title.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            title.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 64f);
+            var titleText = title.GetComponent<UnityEngine.UI.Text>();
+            titleText.alignment = TextAnchor.MiddleCenter;
+            titleText.fontSize = 38;
+            titleText.color = new Color(0.2f, 0.95f, 1f);
+
+            var controllerObject = new GameObject("LevelSelectController");
+            var controller = controllerObject.AddComponent<SteelRain.UI.LevelSelectController>();
+
+            CreateMenuButton(canvas.transform, "Level01Button", "LEVEL 01 - COASTAL FRONT", new Vector2(0f, 80f), controller.StartLevelOne);
+            CreateMenuButton(canvas.transform, "Level02Button", "LEVEL 02 - CLIMBING STAGE LOCKED", new Vector2(0f, 20f), controller.ShowLevelTwoLocked);
+            CreateMenuButton(canvas.transform, "BackButton", "BACK", new Vector2(0f, -80f), controller.BackToMainMenu);
+
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -165f), "");
+            SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            status.GetComponent<RectTransform>().sizeDelta = new Vector2(820f, 48f);
+            var statusText = status.GetComponent<UnityEngine.UI.Text>();
+            statusText.alignment = TextAnchor.MiddleCenter;
+            statusText.fontSize = 20;
+            SetObject(controller, "statusLabel", statusText);
+
+            EditorSceneManager.SaveScene(scene, $"{SceneRoot}/LevelSelect.unity");
+            Debug.Log("Steel Rain level select built.");
         }
 
         [MenuItem("Steel Rain/Build Character Select")]

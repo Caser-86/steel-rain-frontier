@@ -18,6 +18,7 @@ namespace SteelRain.EditorTools
                 {
                     "Assets/Scenes/MainMenu.unity",
                     "Assets/Scenes/CharacterSelect.unity",
+                    "Assets/Scenes/LevelSelect.unity",
                     "Assets/Scenes/Level01_VerticalSlice.unity"
                 },
                 locationPathName = outputPath,
