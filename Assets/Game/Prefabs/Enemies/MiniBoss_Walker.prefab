@@ -260,8 +260,13 @@ MonoBehaviour:
   target: {fileID: 0}
   attackOrigin: {fileID: 3280188134092311347}
   projectilePrefab: {fileID: 6888016108284647343, guid: 1747bfb583a882045ae3f4dbfac4b341, type: 3}
+  moveSpeed: 2.2
   gunCooldown: 1.2
   jumpCooldown: 4
+  jumpVelocity: 8.5
+  jumpLungeSpeed: 4.5
+  stompRadius: 3.2
   projectileSpeed: 10
   contactDamage: 2
   projectileDamage: 1
+  stompDamage: 2
