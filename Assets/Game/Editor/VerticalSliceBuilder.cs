@@ -148,12 +148,13 @@ namespace SteelRain.EditorTools
 
             var controllerObject = new GameObject("MainMenuController");
             var controller = controllerObject.AddComponent<SteelRain.UI.MainMenuController>();
-            var continueButton = CreateMenuButton(canvas.transform, "ContinueButton", "CONTINUE", new Vector2(0f, 100f), controller.ContinueGame);
-            CreateMenuButton(canvas.transform, "NewGameButton", "NEW GAME", new Vector2(0f, 40f), controller.NewGame);
-            CreateMenuButton(canvas.transform, "LevelSelectButton", "LEVEL SELECT", new Vector2(0f, -20f), controller.OpenLevelSelect);
-            CreateMenuButton(canvas.transform, "SettingsButton", "SETTINGS", new Vector2(0f, -80f), controller.OpenSettings);
-            CreateMenuButton(canvas.transform, "QuitButton", "QUIT", new Vector2(0f, -140f), controller.QuitGame);
-            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -210f), "");
+            var continueButton = CreateMenuButton(canvas.transform, "ContinueButton", "CONTINUE", new Vector2(0f, 130f), controller.ContinueGame);
+            CreateMenuButton(canvas.transform, "NewGameButton", "NEW GAME", new Vector2(0f, 70f), controller.NewGame);
+            CreateMenuButton(canvas.transform, "SaveSlotsButton", "SAVE SLOTS", new Vector2(0f, 10f), controller.OpenSaveSlots);
+            CreateMenuButton(canvas.transform, "LevelSelectButton", "LEVEL SELECT", new Vector2(0f, -50f), controller.OpenLevelSelect);
+            CreateMenuButton(canvas.transform, "SettingsButton", "SETTINGS", new Vector2(0f, -110f), controller.OpenSettings);
+            CreateMenuButton(canvas.transform, "QuitButton", "QUIT", new Vector2(0f, -170f), controller.QuitGame);
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -235f), "");
             SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
             status.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 48f);
             status.GetComponent<UnityEngine.UI.Text>().alignment = TextAnchor.MiddleCenter;
@@ -163,6 +164,61 @@ namespace SteelRain.EditorTools
 
             EditorSceneManager.SaveScene(scene, $"{SceneRoot}/MainMenu.unity");
             Debug.Log("Steel Rain main menu built.");
+        }
+
+        [MenuItem("Steel Rain/Build Save Slots")]
+        public static void BuildSaveSlots()
+        {
+            EnsureFolders();
+
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            scene.name = "SaveSlots";
+
+            var cameraObject = new GameObject("Main Camera");
+            cameraObject.tag = "MainCamera";
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.035f, 0.055f, 0.065f);
+            camera.transform.position = new Vector3(0f, 0f, -10f);
+
+            var canvas = new GameObject("Save Slots Canvas");
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.AddComponent<UnityEngine.UI.CanvasScaler>();
+            canvas.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+
+            var eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+
+            var title = CreateText("Title", canvas.transform, new Vector2(0f, 200f), "SAVE SLOTS");
+            SetAnchor(title.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            title.GetComponent<RectTransform>().sizeDelta = new Vector2(760f, 64f);
+            var titleText = title.GetComponent<UnityEngine.UI.Text>();
+            titleText.alignment = TextAnchor.MiddleCenter;
+            titleText.fontSize = 38;
+            titleText.color = new Color(0.2f, 0.95f, 1f);
+
+            var controllerObject = new GameObject("SaveSlotMenuController");
+            var controller = controllerObject.AddComponent<SteelRain.UI.SaveSlotMenuController>();
+
+            var slotOne = CreateMenuButton(canvas.transform, "SlotOneButton", "Slot 1 - Empty", new Vector2(0f, 105f), controller.SelectSlotOne);
+            var slotTwo = CreateMenuButton(canvas.transform, "SlotTwoButton", "Slot 2 - Empty", new Vector2(0f, 45f), controller.SelectSlotTwo);
+            var slotThree = CreateMenuButton(canvas.transform, "SlotThreeButton", "Slot 3 - Empty", new Vector2(0f, -15f), controller.SelectSlotThree);
+            CreateMenuButton(canvas.transform, "BackButton", "BACK", new Vector2(0f, -105f), controller.BackToMainMenu);
+
+            var status = CreateText("StatusLabel", canvas.transform, new Vector2(0f, -185f), "Current slot: 1");
+            SetAnchor(status.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
+            status.GetComponent<RectTransform>().sizeDelta = new Vector2(820f, 48f);
+            var statusText = status.GetComponent<UnityEngine.UI.Text>();
+            statusText.alignment = TextAnchor.MiddleCenter;
+            statusText.fontSize = 20;
+            SetObject(controller, "statusLabel", statusText);
+            SetObject(controller, "slotOneLabel", slotOne.GetComponentInChildren<UnityEngine.UI.Text>());
+            SetObject(controller, "slotTwoLabel", slotTwo.GetComponentInChildren<UnityEngine.UI.Text>());
+            SetObject(controller, "slotThreeLabel", slotThree.GetComponentInChildren<UnityEngine.UI.Text>());
+
+            EditorSceneManager.SaveScene(scene, $"{SceneRoot}/SaveSlots.unity");
+            Debug.Log("Steel Rain save slots built.");
         }
 
         [MenuItem("Steel Rain/Build Level Select")]

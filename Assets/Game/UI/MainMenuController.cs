@@ -13,6 +13,7 @@ namespace SteelRain.UI
         private const string LevelSceneName = "Level01_VerticalSlice";
         public const string NewGameSceneName = "CharacterSelect";
         public const string LevelSelectSceneName = "LevelSelect";
+        public const string SaveSlotsSceneName = "SaveSlots";
 
         private void Start()
         {
@@ -44,6 +45,11 @@ namespace SteelRain.UI
         public void OpenLevelSelect()
         {
             SceneManager.LoadScene(LevelSelectSceneName);
+        }
+
+        public void OpenSaveSlots()
+        {
+            SceneManager.LoadScene(SaveSlotsSceneName);
         }
 
         public void OpenSettings()
