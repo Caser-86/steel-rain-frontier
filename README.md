@@ -68,6 +68,7 @@ Checkpoints are placed between zones. Health pickups, weapon upgrades, and weapo
 - **6 enemy types**: Rifle Soldier, Shield Soldier, Drone, Grenadier, Mini-Boss Walker
 - **Environmental hazards**: Spike traps, explosive barrels, moving platforms, crumbling platforms
 - **Score system** with combo multiplier and local leaderboard (Top 10)
+- **Achievement system**: 19 unlockable achievements + 9 tracked statistics
 - **Save system**: Checkpoints, weapon upgrades, settings all persist via PlayerPrefs
 - **Procedural content**: All art, audio, and music are generated at build time — zero external assets
 - **HUD**: Health bar, ammo display, weapon level, skill cooldown, squad roster, score, combo counter, boss health bar, damage numbers
@@ -80,6 +81,7 @@ Checkpoints are placed between zones. Health pickups, weapon upgrades, and weapo
 - **Low health vignette**: Red screen edge when health is below 30%
 - **Damage direction indicator**: Arrows showing where damage came from
 - **Camera shake**: Screen shake on player damage and explosions
+- **Tutorial system**: Contextual prompts teaching controls in Level 1
 
 ## Building
 
@@ -112,7 +114,7 @@ Assets/
     VFX/         - Explosions, muzzle flash, camera shake, particles, sprite animator, damage numbers
     Editor/      - One-click build tools
     Data/        - ScriptableObject assets (auto-generated)
-    Tests/       - NUnit edit-mode tests (47 tests)
+    Tests/       - NUnit edit-mode tests (66 tests)
   Art/Generated/ - Procedural sprites (auto-generated)
   Audio/Generated/ - Procedural audio (auto-generated)
   Scenes/        - Boot, MainMenu, Level01, Level02 (auto-generated)
@@ -134,6 +136,15 @@ Assets/
 - Windows 10+ (for built executable)
 
 ## Version History
+
+### v1.0.2 (2026-06-19)
+- Fixed: Level02 scene missing HUD, GameOver, Victory, BossHealthBar, and DamageIndicator UI components
+- Fixed: Level01 scene missing LevelEndTrigger — level end logic now complete
+- Added: Achievement system with 19 unlockable achievements and 9 tracked statistics
+- Added: Achievement notification UI (slide-in animation on unlock)
+- Added: Tutorial prompt system in Level 1 (6 contextual control tutorials)
+- Added: AchievementManager unit tests (19 new tests)
+- Improved: Level02 now has full UI parity with Level01
 
 ### v1.0.1 (2026-06-19)
 - Fixed: Main menu SceneFader `fadeImage` not set — scene transitions now work correctly

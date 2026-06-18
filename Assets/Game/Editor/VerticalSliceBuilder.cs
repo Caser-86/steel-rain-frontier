@@ -1037,11 +1037,102 @@ namespace SteelRain.EditorTools
             // Boss 血条
             BuildBossHealthBar();
 
+            // 成就系统
+            BuildAchievementSystem();
+
             // 场景过渡
             BuildSceneFader();
 
+            // 关卡结束触发器（Boss击败后玩家继续前进触发）
+            var levelEnd = new GameObject("LevelEnd");
+            var endCol = levelEnd.AddComponent<BoxCollider2D>();
+            endCol.isTrigger = true;
+            endCol.size = new Vector2(2f, 5f);
+            var endRt = levelEnd.AddComponent<RectTransform>();
+            endRt.anchoredPosition = new Vector2(155f, 2f);
+            levelEnd.AddComponent<LevelEndTrigger>();
+            levelEnd.transform.position = new Vector3(155f, 2f, 0f);
+
+            // 教程提示
+            BuildTutorialPrompts();
+
             EditorSceneManager.SaveScene(scene, ScenePath);
             Debug.Log("[VerticalSliceBuilder] Level01 scene saved.");
+        }
+
+        private static void BuildTutorialPrompts()
+        {
+            // 教程提示文本（屏幕中央上方）
+            var tutorialCanvasGo = new GameObject("TutorialCanvas");
+            var tutorialCanvas = tutorialCanvasGo.AddComponent<Canvas>();
+            tutorialCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var tutorialScaler = tutorialCanvasGo.AddComponent<CanvasScaler>();
+            tutorialScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            tutorialScaler.referenceResolution = new Vector2(1920, 1080);
+            tutorialCanvasGo.AddComponent<GraphicRaycaster>();
+
+            var tutorialText = CreateHudText(tutorialCanvasGo, "TutorialText", new Vector2(0, 100), "", 24, SteelRain.UI.UIPalette.Warning, FontStyle.Bold);
+            tutorialText.rectTransform.anchorMin = new Vector2(0.2f, 0.7f);
+            tutorialText.rectTransform.anchorMax = new Vector2(0.8f, 0.85f);
+            tutorialText.alignment = TextAnchor.MiddleCenter;
+            tutorialText.enabled = false;
+
+            // 教程触发器1：移动教学
+            CreateTutorialTrigger(new Vector3(3f, 1.5f, 0f), "Tutorial_Move",
+                "Use A/D or Arrow Keys to move. Press SPACE to jump.",
+                tutorialText);
+
+            // 教程触发器2：射击教学
+            CreateTutorialTrigger(new Vector3(6f, 1.5f, 0f), "Tutorial_Shoot",
+                "Left Click or J to shoot. Destroy crates for pickups.",
+                tutorialText);
+
+            // 教程触发器3：角色切换教学
+            CreateTutorialTrigger(new Vector3(12f, 1.5f, 0f), "Tutorial_Switch",
+                "Press 1/2/3/4 to switch characters. Each has unique skills.",
+                tutorialText);
+
+            // 教程触发器4：技能教学
+            CreateTutorialTrigger(new Vector3(20f, 1.5f, 0f), "Tutorial_Skill",
+                "Press Q or Right Click to use character skill (requires Lv3 weapon).",
+                tutorialText);
+
+            // 教程触发器5：闪避教学
+            CreateTutorialTrigger(new Vector3(30f, 1.5f, 0f), "Tutorial_Dodge",
+                "Press Left Shift to dodge. Time it right to avoid damage.",
+                tutorialText);
+
+            // 教程触发器6：武器形态切换
+            CreateTutorialTrigger(new Vector3(45f, 1.5f, 0f), "Tutorial_WeaponForm",
+                "Press E to cycle weapon forms. Each form has different attack patterns.",
+                tutorialText);
+        }
+
+        private static void CreateTutorialTrigger(Vector3 pos, string name, string message, Text targetText)
+        {
+            var go = new GameObject(name);
+            go.transform.position = pos;
+            var col = go.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(2f, 5f);
+            var prompt = go.AddComponent<TutorialPrompt>();
+            var so = new SerializedObject(prompt);
+            so.FindProperty("promptText").objectReferenceValue = targetText;
+            so.FindProperty("message").stringValue = message;
+            so.FindProperty("displayDuration").floatValue = 5f;
+            so.ApplyModifiedProperties();
+        }
+
+        private static void BuildAchievementSystem()
+        {
+            // 成就跟踪器
+            var trackerGo = new GameObject("AchievementTracker");
+            trackerGo.AddComponent<SteelRain.UI.AchievementTracker>();
+
+            // 成就通知UI
+            var notifGo = new GameObject("AchievementNotification");
+            notifGo.AddComponent<Canvas>();
+            notifGo.AddComponent<SteelRain.UI.AchievementNotification>();
         }
 
         private static void BuildSceneFader()
@@ -1158,6 +1249,27 @@ namespace SteelRain.EditorTools
             PlacePickup(cratePrefab, new Vector3(30f, 1f, 0f), "L2_Crate_1");
             PlacePickup(healthPickupPrefab, new Vector3(55f, 1.5f, 0f), "L2_Health_1");
             PlacePickup(healthPickupPrefab, new Vector3(115f, 1.5f, 0f), "L2_Health_2");
+
+            // 背景视差
+            BuildParallaxBackground(camGo);
+
+            // HUD
+            BuildHud(player);
+
+            // 受击方向指示器（必须在 HUD 之后，因为依赖 HUD_Canvas）
+            BuildDamageIndicator(player.transform);
+
+            // Game Over / Victory 屏幕
+            BuildGameOverScreen();
+            BuildVictoryScreen();
+
+            // Boss 血条
+            BuildBossHealthBar();
+
+            // 成就系统
+            BuildAchievementSystem();
+
+            // 场景过渡
             BuildSceneFader();
 
             var levelEnd = new GameObject("LevelEnd");

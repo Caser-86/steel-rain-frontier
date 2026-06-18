@@ -46,7 +46,11 @@ namespace SteelRain.Enemies
         private void OnDeath()
         {
             if (definition != null)
+            {
                 ScoreManager.AddKill(definition.scoreValue);
+                // 触发成就系统
+                UI.AchievementTracker.OnEnemyKilled(definition.scoreValue);
+            }
             ExplosionEffect.Spawn(transform.position, 0.5f);
             AudioManager.Play("sfx_explosion", 0.4f);
             Destroy(gameObject);
