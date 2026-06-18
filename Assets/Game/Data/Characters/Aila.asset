@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 527b9a758e7590d499cf4b6fc4a4413f, type: 3}
+  m_Name: Aila
+  m_EditorClassIdentifier: SteelRain.Game::SteelRain.Player.CharacterDefinition
+  id: aila
+  displayName: Aila
+  skillId: 0
+  maxHealth: 6
+  moveSpeed: 7.2
+  jumpVelocity: 9.5
+  gravityScale: 3.2
+  fallGravityMultiplier: 1.35
+  crouchSpeedMultiplier: 0.45
+  crouchColliderHeightMultiplier: 0.6
+  climbSpeed: 3.5
+  dodgeSpeed: 12
+  dodgeDuration: 0.16
+  dodgeCooldown: 0.65
+  skillCooldown: 10
