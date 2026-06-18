@@ -11,7 +11,11 @@ namespace SteelRain.Core
         {
             Application.targetFrameRate = targetFrameRate;
             QualitySettings.vSyncCount = 0;
-            SceneManager.LoadScene("MainMenu");
+            // 启动画面由 BootScreen 负责延时跳转
+            if (FindObjectOfType<BootScreen>() == null)
+            {
+                gameObject.AddComponent<BootScreen>();
+            }
         }
 
         private void Update()

@@ -4,7 +4,7 @@ A 2D side-scrolling action shooter built in Unity 6. Command a 4-person squad, s
 
 ## Quick Start
 
-1. Open the project in **Unity 6000.3.0f1** or later
+1. Open the project in **Unity 6000.3.18f1** or later
 2. Run **Steel Rain > Build All** from the menu bar to generate all assets, prefabs, and scenes
 3. Press Play in the `Level01_VerticalSlice` scene
 
@@ -73,6 +73,13 @@ Checkpoints are placed between zones. Health pickups, weapon upgrades, and weapo
 - **HUD**: Health bar, ammo display, weapon level, skill cooldown, squad roster, score, combo counter, boss health bar, damage numbers
 - **Scene transitions**: Fade-to-black between scenes
 - **Settings**: Master/Music/SFX volume, fullscreen toggle, screen shake intensity
+- **Boot screen**: Loading progress + random game tips displayed on startup
+- **Menu animations**: Floating star particles on the main menu
+- **Interactive UI**: Button hover/press feedback, click sound effects
+- **Character switch toast**: Shows current character name and skill name when switching
+- **Low health vignette**: Red screen edge when health is below 30%
+- **Damage direction indicator**: Arrows showing where damage came from
+- **Camera shake**: Screen shake on player damage and explosions
 
 ## Building
 
@@ -105,7 +112,7 @@ Assets/
     VFX/         - Explosions, muzzle flash, camera shake, particles, sprite animator, damage numbers
     Editor/      - One-click build tools
     Data/        - ScriptableObject assets (auto-generated)
-    Tests/       - NUnit edit-mode tests (17 tests)
+    Tests/       - NUnit edit-mode tests (47 tests)
   Art/Generated/ - Procedural sprites (auto-generated)
   Audio/Generated/ - Procedural audio (auto-generated)
   Scenes/        - Boot, MainMenu, Level01, Level02 (auto-generated)
@@ -122,6 +129,27 @@ Assets/
 
 ## Requirements
 
-- Unity 6000.3.0f1 (Unity 6 LTS)
+- Unity 6000.3.18f1 (Unity 6 LTS)
 - Universal Render Pipeline (URP) 17.3.0
 - Windows 10+ (for built executable)
+
+## Version History
+
+### v1.0.1 (2026-06-19)
+- Fixed: Main menu SceneFader `fadeImage` not set — scene transitions now work correctly
+- Fixed: Shield pickup caused permanent invincibility — shield timer now properly counts down
+- Fixed: Invincible pickup caused permanent invincibility — coroutine now runs on player object
+- Fixed: Character switch toast displayed character name instead of skill name — now shows correct skill
+- Added: Boot screen with loading progress and random game tips
+- Added: Menu background animations (floating star particles)
+- Added: UI button hover/press visual feedback and click sound effects
+- Added: Low health vignette (red screen edge when health below 30%)
+- Added: Damage direction indicator (arrows showing where damage came from)
+- Added: Camera shake on player damage and explosions
+- Added: 30+ new edit-mode unit tests (total: 47 tests, all passing)
+- Improved: UI color palette system for consistent visual styling
+- Updated: Unity version from 6000.3.0f1 to 6000.3.18f1
+- Updated: URP package to 17.3.0
+
+### v1.0.0
+- Initial release: Full 2D squad shooter with 2 levels, 4 characters, 6 enemy types

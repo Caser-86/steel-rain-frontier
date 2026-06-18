@@ -1547,19 +1547,29 @@ namespace SteelRain.EditorTools
             var canvasGo = new GameObject("HUD_Canvas");
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             canvasGo.AddComponent<GraphicRaycaster>();
 
-            var healthText = CreateHudText(canvasGo, "HealthText", new Vector2(-380, 260), "HP 6/6", 20);
+            // 玩家卡片背景（左下）
+            CreateHudCard(canvasGo, "PlayerCard", new Vector2(0.0f, 0.0f), new Vector2(0.22f, 0.32f));
+            // 武器卡片背景（右下）
+            CreateHudCard(canvasGo, "WeaponCard", new Vector2(0.78f, 0.0f), new Vector2(1.0f, 0.32f));
+            // 顶部中央细条（分数）
+            CreateHudCard(canvasGo, "ScoreCard", new Vector2(0.42f, 0.92f), new Vector2(0.58f, 1.0f));
+
+            // 血条背景
             var healthBarBg = new GameObject("HealthBarBg");
             healthBarBg.transform.SetParent(canvasGo.transform);
             var hbBgRt = healthBarBg.AddComponent<RectTransform>();
-            hbBgRt.anchorMin = new Vector2(0.02f, 0.92f);
-            hbBgRt.anchorMax = new Vector2(0.15f, 0.96f);
+            hbBgRt.anchorMin = new Vector2(0.025f, 0.225f);
+            hbBgRt.anchorMax = new Vector2(0.195f, 0.245f);
             hbBgRt.offsetMin = Vector2.zero;
             hbBgRt.offsetMax = Vector2.zero;
             var hbBgImg = healthBarBg.AddComponent<Image>();
-            hbBgImg.color = new Color(0.15f, 0.15f, 0.15f, 0.8f);
+            hbBgImg.color = new Color(0.06f, 0.07f, 0.10f, 0.95f);
 
             var healthDamageFill = new GameObject("DamageFill");
             healthDamageFill.transform.SetParent(healthBarBg.transform);
@@ -1569,7 +1579,7 @@ namespace SteelRain.EditorTools
             hdfRt.offsetMin = Vector2.zero;
             hdfRt.offsetMax = Vector2.zero;
             var hdfImg = healthDamageFill.AddComponent<Image>();
-            hdfImg.color = new Color(0.8f, 0.3f, 0.3f, 0.6f);
+            hdfImg.color = new Color(0.55f, 0.10f, 0.12f, 0.85f);
             hdfImg.type = Image.Type.Filled;
             hdfImg.fillMethod = Image.FillMethod.Horizontal;
             hdfImg.fillAmount = 1f;
@@ -1582,24 +1592,62 @@ namespace SteelRain.EditorTools
             hfRt.offsetMin = Vector2.zero;
             hfRt.offsetMax = Vector2.zero;
             var hfImg = healthFill.AddComponent<Image>();
-            hfImg.color = new Color(0.2f, 0.8f, 0.3f, 1f);
+            hfImg.color = SteelRain.UI.UIPalette.HealthHigh;
             hfImg.type = Image.Type.Filled;
             hfImg.fillMethod = Image.FillMethod.Horizontal;
             hfImg.fillAmount = 1f;
 
-            healthText.rectTransform.anchorMin = new Vector2(0.02f, 0.87f);
-            healthText.rectTransform.anchorMax = new Vector2(0.15f, 0.92f);
-            var ammoText = CreateHudText(canvasGo, "AmmoText", new Vector2(380, 260), "Assault Rifle INF [Auto]", 20);
-            var levelText = CreateHudText(canvasGo, "WeaponLevelText", new Vector2(380, 230), "Weapon Lv0", 16);
-            var charText = CreateHudText(canvasGo, "CharacterText", new Vector2(-380, 230), "Aila", 16);
-            var skillText = CreateHudText(canvasGo, "SkillText", new Vector2(-380, 200), "Skill: READY", 14);
-            var squadText = CreateHudText(canvasGo, "SquadText", new Vector2(-380, 120), "", 12);
-            var scoreText = CreateHudText(canvasGo, "ScoreText", new Vector2(0, 280), "SCORE: 0", 18);
-            var comboText = CreateHudText(canvasGo, "ComboText", new Vector2(0, 250), "", 24);
+            // 血条文字
+            var healthText = CreateHudText(canvasGo, "HealthText", new Vector2(0, -22), "HP 6/6", 18, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            healthText.rectTransform.anchorMin = new Vector2(0.025f, 0.18f);
+            healthText.rectTransform.anchorMax = new Vector2(0.195f, 0.22f);
+            healthText.alignment = TextAnchor.MiddleCenter;
+
+            // 武器文字
+            var ammoText = CreateHudText(canvasGo, "AmmoText", new Vector2(0, -20), "Assault Rifle INF [Auto]", 18, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            ammoText.rectTransform.anchorMin = new Vector2(0.78f, 0.18f);
+            ammoText.rectTransform.anchorMax = new Vector2(1.0f, 0.22f);
+            ammoText.alignment = TextAnchor.MiddleCenter;
+            var levelText = CreateHudText(canvasGo, "WeaponLevelText", new Vector2(0, -50), "Weapon Lv0", 14, SteelRain.UI.UIPalette.Warning, FontStyle.Bold);
+            levelText.rectTransform.anchorMin = new Vector2(0.78f, 0.13f);
+            levelText.rectTransform.anchorMax = new Vector2(1.0f, 0.17f);
+            levelText.alignment = TextAnchor.MiddleCenter;
+            var charText = CreateHudText(canvasGo, "CharacterText", new Vector2(0, -76), "Aila", 16, SteelRain.UI.UIPalette.Accent, FontStyle.Bold);
+            charText.rectTransform.anchorMin = new Vector2(0.78f, 0.09f);
+            charText.rectTransform.anchorMax = new Vector2(1.0f, 0.13f);
+            charText.alignment = TextAnchor.MiddleCenter;
+            var skillText = CreateHudText(canvasGo, "SkillText", new Vector2(0, -100), "Skill: READY", 13, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
+            skillText.rectTransform.anchorMin = new Vector2(0.78f, 0.05f);
+            skillText.rectTransform.anchorMax = new Vector2(1.0f, 0.09f);
+            skillText.alignment = TextAnchor.MiddleCenter;
+
+            // 小队列表
+            var squadText = CreateHudText(canvasGo, "SquadText", new Vector2(0, 0), "", 12, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
+            squadText.rectTransform.anchorMin = new Vector2(0.03f, 0.04f);
+            squadText.rectTransform.anchorMax = new Vector2(0.20f, 0.18f);
+            squadText.alignment = TextAnchor.UpperLeft;
+            squadText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            squadText.verticalOverflow = VerticalWrapMode.Overflow;
+
+            // 顶部分数
+            var scoreText = CreateHudText(canvasGo, "ScoreText", new Vector2(0, 0), "SCORE: 0", 22, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            scoreText.rectTransform.anchorMin = new Vector2(0.42f, 0.93f);
+            scoreText.rectTransform.anchorMax = new Vector2(0.58f, 0.99f);
+            scoreText.alignment = TextAnchor.MiddleCenter;
+
+            // 连击
+            var comboText = CreateHudText(canvasGo, "ComboText", new Vector2(0, -22), "x2 COMBO!", 28, SteelRain.UI.UIPalette.Warning, FontStyle.Bold);
             comboText.enabled = false;
-            comboText.color = new Color(1f, 0.9f, 0.2f, 1f);
-            var checkpointText = CreateHudText(canvasGo, "CheckpointText", new Vector2(0, 100), "", 24);
+            comboText.rectTransform.anchorMin = new Vector2(0.40f, 0.86f);
+            comboText.rectTransform.anchorMax = new Vector2(0.60f, 0.92f);
+            comboText.alignment = TextAnchor.MiddleCenter;
+
+            // 检查点提示
+            var checkpointText = CreateHudText(canvasGo, "CheckpointText", new Vector2(0, 0), "", 24, SteelRain.UI.UIPalette.Accent, FontStyle.Bold);
             checkpointText.enabled = false;
+            checkpointText.rectTransform.anchorMin = new Vector2(0.3f, 0.45f);
+            checkpointText.rectTransform.anchorMax = new Vector2(0.7f, 0.55f);
+            checkpointText.alignment = TextAnchor.MiddleCenter;
 
             var skill = player.GetComponent<CharacterSkill>();
             var hud = canvasGo.AddComponent<HudPresenter>();
@@ -1628,22 +1676,48 @@ namespace SteelRain.EditorTools
             soHb.FindProperty("damageFillImage").objectReferenceValue = hdfImg;
             soHb.FindProperty("healthText").objectReferenceValue = healthText;
             soHb.ApplyModifiedProperties();
+
+            // 角色切换提示
+            canvasGo.AddComponent<SteelRain.UI.CharacterSwitchToast>();
         }
 
-        private static Text CreateHudText(GameObject canvas, string name, Vector2 pos, string content, int fontSize)
+        private static void CreateHudCard(GameObject parent, string name, Vector2 anchorMin, Vector2 anchorMax)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent.transform);
+            go.transform.SetAsFirstSibling();
+            var img = go.AddComponent<Image>();
+            img.color = SteelRain.UI.UIPalette.Panel;
+            img.raycastTarget = false;
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = anchorMin;
+            rt.anchorMax = anchorMax;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+        }
+
+        private static Text CreateHudText(GameObject canvas, string name, Vector2 pos, string content, int fontSize, Color color, FontStyle style)
         {
             var go = new GameObject(name);
             go.transform.SetParent(canvas.transform);
             var text = go.AddComponent<Text>();
             text.text = content;
             text.fontSize = fontSize;
-            text.color = Color.white;
+            text.color = color;
+            text.fontStyle = style;
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             var rt = text.GetComponent<RectTransform>();
             rt.anchoredPosition = pos;
             rt.sizeDelta = new Vector2(300, 40);
             return text;
+        }
+
+        private static Text CreateHudText(GameObject canvas, string name, Vector2 pos, string content, int fontSize)
+        {
+            return CreateHudText(canvas, name, pos, content, fontSize, Color.white, FontStyle.Normal);
         }
 
         private static void CreateBootScene()
@@ -1675,14 +1749,23 @@ namespace SteelRain.EditorTools
             var cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
             cam.orthographicSize = 5.4f;
-            cam.backgroundColor = new Color(0.08f, 0.06f, 0.12f);
+            cam.backgroundColor = new Color(0.05f, 0.05f, 0.08f);
             camGo.tag = "MainCamera";
 
             var canvasGo = new GameObject("MenuCanvas");
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             canvasGo.AddComponent<GraphicRaycaster>();
+
+            // 装饰背景层（在内容之下）
+            BuildMenuBackdrop(canvasGo);
+
+            // 背景动效层
+            BuildMenuAnimationLayer(canvasGo);
 
             // 主菜单内容容器
             var menuContent = new GameObject("MenuContent");
@@ -1693,23 +1776,33 @@ namespace SteelRain.EditorTools
             mcRt.offsetMin = Vector2.zero;
             mcRt.offsetMax = Vector2.zero;
 
-            // 标题区域 (Y: 200 ~ 140)
-            var titleText = CreateMenuText(menuContent, "Title", new Vector2(0, 200), "STEEL RAIN: FRONTIER", 40);
-            var subtitleText = CreateMenuText(menuContent, "Subtitle", new Vector2(0, 150), "A 2D Squad Shooter", 16);
+            // 标题区
+            var titleText = CreateMenuText(menuContent, "Title", new Vector2(0, 220), "STEEL RAIN: FRONTIER", 64, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            titleText.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 80);
+            CreateUnderline(menuContent, "TitleUnderline", new Vector2(0, 180), 240, 3, SteelRain.UI.UIPalette.Primary);
+            var subtitleText = CreateMenuText(menuContent, "Subtitle", new Vector2(0, 140), "A 2D Squad Shooter", 22, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
 
-            // 主按钮区域 (Y: 60 ~ -10)
-            var startBtn = CreateMenuButton(menuContent, "StartBtn", new Vector2(0, 60), "START GAME");
-            var newGameBtn = CreateMenuButton(menuContent, "NewGameBtn", new Vector2(0, 10), "NEW GAME");
+            // 主按钮（橙色调强调）
+            var startBtn = CreateMenuButton(menuContent, "StartBtn", new Vector2(0, 60), "START GAME", 200, 50, true);
+            var newGameBtn = CreateMenuButton(menuContent, "NewGameBtn", new Vector2(0, 0), "NEW GAME", 200, 50, false);
 
-            // 难度区域 (Y: -80 ~ -110)
-            var diffText = CreateMenuText(menuContent, "DiffText", new Vector2(0, -60), "Difficulty: Normal", 14);
-            var easyBtn = CreateMenuButton(menuContent, "EasyBtn", new Vector2(-100, -100), "EASY");
-            var normalBtn = CreateMenuButton(menuContent, "NormalBtn", new Vector2(0, -100), "NORMAL");
-            var hardBtn = CreateMenuButton(menuContent, "HardBtn", new Vector2(100, -100), "HARD");
+            // 难度区
+            var diffLabel = CreateMenuText(menuContent, "DiffLabel", new Vector2(0, -65), "DIFFICULTY", 14, SteelRain.UI.UIPalette.TextMuted, FontStyle.Bold);
+            diffLabel.GetComponent<RectTransform>().sizeDelta = new Vector2(400, 30);
+            var diffText = CreateMenuText(menuContent, "DiffText", new Vector2(0, -90), "Normal", 24, SteelRain.UI.UIPalette.Warning, FontStyle.Bold);
+            diffText.GetComponent<RectTransform>().sizeDelta = new Vector2(400, 30);
+            var easyBtn = CreateMenuButton(menuContent, "EasyBtn", new Vector2(-130, -135), "EASY", 90, 40, false);
+            var normalBtn = CreateMenuButton(menuContent, "NormalBtn", new Vector2(0, -135), "NORMAL", 100, 40, false);
+            var hardBtn = CreateMenuButton(menuContent, "HardBtn", new Vector2(130, -135), "HARD", 90, 40, false);
 
-            // 底部区域 (Y: -180 ~ -220)
-            var settingsBtn = CreateMenuButton(menuContent, "SettingsBtn", new Vector2(0, -180), "SETTINGS");
-            var quitBtn = CreateMenuButton(menuContent, "QuitBtn", new Vector2(0, -230), "QUIT");
+            // 底部
+            CreateDivider(menuContent, "Divider", new Vector2(0, -190), 360, 1, SteelRain.UI.UIPalette.Divider);
+            var settingsBtn = CreateMenuButton(menuContent, "SettingsBtn", new Vector2(0, -225), "SETTINGS", 200, 42, false);
+            var quitBtn = CreateMenuButton(menuContent, "QuitBtn", new Vector2(0, -280), "QUIT", 200, 42, false);
+
+            // 底部版本号
+            var versionText = CreateMenuText(menuContent, "Version", new Vector2(0, -340), "v1.0.0  ·  Unity 6 LTS", 12, SteelRain.UI.UIPalette.TextMuted, FontStyle.Normal);
+            versionText.GetComponent<RectTransform>().sizeDelta = new Vector2(400, 24);
 
             var menu = canvasGo.AddComponent<MainMenu>();
 
@@ -1717,20 +1810,23 @@ namespace SteelRain.EditorTools
             var settingsPanel = new GameObject("SettingsPanel");
             settingsPanel.transform.SetParent(canvasGo.transform);
             var panelRt = settingsPanel.AddComponent<RectTransform>();
-            panelRt.anchorMin = new Vector2(0.3f, 0.1f);
-            panelRt.anchorMax = new Vector2(0.7f, 0.9f);
+            panelRt.anchorMin = new Vector2(0.25f, 0.15f);
+            panelRt.anchorMax = new Vector2(0.75f, 0.85f);
             panelRt.offsetMin = Vector2.zero;
             panelRt.offsetMax = Vector2.zero;
             var panelImg = settingsPanel.AddComponent<Image>();
-            panelImg.color = new Color(0.1f, 0.1f, 0.15f, 0.95f);
+            panelImg.color = SteelRain.UI.UIPalette.Panel;
 
-            CreateMenuText(settingsPanel, "SettingsTitle", new Vector2(0, 160), "SETTINGS", 32);
-            var masterSlider = CreateMenuSlider(settingsPanel, "MasterSlider", new Vector2(0, 100), "Master Volume");
-            var musicSlider = CreateMenuSlider(settingsPanel, "MusicSlider", new Vector2(0, 40), "Music Volume");
-            var sfxSlider = CreateMenuSlider(settingsPanel, "SfxSlider", new Vector2(0, -20), "SFX Volume");
-            var fullscreenToggle = CreateMenuToggle(settingsPanel, "FullscreenToggle", new Vector2(0, -80), "Fullscreen");
-            var applyBtn = CreateMenuButton(settingsPanel, "ApplyBtn", new Vector2(0, -140), "APPLY");
-            var backBtn = CreateMenuButton(settingsPanel, "BackBtn", new Vector2(0, -190), "BACK");
+            var panelHeader = CreateMenuText(settingsPanel, "SettingsTitle", new Vector2(0, 200), "SETTINGS", 40, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            panelHeader.GetComponent<RectTransform>().sizeDelta = new Vector2(500, 60);
+            CreateUnderline(settingsPanel, "SettingsUnderline", new Vector2(0, 165), 120, 3, SteelRain.UI.UIPalette.Accent);
+
+            var masterSlider = CreateMenuSlider(settingsPanel, "MasterSlider", new Vector2(0, 110), "Master Volume");
+            var musicSlider = CreateMenuSlider(settingsPanel, "MusicSlider", new Vector2(0, 50), "Music Volume");
+            var sfxSlider = CreateMenuSlider(settingsPanel, "SfxSlider", new Vector2(0, -10), "SFX Volume");
+            var fullscreenToggle = CreateMenuToggle(settingsPanel, "FullscreenToggle", new Vector2(0, -75), "Fullscreen");
+            var applyBtn = CreateMenuButton(settingsPanel, "ApplyBtn", new Vector2(0, -150), "APPLY", 160, 46, true);
+            var backBtn = CreateMenuButton(settingsPanel, "BackBtn", new Vector2(0, -210), "BACK", 160, 46, false);
 
             var settingsMgr = settingsPanel.AddComponent<SettingsManager>();
             var soSettings = new SerializedObject(settingsMgr);
@@ -1761,7 +1857,9 @@ namespace SteelRain.EditorTools
             var faderCanvas = faderGo.AddComponent<Canvas>();
             faderCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             faderCanvas.sortingOrder = 999;
-            faderGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var faderScaler = faderGo.AddComponent<CanvasScaler>();
+            faderScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            faderScaler.referenceResolution = new Vector2(1920, 1080);
             faderGo.AddComponent<GraphicRaycaster>();
             var faderImgGo = new GameObject("FadeImage");
             faderImgGo.transform.SetParent(faderGo.transform);
@@ -1773,46 +1871,175 @@ namespace SteelRain.EditorTools
             faderImgRt.anchorMax = Vector2.one;
             faderImgRt.offsetMin = Vector2.zero;
             faderImgRt.offsetMax = Vector2.zero;
-            faderGo.AddComponent<SceneFader>();
+            var fader = faderGo.AddComponent<SceneFader>();
+            var soFader = new SerializedObject(fader);
+            soFader.FindProperty("fadeImage").objectReferenceValue = faderImg;
+            soFader.ApplyModifiedProperties();
 
             EditorSceneManager.SaveScene(scene, "Assets/Scenes/MainMenu.unity");
         }
 
-        private static Text CreateMenuText(GameObject canvas, string name, Vector2 pos, string content, int fontSize)
+        private static void BuildMenuAnimationLayer(GameObject canvas)
+        {
+            var animGo = new GameObject("MenuAnimationLayer");
+            animGo.transform.SetParent(canvas.transform);
+            var rt = animGo.AddComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            animGo.AddComponent<SteelRain.UI.MenuBackgroundAnimator>();
+        }
+
+        private static void BuildMenuBackdrop(GameObject canvas)
+        {
+            // 顶部高光
+            var topGlow = new GameObject("TopGlow");
+            topGlow.transform.SetParent(canvas.transform);
+            var topGlowImg = topGlow.AddComponent<Image>();
+            topGlowImg.color = new Color(0.12f, 0.16f, 0.24f, 0.6f);
+            topGlowImg.raycastTarget = false;
+            var topGlowRt = topGlow.GetComponent<RectTransform>();
+            topGlowRt.anchorMin = new Vector2(0, 0.55f);
+            topGlowRt.anchorMax = new Vector2(1, 1);
+            topGlowRt.offsetMin = Vector2.zero;
+            topGlowRt.offsetMax = Vector2.zero;
+
+            // 底部暗影
+            var bottomShade = new GameObject("BottomShade");
+            bottomShade.transform.SetParent(canvas.transform);
+            var bottomShadeImg = bottomShade.AddComponent<Image>();
+            bottomShadeImg.color = new Color(0.02f, 0.02f, 0.04f, 0.8f);
+            bottomShadeImg.raycastTarget = false;
+            var bottomShadeRt = bottomShade.GetComponent<RectTransform>();
+            bottomShadeRt.anchorMin = new Vector2(0, 0);
+            bottomShadeRt.anchorMax = new Vector2(1, 0.35f);
+            bottomShadeRt.offsetMin = Vector2.zero;
+            bottomShadeRt.offsetMax = Vector2.zero;
+
+            // 中央地平线（带高光的水平带）
+            var horizonBand = new GameObject("HorizonBand");
+            horizonBand.transform.SetParent(canvas.transform);
+            var horizonImg = horizonBand.AddComponent<Image>();
+            horizonImg.color = new Color(0.85f, 0.55f, 0.20f, 0.18f);
+            horizonImg.raycastTarget = false;
+            var horizonRt = horizonBand.GetComponent<RectTransform>();
+            horizonRt.anchorMin = new Vector2(0, 0.46f);
+            horizonRt.anchorMax = new Vector2(1, 0.50f);
+            horizonRt.offsetMin = Vector2.zero;
+            horizonRt.offsetMax = Vector2.zero;
+
+            // 角落装饰条（左上）
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(160, 4), SteelRain.UI.UIPalette.Primary, false, true);
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(4, 160), SteelRain.UI.UIPalette.Primary, false, true);
+            // 右上
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(160, 4), SteelRain.UI.UIPalette.Accent, true, true);
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(4, 160), SteelRain.UI.UIPalette.Accent, true, true);
+            // 左下
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(160, 4), SteelRain.UI.UIPalette.Accent, false, false);
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(4, 160), SteelRain.UI.UIPalette.Accent, false, false);
+            // 右下
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(160, 4), SteelRain.UI.UIPalette.Primary, true, false);
+            CreateCornerAccent(canvas, new Vector2(0, 0), new Vector2(4, 160), SteelRain.UI.UIPalette.Primary, true, false);
+        }
+
+        private static void CreateCornerAccent(GameObject parent, Vector2 anchoredPos, Vector2 size, Color color, bool mirrorX, bool top)
+        {
+            var go = new GameObject("CornerAccent");
+            go.transform.SetParent(parent.transform);
+            var img = go.AddComponent<Image>();
+            img.color = color;
+            img.raycastTarget = false;
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(mirrorX ? 1 : 0, top ? 1 : 0);
+            rt.anchorMax = new Vector2(mirrorX ? 1 : 0, top ? 1 : 0);
+            rt.pivot = new Vector2(mirrorX ? 1 : 0, top ? 1 : 0);
+            rt.anchoredPosition = new Vector2(mirrorX ? -40 : 40, top ? -40 : 40);
+            rt.sizeDelta = size;
+            // 水平条：拉伸 X；垂直条：拉伸 Y
+            if (size.x > size.y)
+                rt.sizeDelta = new Vector2(size.x, size.y);
+        }
+
+        private static void CreateUnderline(GameObject parent, string name, Vector2 pos, float width, float height, Color color)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent.transform);
+            var img = go.AddComponent<Image>();
+            img.color = color;
+            img.raycastTarget = false;
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = new Vector2(width, height);
+        }
+
+        private static void CreateDivider(GameObject parent, string name, Vector2 pos, float width, float height, Color color)
+        {
+            CreateUnderline(parent, name, pos, width, height, color);
+        }
+
+        private static Text CreateMenuText(GameObject canvas, string name, Vector2 pos, string content, int fontSize, Color color, FontStyle style)
         {
             var go = new GameObject(name);
             go.transform.SetParent(canvas.transform);
             var text = go.AddComponent<Text>();
             text.text = content;
             text.fontSize = fontSize;
-            text.color = Color.white;
+            text.color = color;
+            text.fontStyle = style;
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             var rt = text.GetComponent<RectTransform>();
             rt.anchoredPosition = pos;
             rt.sizeDelta = new Vector2(600, 60);
             return text;
         }
 
-        private static Button CreateMenuButton(GameObject canvas, string name, Vector2 pos, string label)
+        private static Text CreateMenuText(GameObject canvas, string name, Vector2 pos, string content, int fontSize)
+        {
+            return CreateMenuText(canvas, name, pos, content, fontSize, Color.white, FontStyle.Normal);
+        }
+
+        private static Button CreateMenuButton(GameObject canvas, string name, Vector2 pos, string label, float width, float height, bool primary)
         {
             var go = new GameObject(name);
             go.transform.SetParent(canvas.transform);
             var rt = go.AddComponent<RectTransform>();
             rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(160, 40);
+            rt.sizeDelta = new Vector2(width, height);
             var img = go.AddComponent<Image>();
-            img.color = new Color(0.2f, 0.2f, 0.3f, 0.9f);
+            img.color = primary ? SteelRain.UI.UIPalette.ButtonPrimary : SteelRain.UI.UIPalette.ButtonNormal;
             var btn = go.AddComponent<Button>();
+            var colors = btn.colors;
+            colors.normalColor = primary ? SteelRain.UI.UIPalette.ButtonPrimary : SteelRain.UI.UIPalette.ButtonNormal;
+            colors.highlightedColor = primary ? SteelRain.UI.UIPalette.ButtonPrimaryHover : SteelRain.UI.UIPalette.ButtonHover;
+            colors.pressedColor = SteelRain.UI.UIPalette.ButtonPressed;
+            colors.selectedColor = primary ? SteelRain.UI.UIPalette.ButtonPrimaryHover : SteelRain.UI.UIPalette.ButtonHover;
+            colors.disabledColor = new Color(0.15f, 0.15f, 0.18f, 0.6f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            btn.colors = colors;
+
+            var highlight = go.AddComponent<SteelRain.UI.ButtonHighlight>();
+            var soHl = new SerializedObject(highlight);
+            soHl.FindProperty("target").objectReferenceValue = img;
+            soHl.FindProperty("normalColor").colorValue = primary ? SteelRain.UI.UIPalette.ButtonPrimary : SteelRain.UI.UIPalette.ButtonNormal;
+            soHl.FindProperty("hoverColor").colorValue = primary ? SteelRain.UI.UIPalette.ButtonPrimaryHover : SteelRain.UI.UIPalette.ButtonHover;
+            soHl.FindProperty("pressedColor").colorValue = SteelRain.UI.UIPalette.ButtonPressed;
+            soHl.ApplyModifiedProperties();
 
             var textGo = new GameObject("Text");
             textGo.transform.SetParent(go.transform);
             var text = textGo.AddComponent<Text>();
             text.text = label;
             text.fontSize = 22;
-            text.color = Color.white;
+            text.color = SteelRain.UI.UIPalette.TextPrimary;
+            text.fontStyle = FontStyle.Bold;
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
             var textRt = textGo.GetComponent<RectTransform>();
             textRt.anchorMin = Vector2.zero;
             textRt.anchorMax = Vector2.one;
@@ -1822,69 +2049,84 @@ namespace SteelRain.EditorTools
             return btn;
         }
 
+        private static Button CreateMenuButton(GameObject canvas, string name, Vector2 pos, string label)
+        {
+            return CreateMenuButton(canvas, name, pos, label, 160, 40, false);
+        }
+
         private static Slider CreateMenuSlider(GameObject parent, string name, Vector2 pos, string label)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent.transform);
             var rt = go.AddComponent<RectTransform>();
             rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(300, 40);
+            rt.sizeDelta = new Vector2(360, 50);
 
             var labelGo = new GameObject("Label");
             labelGo.transform.SetParent(go.transform);
             var labelText = labelGo.AddComponent<Text>();
             labelText.text = label;
-            labelText.fontSize = 14;
-            labelText.color = Color.white;
+            labelText.fontSize = 16;
+            labelText.color = SteelRain.UI.UIPalette.TextSecondary;
+            labelText.fontStyle = FontStyle.Bold;
             labelText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             labelText.alignment = TextAnchor.MiddleLeft;
             var labelRt = labelGo.GetComponent<RectTransform>();
-            labelRt.anchorMin = new Vector2(0, 0);
-            labelRt.anchorMax = new Vector2(0.5f, 1);
+            labelRt.anchorMin = new Vector2(0, 0.5f);
+            labelRt.anchorMax = new Vector2(0.4f, 1);
             labelRt.offsetMin = new Vector2(10, 0);
             labelRt.offsetMax = new Vector2(0, 0);
 
             var bgGo = new GameObject("Background");
             bgGo.transform.SetParent(go.transform);
             var bgImg = bgGo.AddComponent<Image>();
-            bgImg.color = new Color(0.3f, 0.3f, 0.3f, 1f);
+            bgImg.color = new Color(0.10f, 0.12f, 0.18f, 1f);
             var bgRt = bgGo.GetComponent<RectTransform>();
-            bgRt.anchorMin = new Vector2(0.5f, 0.3f);
+            bgRt.anchorMin = new Vector2(0.4f, 0.3f);
             bgRt.anchorMax = new Vector2(1, 0.7f);
             bgRt.offsetMin = Vector2.zero;
             bgRt.offsetMax = Vector2.zero;
 
-            var fillGo = new GameObject("Fill Area");
-            fillGo.transform.SetParent(bgGo.transform);
-            var fillRt = fillGo.AddComponent<RectTransform>();
-            fillRt.anchorMin = new Vector2(0, 0);
-            fillRt.anchorMax = new Vector2(1, 1);
-            fillRt.offsetMin = Vector2.zero;
-            fillRt.offsetMax = Vector2.zero;
+            var fillAreaGo = new GameObject("Fill Area");
+            fillAreaGo.transform.SetParent(bgGo.transform);
+            var fillAreaRt = fillAreaGo.AddComponent<RectTransform>();
+            fillAreaRt.anchorMin = new Vector2(0, 0);
+            fillAreaRt.anchorMax = new Vector2(1, 1);
+            fillAreaRt.offsetMin = new Vector2(2, 2);
+            fillAreaRt.offsetMax = new Vector2(-2, -2);
 
-            var fillImgGo = new GameObject("Fill");
-            fillImgGo.transform.SetParent(fillGo.transform);
-            var fillImg = fillImgGo.AddComponent<Image>();
-            fillImg.color = new Color(0.3f, 0.6f, 1f, 1f);
-            var fillImgRt = fillImgGo.GetComponent<RectTransform>();
+            var fillGo = new GameObject("Fill");
+            fillGo.transform.SetParent(fillAreaGo.transform);
+            var fillImg = fillGo.AddComponent<Image>();
+            fillImg.color = SteelRain.UI.UIPalette.Accent;
+            var fillImgRt = fillGo.GetComponent<RectTransform>();
             fillImgRt.anchorMin = Vector2.zero;
             fillImgRt.anchorMax = new Vector2(0.5f, 1);
             fillImgRt.offsetMin = Vector2.zero;
             fillImgRt.offsetMax = Vector2.zero;
 
+            var handleAreaGo = new GameObject("Handle Slide Area");
+            handleAreaGo.transform.SetParent(bgGo.transform);
+            var handleAreaRt = handleAreaGo.AddComponent<RectTransform>();
+            handleAreaRt.anchorMin = Vector2.zero;
+            handleAreaRt.anchorMax = Vector2.one;
+            handleAreaRt.offsetMin = new Vector2(5, 0);
+            handleAreaRt.offsetMax = new Vector2(-5, 0);
+
             var handleGo = new GameObject("Handle");
-            handleGo.transform.SetParent(bgGo.transform);
+            handleGo.transform.SetParent(handleAreaGo.transform);
             var handleImg = handleGo.AddComponent<Image>();
-            handleImg.color = Color.white;
+            handleImg.color = SteelRain.UI.UIPalette.TextPrimary;
             var handleRt = handleGo.GetComponent<RectTransform>();
-            handleRt.anchorMin = Vector2.zero;
-            handleRt.anchorMax = Vector2.zero;
-            handleRt.sizeDelta = new Vector2(10, 20);
+            handleRt.anchorMin = new Vector2(0, 0);
+            handleRt.anchorMax = new Vector2(0, 1);
+            handleRt.sizeDelta = new Vector2(14, 0);
 
             var slider = go.AddComponent<Slider>();
-            slider.fillRect = fillRt;
+            slider.fillRect = fillAreaRt;
             slider.handleRect = handleRt;
             slider.targetGraphic = handleImg;
+            slider.direction = Slider.Direction.LeftToRight;
             slider.minValue = 0f;
             slider.maxValue = 1f;
             slider.value = 1f;
@@ -1898,21 +2140,23 @@ namespace SteelRain.EditorTools
             go.transform.SetParent(parent.transform);
             var rt = go.AddComponent<RectTransform>();
             rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(300, 40);
+            rt.sizeDelta = new Vector2(300, 36);
 
             var bgGo = new GameObject("Background");
             bgGo.transform.SetParent(go.transform);
             var bgImg = bgGo.AddComponent<Image>();
-            bgImg.color = new Color(0.3f, 0.3f, 0.3f, 1f);
+            bgImg.color = new Color(0.10f, 0.12f, 0.18f, 1f);
             var bgRt = bgGo.GetComponent<RectTransform>();
-            bgRt.anchorMin = new Vector2(0, 0.2f);
-            bgRt.anchorMax = new Vector2(0, 0.8f);
-            bgRt.sizeDelta = new Vector2(20, 0);
+            bgRt.anchorMin = new Vector2(0, 0);
+            bgRt.anchorMax = new Vector2(0, 1);
+            bgRt.sizeDelta = new Vector2(40, 0);
+            bgRt.pivot = new Vector2(0, 0.5f);
+            bgRt.anchoredPosition = new Vector2(10, 0);
 
             var checkGo = new GameObject("Checkmark");
             checkGo.transform.SetParent(bgGo.transform);
             var checkImg = checkGo.AddComponent<Image>();
-            checkImg.color = new Color(0.3f, 0.6f, 1f, 1f);
+            checkImg.color = SteelRain.UI.UIPalette.Accent;
             var checkRt = checkGo.GetComponent<RectTransform>();
             checkRt.anchorMin = new Vector2(0.2f, 0.2f);
             checkRt.anchorMax = new Vector2(0.8f, 0.8f);
@@ -1923,14 +2167,15 @@ namespace SteelRain.EditorTools
             labelGo.transform.SetParent(go.transform);
             var labelText = labelGo.AddComponent<Text>();
             labelText.text = label;
-            labelText.fontSize = 14;
-            labelText.color = Color.white;
+            labelText.fontSize = 16;
+            labelText.color = SteelRain.UI.UIPalette.TextSecondary;
+            labelText.fontStyle = FontStyle.Bold;
             labelText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             labelText.alignment = TextAnchor.MiddleLeft;
             var labelRt = labelGo.GetComponent<RectTransform>();
             labelRt.anchorMin = new Vector2(0, 0);
             labelRt.anchorMax = new Vector2(1, 1);
-            labelRt.offsetMin = new Vector2(30, 0);
+            labelRt.offsetMin = new Vector2(60, 0);
             labelRt.offsetMax = new Vector2(0, 0);
 
             var toggle = go.AddComponent<Toggle>();
@@ -1947,7 +2192,9 @@ namespace SteelRain.EditorTools
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 200;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
             canvasGo.AddComponent<GraphicRaycaster>();
 
             var panel = new GameObject("GameOverPanel");
@@ -1958,12 +2205,19 @@ namespace SteelRain.EditorTools
             panelRt.offsetMin = Vector2.zero;
             panelRt.offsetMax = Vector2.zero;
             var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0, 0, 0, 0.8f);
+            panelImg.color = new Color(0, 0, 0, 0.78f);
 
-            CreateMenuText(canvasGo, "GameOverTitle", new Vector2(0, 60), "GAME OVER", 48);
-            var goScoreText = CreateMenuText(canvasGo, "ScoreText", new Vector2(0, 10), "Score: 0\nHigh Score: 0", 18);
-            var retryBtn = CreateMenuButton(canvasGo, "RetryBtn", new Vector2(0, -50), "RETRY");
-            var menuBtn = CreateMenuButton(canvasGo, "MenuBtn", new Vector2(0, -110), "MAIN MENU");
+            CreateHudText(canvasGo, "GameOverTitle", new Vector2(0, 80), "GAME OVER", 72, SteelRain.UI.UIPalette.Danger, FontStyle.Bold);
+            CreateUnderline(canvasGo, "GameOverUnderline", new Vector2(0, 30), 240, 3, SteelRain.UI.UIPalette.Danger);
+
+            var goScoreText = CreateHudText(canvasGo, "ScoreText", new Vector2(0, -20), "Score: 0\nHigh Score: 0", 20, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            goScoreText.alignment = TextAnchor.MiddleCenter;
+            goScoreText.rectTransform.anchorMin = new Vector2(0.3f, 0.4f);
+            goScoreText.rectTransform.anchorMax = new Vector2(0.7f, 0.5f);
+            goScoreText.rectTransform.sizeDelta = Vector2.zero;
+
+            var retryBtn = CreateMenuButton(canvasGo, "RetryBtn", new Vector2(0, -90), "RETRY", 200, 50, true);
+            var menuBtn = CreateMenuButton(canvasGo, "MenuBtn", new Vector2(0, -150), "MAIN MENU", 200, 50, false);
 
             var gameOver = canvasGo.AddComponent<GameOverScreen>();
             var so = new SerializedObject(gameOver);
@@ -1980,7 +2234,9 @@ namespace SteelRain.EditorTools
             var canvas = canvasGo.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 200;
-            canvasGo.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            var scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
             canvasGo.AddComponent<GraphicRaycaster>();
 
             var panel = new GameObject("VictoryPanel");
@@ -1991,13 +2247,18 @@ namespace SteelRain.EditorTools
             panelRt.offsetMin = Vector2.zero;
             panelRt.offsetMax = Vector2.zero;
             var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0, 0, 0, 0.8f);
+            panelImg.color = new Color(0, 0, 0, 0.78f);
 
-            CreateMenuText(canvasGo, "VictoryTitle", new Vector2(0, 60), "VICTORY!", 48);
-            CreateMenuText(canvasGo, "VictorySub", new Vector2(0, 0), "Mission Complete", 24);
-            var victoryScoreText = CreateMenuText(canvasGo, "ScoreText", new Vector2(0, -30), "Score: 0\nHigh Score: 0", 18);
-            var nextLevelBtn = CreateMenuButton(canvasGo, "NextLevelBtn", new Vector2(0, -80), "NEXT LEVEL");
-            var menuBtn = CreateMenuButton(canvasGo, "VictoryMenuBtn", new Vector2(0, -130), "MAIN MENU");
+            CreateHudText(canvasGo, "VictoryTitle", new Vector2(0, 80), "VICTORY!", 72, SteelRain.UI.UIPalette.Success, FontStyle.Bold);
+            CreateUnderline(canvasGo, "VictoryUnderline", new Vector2(0, 30), 240, 3, SteelRain.UI.UIPalette.Success);
+            CreateHudText(canvasGo, "VictorySub", new Vector2(0, 0), "Mission Complete", 26, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
+            var victoryScoreText = CreateHudText(canvasGo, "ScoreText", new Vector2(0, -40), "Score: 0\nHigh Score: 0", 20, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            victoryScoreText.alignment = TextAnchor.MiddleCenter;
+            victoryScoreText.rectTransform.anchorMin = new Vector2(0.3f, 0.32f);
+            victoryScoreText.rectTransform.anchorMax = new Vector2(0.7f, 0.42f);
+            victoryScoreText.rectTransform.sizeDelta = Vector2.zero;
+            var nextLevelBtn = CreateMenuButton(canvasGo, "NextLevelBtn", new Vector2(0, -110), "NEXT LEVEL", 200, 50, true);
+            var menuBtn = CreateMenuButton(canvasGo, "VictoryMenuBtn", new Vector2(0, -170), "MAIN MENU", 200, 50, false);
 
             var victory = canvasGo.AddComponent<VictoryScreen>();
             var so = new SerializedObject(victory);

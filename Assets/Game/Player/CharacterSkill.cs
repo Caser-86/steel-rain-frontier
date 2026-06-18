@@ -23,6 +23,8 @@ namespace SteelRain.Player
         [SerializeField] private CharacterRuntime runtime;
         [SerializeField] private Projectile skillProjectilePrefab;
 
+        public CharacterRuntime Runtime => runtime;
+
         private float cooldownRemaining;
         private bool active;
 
@@ -52,6 +54,17 @@ namespace SteelRain.Player
 
             // 暂停时不响应技能输入
             if (Time.timeScale == 0f) return;
+
+            // 统一管理 ShieldTimer：当 shield 由拾取物激活（非技能协程）时递减并关闭
+            if (ShieldActive && !active && ShieldTimer > 0f)
+            {
+                ShieldTimer -= Time.deltaTime;
+                if (ShieldTimer <= 0f)
+                {
+                    ShieldTimer = 0f;
+                    ShieldActive = false;
+                }
+            }
 
             if (Input.GetKeyDown(KeyCode.Q) || Input.GetMouseButtonDown(1))
                 TryActivate();

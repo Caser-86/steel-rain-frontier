@@ -57,7 +57,7 @@ namespace SteelRain.UI
         private void UpdateDifficultyDisplay()
         {
             if (difficultyText != null)
-                difficultyText.text = $"Difficulty: {DifficultyManager.GetDifficultyName()}";
+                difficultyText.text = DifficultyManager.GetDifficultyName();
         }
 
         private void StartGame()

@@ -1,3 +1,4 @@
+using System.Collections;
 using SteelRain.Audio;
 using SteelRain.Core;
 using UnityEngine;
@@ -16,17 +17,30 @@ namespace SteelRain.Pickups
             if (health.Team != Team.Player)
                 return;
 
-            StartCoroutine(InvincibilityRoutine(health));
+            // 在 player 对象上启动协程，避免 pickup 被禁用后协程中断导致永久无敌
+            var runner = other.GetComponent<PickupCoroutineRunner>();
+            if (runner == null)
+                runner = other.gameObject.AddComponent<PickupCoroutineRunner>();
+            runner.Run(InvincibilityRoutine(health, runner));
+
             AudioManager.Play("sfx_upgrade", 0.7f);
             gameObject.SetActive(false);
         }
 
-        private System.Collections.IEnumerator InvincibilityRoutine(Health health)
+        private IEnumerator InvincibilityRoutine(Health health, MonoBehaviour runner)
         {
             health.Initialize(health.Max, Team.Neutral);
             yield return new WaitForSeconds(duration);
             if (health != null && !health.IsDead)
                 health.InitializeWithCurrent(health.Max, Team.Player, health.Current);
         }
+    }
+
+    /// <summary>
+    /// 临时协程运行器，挂在 player 上以避免 pickup 禁用导致协程中断。
+    /// </summary>
+    public sealed class PickupCoroutineRunner : MonoBehaviour
+    {
+        public void Run(IEnumerator routine) => StartCoroutine(routine);
     }
 }
