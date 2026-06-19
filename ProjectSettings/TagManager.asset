@@ -4,8 +4,10 @@
 TagManager:
   serializedVersion: 3
   tags:
+  - Player
   - Enemy
-  - Pickup
+  - Bullet
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -17,11 +19,6 @@ TagManager:
   - Player
   - Enemy
   - Projectile
-  - Pickup
-  - 
-  - 
-  - 
-  - 
   - 
   - 
   - 

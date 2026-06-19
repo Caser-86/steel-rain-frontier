@@ -49,6 +49,22 @@ namespace SteelRain.Player
             health = GetComponent<Health>();
             dodge = GetComponent<PlayerDodge>();
 
+            // 确保Rigidbody2D配置正确
+            if (body != null)
+            {
+                body.bodyType = RigidbodyType2D.Dynamic;
+                body.simulated = true;
+            }
+
+            // 确保BoxCollider2D启用且非Trigger
+            if (boxCollider != null)
+            {
+                boxCollider.enabled = true;
+                boxCollider.isTrigger = false;
+                if (boxCollider.size == Vector2.zero)
+                    boxCollider.size = new Vector2(0.8f, 1.2f);
+            }
+
             originalColliderSize = boxCollider.size;
 
             if (character != null)
@@ -103,8 +119,15 @@ namespace SteelRain.Player
         {
             if (character == null) return;
 
-            IsGrounded = groundCheck != null &&
-                Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundMask);
+            // 使用多种方法检测地面，确保可靠性
+            IsGrounded = CheckGrounded();
+
+            // 防止掉出场景边界
+            if (transform.position.y < -10f)
+            {
+                transform.position = new Vector3(transform.position.x, 2f, 0f);
+                body.linearVelocity = Vector2.zero;
+            }
 
             if (IsGrounded)
                 coyoteCounter = coyoteTime;
@@ -156,6 +179,45 @@ namespace SteelRain.Player
                         ParticleSpawner.SpawnDust(groundCheck.position);
                 }
             }
+        }
+
+        /// <summary>
+        /// 检测Player是否在地面上。使用多种方法确保可靠性。
+        /// </summary>
+        private bool CheckGrounded()
+        {
+            if (boxCollider == null) return false;
+
+            var colliderBounds = boxCollider.bounds;
+
+            // 方法1：使用OverlapBox检测Player底部下方，增大检测范围
+            var checkCenter = new Vector2(colliderBounds.center.x, colliderBounds.min.y - 0.15f);
+            var checkSize = new Vector2(colliderBounds.size.x * 0.9f, 0.3f);
+            var hit = Physics2D.OverlapBox(checkCenter, checkSize, 0f);
+            if (hit != null && hit.gameObject != gameObject)
+            {
+                return true;
+            }
+
+            // 方法2：使用OverlapCircle（增大半径）
+            if (groundCheck != null)
+            {
+                var hit2 = Physics2D.OverlapCircle(groundCheck.position, 0.5f);
+                if (hit2 != null && hit2.gameObject != gameObject)
+                {
+                    return true;
+                }
+            }
+
+            // 方法3：使用Raycast向下检测（增大距离）
+            var rayOrigin = new Vector2(colliderBounds.center.x, colliderBounds.min.y);
+            var rayHit = Physics2D.Raycast(rayOrigin, Vector2.down, 0.5f);
+            if (rayHit.collider != null && rayHit.collider.gameObject != gameObject)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public void AssignCharacter(CharacterDefinition definition, int currentHealth)

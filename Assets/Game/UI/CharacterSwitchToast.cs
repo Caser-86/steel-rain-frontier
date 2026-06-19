@@ -132,6 +132,7 @@ namespace SteelRain.UI
             // 角色名
             var nameGo = new GameObject("NameText");
             nameGo.transform.SetParent(rootGo.transform, false);
+            nameText = nameGo.AddComponent<Text>();
             nameRect = nameGo.GetComponent<RectTransform>();
             nameRect.anchorMin = new Vector2(0.5f, 0.5f);
             nameRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -139,7 +140,6 @@ namespace SteelRain.UI
             startNameY = 30f;
             nameRect.anchoredPosition = new Vector2(0, startNameY);
             nameRect.sizeDelta = new Vector2(800, 80);
-            nameText = nameGo.AddComponent<Text>();
             nameText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             nameText.fontSize = 64;
             nameText.fontStyle = FontStyle.Bold;
@@ -151,19 +151,20 @@ namespace SteelRain.UI
             // 名字下的橙色装饰线
             var accentGo = new GameObject("Accent");
             accentGo.transform.SetParent(rootGo.transform, false);
+            var accentImg = accentGo.AddComponent<Image>();
             var accentRt = accentGo.GetComponent<RectTransform>();
             accentRt.anchorMin = new Vector2(0.5f, 0.5f);
             accentRt.anchorMax = new Vector2(0.5f, 0.5f);
             accentRt.pivot = new Vector2(0.5f, 0.5f);
             accentRt.anchoredPosition = new Vector2(0, -10f);
             accentRt.sizeDelta = new Vector2(160, 3);
-            var accentImg = accentGo.AddComponent<Image>();
             accentImg.color = UIPalette.Primary;
             accentImg.raycastTarget = false;
 
             // 技能名
             var skillGo = new GameObject("SkillText");
             skillGo.transform.SetParent(rootGo.transform, false);
+            skillText = skillGo.AddComponent<Text>();
             skillRect = skillGo.GetComponent<RectTransform>();
             skillRect.anchorMin = new Vector2(0.5f, 0.5f);
             skillRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -171,7 +172,6 @@ namespace SteelRain.UI
             startSkillY = -40f;
             skillRect.anchoredPosition = new Vector2(0, startSkillY);
             skillRect.sizeDelta = new Vector2(600, 40);
-            skillText = skillGo.AddComponent<Text>();
             skillText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             skillText.fontSize = 22;
             skillText.fontStyle = FontStyle.Italic;

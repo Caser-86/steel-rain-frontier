@@ -1148,9 +1148,11 @@ namespace SteelRain.EditorTools
 
             // 摄像机
             var camGo = new GameObject("MainCamera");
+            camGo.transform.position = new Vector3(0, 0, -10f);
             var cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
             cam.orthographicSize = 5.4f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.12f, 0.1f, 0.18f);
             camGo.tag = "MainCamera";
             camGo.AddComponent<CameraShake>();
@@ -1437,9 +1439,11 @@ namespace SteelRain.EditorTools
             CreateEventSystem();
 
             var camGo = new GameObject("MainCamera");
+            camGo.transform.position = new Vector3(0, 0, -10f);
             var cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
             cam.orthographicSize = 5.4f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.15f, 0.08f, 0.05f);
             camGo.tag = "MainCamera";
             camGo.AddComponent<CameraShake>();
@@ -2197,9 +2201,11 @@ namespace SteelRain.EditorTools
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             var camGo = new GameObject("MainCamera");
+            camGo.transform.position = new Vector3(0, 0, -10f);
             var cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
             cam.orthographicSize = 5.4f;
+            cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.05f, 0.05f, 0.08f);
             camGo.tag = "MainCamera";
 
