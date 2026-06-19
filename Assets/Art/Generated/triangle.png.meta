@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5a5f26fa6d0322c4c93995f98232b820
+guid: 5f821e8eebdf634478cb61e45dde79df
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -40,10 +40,10 @@ TextureImporter:
     wrapU: 0
     wrapV: 0
     wrapW: 0
-  nPOTScale: 1
+  nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 0
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -54,7 +54,7 @@ TextureImporter:
   alphaUsage: 1
   alphaIsTransparency: 0
   spriteTessellationDetail: -1
-  textureType: 0
+  textureType: 8
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -100,8 +100,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: -1003295737678344
     vertices: []
     indices: 
     edges: []
@@ -109,7 +109,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      triangle: 21300000
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

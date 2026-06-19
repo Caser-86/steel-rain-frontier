@@ -23,6 +23,21 @@ namespace SteelRain.UI
 
         private void Start()
         {
+            Debug.Log("[MainMenu] Start called");
+
+            // 检查EventSystem
+            var es = FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
+            Debug.Log("[MainMenu] EventSystem found: " + (es != null));
+
+            // 如果没有EventSystem，自动创建
+            if (es == null)
+            {
+                var esGo = new GameObject("EventSystem");
+                esGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+                esGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                Debug.Log("[MainMenu] EventSystem auto-created");
+            }
+
             if (startButton != null)
                 startButton.onClick.AddListener(StartGame);
             if (newGameButton != null)
@@ -46,6 +61,24 @@ namespace SteelRain.UI
             if (cachedMenu == null) cachedMenu = transform.Find("MenuContent")?.gameObject;
 
             UpdateDifficultyDisplay();
+            Debug.Log("[MainMenu] Start complete. startButton=" + (startButton != null) + " newGameButton=" + (newGameButton != null));
+        }
+
+        private void Update()
+        {
+            // 键盘快捷键：空格或回车开始游戏
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+            {
+                if (cachedMenu == null || cachedMenu.activeSelf)
+                {
+                    StartGame();
+                }
+            }
+            // ESC退出
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                QuitGame();
+            }
         }
 
         private void SetDifficulty(Difficulty diff)
@@ -62,12 +95,14 @@ namespace SteelRain.UI
 
         private void StartGame()
         {
+            Debug.Log("[MainMenu] StartGame clicked, fading to Level01_VerticalSlice");
             Time.timeScale = 1f;
             SceneFader.FadeToScene("Level01_VerticalSlice");
         }
 
         private void NewGame()
         {
+            Debug.Log("[MainMenu] NewGame clicked");
             SaveSystem.ClearAll();
             ScoreManager.Reset();
             Time.timeScale = 1f;

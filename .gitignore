@@ -30,3 +30,7 @@ crashlytics-build.properties
 *.exe
 *.app
 ExportedObj/
+game_screenshot.bmp
+*.log
+objects.txt
+scene_objects.txt

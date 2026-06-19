@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using SteelRain.Audio;
 using SteelRain.Core;
 using SteelRain.Enemies;
@@ -37,6 +38,8 @@ namespace SteelRain.EditorTools
         {
             Debug.Log("[VerticalSliceBuilder] Starting full build...");
             EnsureDirectories();
+            // 强制Unity刷新资源（首次运行或外部添加的png文件需要）
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             GenerateSprites();
             AudioGenerator.GenerateAll();
             MusicGenerator.GenerateAll();
@@ -68,7 +71,120 @@ namespace SteelRain.EditorTools
             Debug.Log("[VerticalSliceBuilder] Build complete!");
         }
 
+        [MenuItem("Steel Rain/Diagnose")]
+
+        /// <summary>
+        /// 强制重新导入所有PNG让Unity生成sprite子资源
+        /// </summary>
+        public static void ReimportAllPNGs()
+        {
+            Debug.Log("[Reimport] Starting...");
+            var artDir = "Assets/Art/Generated";
+            if (!System.IO.Directory.Exists(artDir))
+            {
+                Debug.LogError($"[Reimport] {artDir} does not exist");
+                return;
+            }
+            var files = System.IO.Directory.GetFiles(artDir, "*.png");
+            foreach (var f in files)
+            {
+                var path = f.Replace('\\', '/');
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            }
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            Debug.Log($"[Reimport] {files.Length} files reimported");
+        }
+
+        /// <summary>
+        /// 为所有PNG添加Sprite子资源到Asset Database (解决批处理模式下sprite未生成问题)
+        /// </summary>
+        public static void InjectSpriteSubAssets()
+        {
+            Debug.Log("[InjectSprite] Starting...");
+            var artDir = "Assets/Art/Generated";
+            var files = System.IO.Directory.GetFiles(artDir, "*.png");
+            int injected = 0;
+            foreach (var f in files)
+            {
+                var path = f.Replace('\\', '/');
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                if (tex == null) { Debug.LogWarning($"[InjectSprite] no tex: {path}"); continue; }
+
+                // 检查是否已有Sprite子资源
+                var allAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+                bool hasSprite = false;
+                foreach (var a in allAssets)
+                {
+                    if (a is Sprite) { hasSprite = true; break; }
+                }
+                if (hasSprite) continue;
+
+                // 创建一个Sprite并添加到Asset
+                var sprite = Sprite.Create(tex,
+                    new Rect(0, 0, tex.width, tex.height),
+                    new Vector2(0.5f, 0.5f),
+                    16f);
+                sprite.name = System.IO.Path.GetFileNameWithoutExtension(path);
+                AssetDatabase.AddObjectToAsset(sprite, tex);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+                Debug.Log($"[InjectSprite] injected sprite for {path}");
+                injected++;
+            }
+            Debug.Log($"[InjectSprite] {injected} sprites injected");
+        }
+        public static void Diagnose()
+        {
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            var player = GameObject.Find("Player_Aila");
+            if (player != null)
+            {
+                Debug.Log($"[Diagnose] Player components: ");
+                foreach (var c in player.GetComponents<Component>())
+                {
+                    Debug.Log($"[Diagnose]   {c.GetType().Name}");
+                }
+                var sr = player.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    var s = sr.sprite;
+                    Debug.Log($"[Diagnose] Player SR: sprite={s?.name ?? "null"} rect={s?.rect} guid={AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(s))}");
+                }
+            }
+            // Ground
+            var ground = GameObject.Find("Ground");
+            if (ground != null && ground.transform.childCount > 0)
+            {
+                var childSr = ground.transform.GetChild(0).GetComponent<SpriteRenderer>();
+                Debug.Log($"[Diagnose] Ground[0] sprite={childSr?.sprite?.name}");
+            }
+            // File system check
+            Debug.Log($"[Diagnose] ArtDir exists: {System.IO.Directory.Exists(ArtDir)}");
+            if (System.IO.Directory.Exists(ArtDir))
+            {
+                var files = System.IO.Directory.GetFiles(ArtDir, "*.png");
+                Debug.Log($"[Diagnose] ArtDir png count: {files.Length}");
+            }
+        }
+
         [MenuItem("Steel Rain/Build Windows")]
+
+        /// <summary>
+        /// 仅生成PNG和音频资源（批处理模式分两步执行的第一步）
+        /// </summary>
+        public static void Step1_GenerateAssets()
+        {
+            Debug.Log("[VerticalSliceBuilder] Step1: Generating assets...");
+            EnsureDirectories();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            GenerateSprites();
+            AudioGenerator.GenerateAll();
+            MusicGenerator.GenerateAll();
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            Debug.Log("[VerticalSliceBuilder] Step1 complete!");
+        }
         public static void BuildWindows()
         {
             BuildAll();
@@ -104,19 +220,131 @@ namespace SteelRain.EditorTools
 
             var path = $"{ArtDir}/{name}.png";
             File.WriteAllBytes(path, tex.EncodeToPNG());
-            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            return LoadOrImportSprite(path);
+        }
 
-            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer != null)
+        /// <summary>
+        /// 加载或重新导入Sprite，兼容批处理模式
+        /// 核心修复：Unity 6批处理模式下不生成Sprite子资源，需要直接修改meta文件
+        /// </summary>
+        public static Sprite LoadOrImportSprite(string path)
+        {
+            // 1) 优先尝试 LoadAllAssetsAtPath
+            var assets = AssetDatabase.LoadAllAssetsAtPath(path);
+            if (assets != null)
             {
-                importer.textureType = TextureImporterType.Sprite;
-                importer.spritePixelsPerUnit = 16;
-                importer.filterMode = FilterMode.Point;
-                importer.mipmapEnabled = false;
-                importer.SaveAndReimport();
+                foreach (var a in assets)
+                {
+                    if (a is Sprite s) return s;
+                }
             }
 
-            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            // 2) 尝试 LoadAssetAtPath<Sprite>
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (sprite != null) return sprite;
+
+            // 3) 直接修改meta文件，强制Unity识别为Sprite并生成子资源
+            EnsureSpriteMeta(path);
+
+            // 强制重新导入
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
+            // 4) 再次尝试加载
+            assets = AssetDatabase.LoadAllAssetsAtPath(path);
+            if (assets != null)
+            {
+                foreach (var a in assets)
+                {
+                    if (a is Sprite s) return s;
+                }
+            }
+
+            sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (sprite != null) return sprite;
+
+            // 5) 最后fallback：使用Texture2D创建并添加到Asset
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (tex != null)
+            {
+                var newSprite = Sprite.Create(tex,
+                    new Rect(0, 0, tex.width, tex.height),
+                    new Vector2(0.5f, 0.5f),
+                    16f);
+                newSprite.name = System.IO.Path.GetFileNameWithoutExtension(path);
+                AssetDatabase.AddObjectToAsset(newSprite, tex);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+                Debug.LogWarning($"[LoadOrImportSprite] Created runtime sprite for {path}");
+                return newSprite;
+            }
+
+            Debug.LogError($"[LoadOrImportSprite] Failed to load sprite at {path}");
+            return null;
+        }
+
+        /// <summary>
+        /// 直接修改PNG的meta文件，确保Unity识别为Sprite类型并生成子资源
+        /// 解决Unity 6批处理模式下spriteID为空的问题
+        /// </summary>
+        private static void EnsureSpriteMeta(string assetPath)
+        {
+            var metaPath = assetPath + ".meta";
+            if (!File.Exists(metaPath)) return;
+
+            var name = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+            var content = File.ReadAllText(metaPath);
+            var changed = false;
+
+            // 生成稳定的spriteID（基于文件名hash）
+            long spriteId = 0;
+            foreach (char c in name)
+                spriteId = spriteId * 31 + c;
+            spriteId = Math.Abs(spriteId);
+            if (spriteId < 1000000000000000L) spriteId += 1000000000000000L;
+
+            // 1) textureType: X -> textureType: 8 (Sprite)
+            if (!Regex.IsMatch(content, @"textureType:\s*8"))
+            {
+                content = Regex.Replace(content, @"textureType:\s*\d+", "textureType: 8");
+                changed = true;
+            }
+
+            // 2) spriteMode: X -> spriteMode: 1 (Single)
+            if (!Regex.IsMatch(content, @"spriteMode:\s*1\b"))
+            {
+                if (Regex.IsMatch(content, @"spriteMode:\s*\d+"))
+                    content = Regex.Replace(content, @"spriteMode:\s*\d+", "spriteMode: 1");
+                changed = true;
+            }
+
+            // 3) spriteID: <空> -> spriteID: <id>
+            if (Regex.IsMatch(content, @"spriteID:\s*$", RegexOptions.Multiline))
+            {
+                content = Regex.Replace(content, @"spriteID:\s*$", $"spriteID: {spriteId}", RegexOptions.Multiline);
+                changed = true;
+            }
+
+            // 4) internalID: 0 -> internalID: <负数>
+            if (Regex.IsMatch(content, @"internalID:\s*0\s*$", RegexOptions.Multiline))
+            {
+                content = Regex.Replace(content, @"internalID:\s*0", $"internalID: -{spriteId}");
+                changed = true;
+            }
+
+            // 5) nameFileIdTable: {} -> nameFileIdTable:\n      <name>: 21300000
+            if (Regex.IsMatch(content, @"nameFileIdTable:\s*\{\}"))
+            {
+                content = Regex.Replace(content, @"nameFileIdTable:\s*\{\}", $"nameFileIdTable:\n      {name}: 21300000");
+                changed = true;
+            }
+
+            if (changed)
+            {
+                File.WriteAllText(metaPath, content);
+                Debug.Log($"[EnsureSpriteMeta] Fixed meta for {assetPath}: spriteID={spriteId}");
+            }
         }
 
         private static Sprite MakePlayerSprite()
@@ -151,17 +379,7 @@ namespace SteelRain.EditorTools
             tex.Apply();
             var path = $"{ArtDir}/player_aila.png";
             File.WriteAllBytes(path, tex.EncodeToPNG());
-            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (importer != null)
-            {
-                importer.textureType = TextureImporterType.Sprite;
-                importer.spritePixelsPerUnit = 16;
-                importer.filterMode = FilterMode.Point;
-                importer.mipmapEnabled = false;
-                importer.SaveAndReimport();
-            }
-            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            return LoadOrImportSprite(path);
         }
 
         private static void FillRect(Color32[] px, int w, int x0, int y0, int x1, int y1, Color32 c)
@@ -513,7 +731,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Projectile");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/bullet_player.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/bullet_player.png");
             sr.sortingOrder = 10;
             var rb = go.AddComponent<Rigidbody2D>();
             rb.gravityScale = 0f;
@@ -539,7 +757,7 @@ namespace SteelRain.EditorTools
             go.tag = "Player";
 
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/player_aila.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/player_aila.png");
             sr.sortingOrder = 5;
             sr.color = Color.white;
 
@@ -620,7 +838,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Enemy_Rifle");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/enemy_rifle.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/enemy_rifle.png");
             sr.sortingOrder = 4;
             sr.color = new Color(0.8f, 0.4f, 0.3f);
 
@@ -658,7 +876,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Enemy_Shield");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/enemy_shield.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/enemy_shield.png");
             sr.sortingOrder = 4;
             sr.color = new Color(0.5f, 0.6f, 0.4f, 1f);
 
@@ -677,7 +895,7 @@ namespace SteelRain.EditorTools
             shieldGo.transform.SetParent(go.transform);
             shieldGo.transform.localPosition = new Vector3(0.5f, 0f, 0f);
             var shieldSr = shieldGo.AddComponent<SpriteRenderer>();
-            shieldSr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/enemy_shield.png");
+            shieldSr.sprite = LoadOrImportSprite($"{ArtDir}/enemy_shield.png");
             shieldSr.color = new Color(0.7f, 0.8f, 0.6f, 0.8f);
             shieldSr.sortingOrder = 5;
 
@@ -699,7 +917,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Enemy_Drone");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/enemy_drone.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/enemy_drone.png");
             sr.sortingOrder = 6;
             sr.color = new Color(0.4f, 0.5f, 0.6f, 1f);
 
@@ -735,7 +953,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Enemy_Grenadier");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/enemy_rifle.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/enemy_rifle.png");
             sr.sortingOrder = 4;
             sr.color = new Color(0.6f, 0.5f, 0.2f, 1f);
 
@@ -770,7 +988,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("MiniBoss_Walker");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/miniboss_walker.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/miniboss_walker.png");
             sr.sortingOrder = 3;
 
             var rb = go.AddComponent<Rigidbody2D>();
@@ -808,7 +1026,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Pickup_Upgrade");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/upgrade_capsule.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/upgrade_capsule.png");
             sr.sortingOrder = 8;
             sr.color = new Color(0.2f, 0.6f, 1f, 1f);
 
@@ -832,7 +1050,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject($"Pickup_Weapon_{weapon.id}");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/upgrade_capsule.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/upgrade_capsule.png");
             sr.sortingOrder = 8;
             sr.color = tint;
 
@@ -858,7 +1076,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Pickup_Health");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/upgrade_capsule.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/upgrade_capsule.png");
             sr.sortingOrder = 8;
             sr.color = new Color(0.2f, 0.9f, 0.3f, 1f);
 
@@ -886,7 +1104,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Destructible_Crate");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/crate.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/crate.png");
             sr.sortingOrder = 3;
             sr.color = new Color(0.6f, 0.45f, 0.25f, 1f);
 
@@ -917,6 +1135,17 @@ namespace SteelRain.EditorTools
 
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+            // 关键修复：NewScene后active scene可能未设置，强制重新获取
+            var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (activeScene != scene)
+            {
+                UnityEngine.SceneManagement.SceneManager.SetActiveScene(scene);
+                activeScene = scene;
+            }
+
+            // EventSystem（UI按钮点击必需）
+            CreateEventSystem();
+
             // 摄像机
             var camGo = new GameObject("MainCamera");
             var cam = camGo.AddComponent<Camera>();
@@ -933,10 +1162,43 @@ namespace SteelRain.EditorTools
             BuildGround(groundGo, groundLayer);
 
             // 玩家
-            var player = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
+            // 关键修复：使用EditorSceneManager.MoveGameObjectToScene确保Player被显式加入目标场景
+            GameObject player = null;
+            if (playerPrefab != null)
+            {
+                // 优先使用PrefabUtility创建prefab instance
+                player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
+                if (player != null)
+                {
+                    // 强制使用EditorSceneManager.MoveGameObjectToScene将player移到目标scene
+                    EditorSceneManager.MoveGameObjectToScene(player, scene);
+                }
+            }
+            if (player == null)
+            {
+                Debug.LogWarning("[BuildLevel01] PrefabUtility.InstantiatePrefab returned null, using direct clone");
+                player = new GameObject("Player_Aila");
+                var srcSr = playerPrefab != null ? playerPrefab.GetComponentInChildren<SpriteRenderer>(true) : null;
+                if (srcSr != null && srcSr.sprite != null)
+                {
+                    var newSr = player.AddComponent<SpriteRenderer>();
+                    newSr.sprite = srcSr.sprite;
+                    newSr.sortingOrder = 5;
+                }
+                player.AddComponent<Rigidbody2D>();
+                player.AddComponent<BoxCollider2D>();
+                player.AddComponent<Health>();
+                player.AddComponent<PlayerController2D>();
+                player.AddComponent<PlayerCombat>();
+                EditorSceneManager.MoveGameObjectToScene(player, scene);
+            }
+            player.name = "Player_Aila";
             player.transform.position = new Vector3(0f, 1f, 0f);
+            player.tag = "Player";
+            FixSpriteReferences(player, playerPrefab);
             var controller = player.GetComponent<PlayerController2D>();
             var combat = player.GetComponent<PlayerCombat>();
+            Debug.Log($"[BuildLevel01] Player created at {player.transform.position}, scene={player.scene.name}, sceneRootCount={scene.rootCount}, sceneIsValid={scene.IsValid()}, components: ctrl={controller != null}, combat={combat != null}");
 
             // 摄像机跟随
             var soCam = new SerializedObject(camFollow);
@@ -975,6 +1237,7 @@ namespace SteelRain.EditorTools
             {
                 var boss = PrefabUtility.InstantiatePrefab(bossPrefab) as GameObject;
                 boss.transform.position = new Vector3(140f, 1.5f, 0f);
+                FixSpriteReferences(boss, bossPrefab);
                 var bossComp = boss.GetComponent<MiniBossWalker>();
                 if (bossComp != null) bossComp.AssignTarget(player.transform);
             }
@@ -1170,6 +1433,9 @@ namespace SteelRain.EditorTools
             Debug.Log("[VerticalSliceBuilder] Building Level02 scene...");
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+            // EventSystem（UI按钮点击必需）
+            CreateEventSystem();
+
             var camGo = new GameObject("MainCamera");
             var cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
@@ -1183,10 +1449,38 @@ namespace SteelRain.EditorTools
             var groundGo = new GameObject("Ground");
             BuildFactoryGround(groundGo, groundLayer);
 
-            var player = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
+            GameObject player = null;
+            if (playerPrefab != null)
+            {
+                player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab);
+                if (player != null)
+                    EditorSceneManager.MoveGameObjectToScene(player, scene);
+            }
+            if (player == null)
+            {
+                Debug.LogWarning("[BuildLevel02] PrefabUtility.InstantiatePrefab returned null, recreating");
+                player = new GameObject("Player_Aila");
+                var srcSr = playerPrefab != null ? playerPrefab.GetComponentInChildren<SpriteRenderer>(true) : null;
+                if (srcSr != null && srcSr.sprite != null)
+                {
+                    var newSr = player.AddComponent<SpriteRenderer>();
+                    newSr.sprite = srcSr.sprite;
+                    newSr.sortingOrder = 5;
+                }
+                player.AddComponent<Rigidbody2D>();
+                player.AddComponent<BoxCollider2D>();
+                player.AddComponent<Health>();
+                player.AddComponent<PlayerController2D>();
+                player.AddComponent<PlayerCombat>();
+                EditorSceneManager.MoveGameObjectToScene(player, scene);
+            }
+            player.name = "Player_Aila";
             player.transform.position = new Vector3(0f, 2f, 0f);
+            player.tag = "Player";
+            FixSpriteReferences(player, playerPrefab);
             var controller = player.GetComponent<PlayerController2D>();
             var combat = player.GetComponent<PlayerCombat>();
+            Debug.Log($"[BuildLevel02] Player created at {player.transform.position}, scene={player.scene.name}, sceneRootCount={scene.rootCount}");
 
             var soCam = new SerializedObject(camFollow);
             soCam.FindProperty("target").objectReferenceValue = player.transform;
@@ -1290,7 +1584,7 @@ namespace SteelRain.EditorTools
             var go = new GameObject(name);
             go.transform.position = pos;
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/ground_trench.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/ground_trench.png");
             sr.color = new Color(0.8f, 0.2f, 0.2f, 0.8f);
             sr.sortingOrder = 2;
             var col = go.AddComponent<BoxCollider2D>();
@@ -1304,7 +1598,7 @@ namespace SteelRain.EditorTools
             var go = new GameObject(name);
             go.transform.position = pos;
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/crate.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/crate.png");
             sr.color = new Color(0.9f, 0.3f, 0.1f, 1f);
             sr.sortingOrder = 3;
             var col = go.AddComponent<BoxCollider2D>();
@@ -1318,7 +1612,7 @@ namespace SteelRain.EditorTools
             var go = new GameObject(name);
             go.transform.position = pos;
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/ground_beach.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/ground_beach.png");
             sr.color = new Color(0.5f, 0.5f, 0.6f, 1f);
             sr.drawMode = SpriteDrawMode.Sliced;
             sr.size = new Vector2(3f, 0.5f);
@@ -1338,7 +1632,7 @@ namespace SteelRain.EditorTools
             var go = new GameObject(name);
             go.transform.position = pos;
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/ground_village.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/ground_village.png");
             sr.color = new Color(0.6f, 0.4f, 0.25f, 1f);
             sr.drawMode = SpriteDrawMode.Sliced;
             sr.size = new Vector2(2f, 0.5f);
@@ -1351,7 +1645,7 @@ namespace SteelRain.EditorTools
 
         private static void BuildFactoryGround(GameObject parent, int layer)
         {
-            var groundSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/ground_village.png");
+            var groundSprite = LoadOrImportSprite($"{ArtDir}/ground_village.png");
             float startX = -5f;
             float endX = 165f;
             float groundY = 0f;
@@ -1380,7 +1674,7 @@ namespace SteelRain.EditorTools
 
         private static void BuildGround(GameObject parent, int layer)
         {
-            var groundSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/ground_beach.png");
+            var groundSprite = LoadOrImportSprite($"{ArtDir}/ground_beach.png");
 
             // 主地面：从 x=-5 到 x=150
             float startX = -5f;
@@ -1425,6 +1719,41 @@ namespace SteelRain.EditorTools
             col.size = new Vector2(width, 0.5f);
         }
 
+        /// <summary>
+        /// 修复SpriteRenderer引用丢失问题（Unity 6+ PrefabUtility.InstantiatePrefab已知问题）
+        /// 从prefab重新复制sprite引用
+        /// </summary>
+        private static void FixSpriteReferences(GameObject instance, GameObject prefab)
+        {
+            if (instance == null || prefab == null) return;
+            var instSrs = instance.GetComponentsInChildren<SpriteRenderer>(true);
+            var prefSrs = prefab.GetComponentsInChildren<SpriteRenderer>(true);
+            foreach (var inst in instSrs)
+            {
+                if (inst.sprite != null) continue;
+                // 按transform路径匹配
+                var instPath = GetTransformPath(inst.transform, instance.transform);
+                foreach (var pref in prefSrs)
+                {
+                    if (GetTransformPath(pref.transform, prefab.transform) == instPath)
+                    {
+                        inst.sprite = pref.sprite;
+                        inst.color = pref.color;
+                        inst.sortingOrder = pref.sortingOrder;
+                        inst.flipX = pref.flipX;
+                        inst.flipY = pref.flipY;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static string GetTransformPath(Transform t, Transform root)
+        {
+            if (t == root) return "";
+            return GetTransformPath(t.parent, root) + "/" + t.name;
+        }
+
         private static void CreateSegment(string name, Vector3 pos, GameObject enemyPrefab,
             EnemyDefinition def, Transform player, int count)
         {
@@ -1466,7 +1795,7 @@ namespace SteelRain.EditorTools
             col.size = new Vector2(1f, 2f);
 
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/checkpoint_flag.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/checkpoint_flag.png");
             sr.sortingOrder = 2;
 
             var cp = go.AddComponent<Checkpoint>();
@@ -1481,6 +1810,7 @@ namespace SteelRain.EditorTools
             var go = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
             go.name = name;
             go.transform.position = pos;
+            FixSpriteReferences(go, prefab);
         }
 
         private static void BuildAudioManager()
@@ -1528,8 +1858,8 @@ namespace SteelRain.EditorTools
             var bgGo = new GameObject("ParallaxBackground");
             var parallax = bgGo.AddComponent<ParallaxBackground>();
 
-            var skySprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/background_sky.png");
-            var seaSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{ArtDir}/background_sea.png");
+            var skySprite = LoadOrImportSprite($"{ArtDir}/background_sky.png");
+            var seaSprite = LoadOrImportSprite($"{ArtDir}/background_sea.png");
 
             // 天空层
             var skyGo = new GameObject("SkyLayer");
@@ -1590,8 +1920,8 @@ namespace SteelRain.EditorTools
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0, 0, 0, 0.7f);
 
-            var titleText = CreateHudText(canvasGo, "PauseTitle", new Vector2(0, 40), "PAUSED", 48);
-            var hintText = CreateHudText(canvasGo, "PauseHint", new Vector2(0, -20), "ESC Resume | Q Quit | R Restart", 20);
+            var titleText = CreateHudText(panel, "PauseTitle", new Vector2(0, 40), "PAUSED", 48);
+            var hintText = CreateHudText(panel, "PauseHint", new Vector2(0, -20), "ESC Resume | Q Quit | R Restart", 20);
 
             var pm = canvasGo.AddComponent<PauseManager>();
             var so = new SerializedObject(pm);
@@ -1650,8 +1980,7 @@ namespace SteelRain.EditorTools
             tex.Apply();
             var path = $"{ArtDir}/triangle.png";
             File.WriteAllBytes(path, tex.EncodeToPNG());
-            AssetDatabase.ImportAsset(path);
-            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            return LoadOrImportSprite(path);
         }
 
         private static void BuildHud(GameObject player)
@@ -1853,6 +2182,16 @@ namespace SteelRain.EditorTools
             Debug.Log("[VerticalSliceBuilder] Build scenes registered.");
         }
 
+        private static void CreateEventSystem()
+        {
+            // 检查是否已存在EventSystem
+            if (UnityEngine.Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() != null) return;
+
+            var esGo = new GameObject("EventSystem");
+            esGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            esGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        }
+
         private static void CreateMainMenuScene()
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -1863,6 +2202,9 @@ namespace SteelRain.EditorTools
             cam.orthographicSize = 5.4f;
             cam.backgroundColor = new Color(0.05f, 0.05f, 0.08f);
             camGo.tag = "MainCamera";
+
+            // EventSystem（UI按钮点击必需）
+            CreateEventSystem();
 
             var canvasGo = new GameObject("MenuCanvas");
             var canvas = canvasGo.AddComponent<Canvas>();
@@ -2319,17 +2661,17 @@ namespace SteelRain.EditorTools
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0, 0, 0, 0.78f);
 
-            CreateHudText(canvasGo, "GameOverTitle", new Vector2(0, 80), "GAME OVER", 72, SteelRain.UI.UIPalette.Danger, FontStyle.Bold);
-            CreateUnderline(canvasGo, "GameOverUnderline", new Vector2(0, 30), 240, 3, SteelRain.UI.UIPalette.Danger);
+            CreateHudText(panel, "GameOverTitle", new Vector2(0, 80), "GAME OVER", 72, SteelRain.UI.UIPalette.Danger, FontStyle.Bold);
+            CreateUnderline(panel, "GameOverUnderline", new Vector2(0, 30), 240, 3, SteelRain.UI.UIPalette.Danger);
 
-            var goScoreText = CreateHudText(canvasGo, "ScoreText", new Vector2(0, -20), "Score: 0\nHigh Score: 0", 20, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            var goScoreText = CreateHudText(panel, "ScoreText", new Vector2(0, -20), "Score: 0\nHigh Score: 0", 20, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
             goScoreText.alignment = TextAnchor.MiddleCenter;
             goScoreText.rectTransform.anchorMin = new Vector2(0.3f, 0.4f);
             goScoreText.rectTransform.anchorMax = new Vector2(0.7f, 0.5f);
             goScoreText.rectTransform.sizeDelta = Vector2.zero;
 
-            var retryBtn = CreateMenuButton(canvasGo, "RetryBtn", new Vector2(0, -90), "RETRY", 200, 50, true);
-            var menuBtn = CreateMenuButton(canvasGo, "MenuBtn", new Vector2(0, -150), "MAIN MENU", 200, 50, false);
+            var retryBtn = CreateMenuButton(panel, "RetryBtn", new Vector2(0, -90), "RETRY", 200, 50, true);
+            var menuBtn = CreateMenuButton(panel, "MenuBtn", new Vector2(0, -150), "MAIN MENU", 200, 50, false);
 
             var gameOver = canvasGo.AddComponent<GameOverScreen>();
             var so = new SerializedObject(gameOver);
@@ -2361,16 +2703,16 @@ namespace SteelRain.EditorTools
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0, 0, 0, 0.78f);
 
-            CreateHudText(canvasGo, "VictoryTitle", new Vector2(0, 80), "VICTORY!", 72, SteelRain.UI.UIPalette.Success, FontStyle.Bold);
-            CreateUnderline(canvasGo, "VictoryUnderline", new Vector2(0, 30), 240, 3, SteelRain.UI.UIPalette.Success);
-            CreateHudText(canvasGo, "VictorySub", new Vector2(0, 0), "Mission Complete", 26, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
-            var victoryScoreText = CreateHudText(canvasGo, "ScoreText", new Vector2(0, -40), "Score: 0\nHigh Score: 0", 20, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
+            CreateHudText(panel, "VictoryTitle", new Vector2(0, 80), "VICTORY!", 72, SteelRain.UI.UIPalette.Success, FontStyle.Bold);
+            CreateUnderline(panel, "VictoryUnderline", new Vector2(0, 30), 240, 3, SteelRain.UI.UIPalette.Success);
+            CreateHudText(panel, "VictorySub", new Vector2(0, 0), "Mission Complete", 26, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
+            var victoryScoreText = CreateHudText(panel, "ScoreText", new Vector2(0, -40), "Score: 0\nHigh Score: 0", 20, SteelRain.UI.UIPalette.TextPrimary, FontStyle.Bold);
             victoryScoreText.alignment = TextAnchor.MiddleCenter;
             victoryScoreText.rectTransform.anchorMin = new Vector2(0.3f, 0.32f);
             victoryScoreText.rectTransform.anchorMax = new Vector2(0.7f, 0.42f);
             victoryScoreText.rectTransform.sizeDelta = Vector2.zero;
-            var nextLevelBtn = CreateMenuButton(canvasGo, "NextLevelBtn", new Vector2(0, -110), "NEXT LEVEL", 200, 50, true);
-            var menuBtn = CreateMenuButton(canvasGo, "VictoryMenuBtn", new Vector2(0, -170), "MAIN MENU", 200, 50, false);
+            var nextLevelBtn = CreateMenuButton(panel, "NextLevelBtn", new Vector2(0, -110), "NEXT LEVEL", 200, 50, true);
+            var menuBtn = CreateMenuButton(panel, "VictoryMenuBtn", new Vector2(0, -170), "MAIN MENU", 200, 50, false);
 
             var victory = canvasGo.AddComponent<VictoryScreen>();
             var so = new SerializedObject(victory);

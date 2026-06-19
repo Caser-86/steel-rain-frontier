@@ -36,9 +36,17 @@ namespace SteelRain.Core
 
         private void Awake()
         {
-            BuildUI();
-            startTime = Time.unscaledTime;
-            if (tipText != null) tipText.text = "TIP: " + Tips[Random.Range(0, Tips.Length)];
+            try
+            {
+                BuildUI();
+                startTime = Time.unscaledTime;
+                if (tipText != null) tipText.text = "TIP: " + Tips[Random.Range(0, Tips.Length)];
+                Debug.Log("[BootScreen] Awake complete, startTime=" + startTime + " nextScene=" + nextScene);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("[BootScreen] Awake exception: " + e);
+            }
         }
 
         private void Update()
@@ -51,6 +59,7 @@ namespace SteelRain.Core
             if (!loadingComplete && t >= 1f && fakeProgress >= 0.99f)
             {
                 loadingComplete = true;
+                Debug.Log("[BootScreen] Loading scene: " + nextScene);
                 SceneManager.LoadScene(nextScene);
             }
         }

@@ -25,7 +25,15 @@ namespace SteelRain.UI
 
         private void Awake()
         {
-            BuildUI();
+            try
+            {
+                BuildUI();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("[CharacterSwitchToast] BuildUI failed: " + e);
+                enabled = false;
+            }
         }
 
         private void OnEnable()

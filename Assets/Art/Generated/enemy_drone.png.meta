@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8c2184c3cae8a18449164c5c774179bf
+guid: 6ac658eae0bcb7145bb539aab9a1d5d4
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,8 +100,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: -85780066496027553
     vertices: []
     indices: 
     edges: []
@@ -109,7 +109,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      enemy_drone: 21300000
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
