@@ -13,7 +13,6 @@ namespace SteelRain.Levels
     {
         [SerializeField] private GameObject dropPrefab;
         [SerializeField] private int maxHealth = 2;
-        [SerializeField] private bool isCrate = true;
 
         private Health health;
         private SpriteRenderer spriteRenderer;

@@ -1,3 +1,4 @@
+using SteelRain.Pickups;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -27,17 +28,26 @@ namespace SteelRain.Core
 
         public static void LoadNextLevel()
         {
-            currentLevelIndex++;
-            if (currentLevelIndex >= levels.Length)
+            var nextIndex = currentLevelIndex + 1;
+            if (nextIndex >= levels.Length)
             {
+                currentLevelIndex = 0;
+                ScoreManager.Reset();
+                SaveSystem.ClearSquadSave();
+                WeaponUpgradePickup.ClearRegistry();
+                Time.timeScale = 1f;
                 UI.SceneFader.FadeToScene("MainMenu");
                 return;
             }
-            LoadLevel(currentLevelIndex);
+            SaveSystem.ClearSquadSave();
+            WeaponUpgradePickup.ClearRegistry();
+            LoadLevel(nextIndex);
         }
 
         public static void ReloadCurrentLevel()
         {
+            SaveSystem.ClearSquadSave();
+            WeaponUpgradePickup.ClearRegistry();
             LoadLevel(currentLevelIndex);
         }
 
@@ -46,6 +56,13 @@ namespace SteelRain.Core
             currentLevelIndex = 0;
             Time.timeScale = 1f;
             UI.SceneFader.FadeToScene("MainMenu");
+        }
+
+        public static void LoadEndlessMode()
+        {
+            currentLevelIndex = 0;
+            Time.timeScale = 1f;
+            UI.SceneFader.FadeToScene("Level01_VerticalSlice");
         }
     }
 }

@@ -18,6 +18,8 @@ namespace SteelRain.Pickups
                 return;
             if (health.Team != Team.Player)
                 return;
+            if (health.Current >= health.Max)
+                return;
 
             health.Heal(healAmount);
             AudioManager.Play("sfx_pickup");

@@ -1,7 +1,6 @@
 using SteelRain.Audio;
 using SteelRain.Core;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace SteelRain.UI
@@ -12,6 +11,8 @@ namespace SteelRain.UI
         [SerializeField] private Button menuButton;
         [SerializeField] private Button nextLevelButton;
         [SerializeField] private Text scoreText;
+
+        private bool shown;
 
         private void Awake()
         {
@@ -30,13 +31,20 @@ namespace SteelRain.UI
 
         public void Show()
         {
+            if (shown) return;
+            shown = true;
             if (panel != null) panel.SetActive(true);
+            ScoreManager.Save();
             ScoreManager.CheckHighScore();
             if (scoreText != null)
                 scoreText.text = $"Score: {ScoreManager.Score}\nHigh Score: {ScoreManager.HighScore}";
 
             if (nextLevelButton != null)
                 nextLevelButton.gameObject.SetActive(LevelManager.CurrentLevel < LevelManager.TotalLevels - 1);
+
+            // 触发关卡完成成就
+            AchievementManager.AddStat(AchievementManager.StatId.LevelsCompleted);
+            AchievementManager.SaveAll();
 
             AudioManager.Play("sfx_victory", 0.8f);
             Time.timeScale = 0f;

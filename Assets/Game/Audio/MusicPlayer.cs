@@ -11,10 +11,11 @@ namespace SteelRain.Audio
         [SerializeField] private AudioClip beachMusic;
         [SerializeField] private AudioClip villageMusic;
         [SerializeField] private AudioClip bossMusic;
-        [SerializeField] private float beachEndX = 45f;
-        [SerializeField] private float bossStartX = 120f;
+        [SerializeField] private float beachEndX = 70f;
+        [SerializeField] private float bossStartX = 390f;
         [SerializeField] private float baseVolume = 0.3f;
         [SerializeField] private float crossfadeDuration = 1.5f;
+        [SerializeField] private bool playBossOnly;
 
         private AudioSource sourceA;
         private AudioSource sourceB;
@@ -45,7 +46,9 @@ namespace SteelRain.Audio
             var x = player.position.x;
             AudioClip target;
 
-            if (x < beachEndX)
+            if (playBossOnly)
+                target = bossMusic;
+            else if (x < beachEndX)
                 target = beachMusic;
             else if (x < bossStartX)
                 target = villageMusic;
@@ -73,7 +76,8 @@ namespace SteelRain.Audio
                 activeSource.volume = vol;
             }
 
-            if (target != null && target != currentClip)
+            // 只在非交叉淡入淡出期间检查音乐切换，避免切换混乱
+            if (!crossfading && target != null && target != currentClip)
             {
                 currentClip = target;
                 var newSource = activeSource == sourceA ? sourceB : sourceA;
@@ -84,7 +88,7 @@ namespace SteelRain.Audio
                 crossfading = true;
                 activeSource = newSource;
             }
-            else if (currentClip != null && !activeSource.isPlaying)
+            else if (!crossfading && currentClip != null && !activeSource.isPlaying)
             {
                 activeSource.Play();
             }

@@ -1,4 +1,6 @@
 using SteelRain.Core;
+using SteelRain.Pickups;
+using SteelRain.UI;
 using UnityEngine;
 
 namespace SteelRain.Levels
@@ -25,11 +27,17 @@ namespace SteelRain.Levels
         {
             currentSpawn = position;
             SaveSystem.SaveCheckpoint(position);
+            SaveSystem.SaveLevelIndex(LevelManager.CurrentLevel);
         }
 
         private void RespawnPlayer()
         {
             if (player == null) return;
+
+            // 如果GameOverScreen已显示，不复活（由GameOverScreen处理重试）
+            var gameOver = FindFirstObjectByType<GameOverScreen>();
+            if (gameOver != null && gameOver.IsShown)
+                return;
 
             var health = player.GetComponent<Health>();
 
@@ -41,6 +49,9 @@ namespace SteelRain.Levels
             player.position = currentSpawn;
             if (health != null)
                 health.ReviveFull();
+
+            // 重置本关卡内所有已消耗的武器升级胶囊，避免死亡螺旋
+            WeaponUpgradePickup.ResetAllOnRespawn();
         }
     }
 }

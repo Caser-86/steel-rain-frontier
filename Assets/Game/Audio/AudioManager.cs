@@ -50,9 +50,24 @@ namespace SteelRain.Audio
             src.Play();
         }
 
-        public static void SetMasterVolume(float v) => masterVolume = Mathf.Clamp01(v);
-        public static void SetMusicVolume(float v) => musicVolume = Mathf.Clamp01(v);
-        public static void SetSfxVolume(float v) => sfxVolume = Mathf.Clamp01(v);
+        public static void SetMasterVolume(float v)
+        {
+            masterVolume = Mathf.Clamp01(v);
+            SaveSystem.SaveVolume(masterVolume, musicVolume, sfxVolume);
+        }
+
+        public static void SetMusicVolume(float v)
+        {
+            musicVolume = Mathf.Clamp01(v);
+            SaveSystem.SaveVolume(masterVolume, musicVolume, sfxVolume);
+        }
+
+        public static void SetSfxVolume(float v)
+        {
+            sfxVolume = Mathf.Clamp01(v);
+            SaveSystem.SaveVolume(masterVolume, musicVolume, sfxVolume);
+        }
+
         public static float GetMasterVolume() => masterVolume;
         public static float GetMusicVolume() => musicVolume;
         public static float GetSfxVolume() => sfxVolume;

@@ -12,8 +12,13 @@ namespace SteelRain.UI
         private int charactersUsedMask;
         private bool levelStartedWithDeath;
         private float levelStartTime;
-        private float gameStartTime;
+        private static float gameStartTime; // 改为静态，跨场景持久化
         private bool hasKilledThisLevel;
+        private float saveTimer;
+        private const float SaveInterval = 5f; // 每5秒保存一次
+        private static AchievementTracker instance;
+
+        public static AchievementTracker Instance => instance;
 
         private void OnEnable()
         {
@@ -35,11 +40,18 @@ namespace SteelRain.UI
 
         private void Start()
         {
+            instance = this;
             levelStartTime = Time.time;
+            // 每个关卡都记录游戏开始时间，用于Speedrun成就
             if (LevelManager.CurrentLevel == 0)
             {
                 gameStartTime = Time.time;
                 AchievementManager.AddStat(AchievementManager.StatId.GamesPlayed);
+            }
+            else if (gameStartTime <= 0f)
+            {
+                // 如果从非第一关开始，使用当前时间作为fallback
+                gameStartTime = Time.time;
             }
             hasKilledThisLevel = false;
             charactersUsedMask = 0;
@@ -47,7 +59,7 @@ namespace SteelRain.UI
 
         private void Update()
         {
-            // 更新游戏时间统计
+            // 更新游戏时间统计（使用NoSave版本避免每帧保存）
             AchievementManager.AddFloatStat(AchievementManager.StatId.TotalPlayTime, Time.deltaTime);
 
             // 检查老兵成就（1小时）
@@ -56,6 +68,20 @@ namespace SteelRain.UI
             {
                 AchievementManager.Unlock(AchievementManager.AchievementId.Veteran);
             }
+
+            // 定期保存统计到PlayerPrefs
+            saveTimer += Time.deltaTime;
+            if (saveTimer >= SaveInterval)
+            {
+                saveTimer = 0f;
+                AchievementManager.SaveAll();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // 保存当前统计到PlayerPrefs（TotalScore已通过OnEnemyKilled逐步累加，无需再次添加）
+            AchievementManager.SaveAll();
         }
 
         /// <summary>
@@ -66,9 +92,8 @@ namespace SteelRain.UI
             AchievementManager.AddStat(AchievementManager.StatId.TotalKills);
             AchievementManager.AddStat(AchievementManager.StatId.TotalScore, scoreValue);
 
-            // 标记当前关卡有击杀
-            var tracker = FindObjectOfType<AchievementTracker>();
-            if (tracker != null) tracker.hasKilledThisLevel = true;
+            // 标记当前关卡有击杀（使用缓存的单例引用，避免FindObjectOfType性能问题）
+            if (instance != null) instance.hasKilledThisLevel = true;
         }
 
         private void OnPlayerDied()
@@ -153,12 +178,6 @@ namespace SteelRain.UI
             {
                 AchievementManager.Unlock(AchievementManager.AchievementId.Speedrun);
             }
-        }
-
-        private void OnDestroy()
-        {
-            // 保存当前分数到统计
-            AchievementManager.AddStat(AchievementManager.StatId.TotalScore, ScoreManager.Score);
         }
     }
 }

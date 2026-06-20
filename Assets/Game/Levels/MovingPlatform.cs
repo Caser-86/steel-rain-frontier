@@ -26,13 +26,16 @@ namespace SteelRain.Levels
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (collision.collider.CompareTag("Player"))
-                collision.transform.SetParent(transform);
+                collision.transform.SetParent(transform, true);
         }
 
         private void OnCollisionExit2D(Collision2D collision)
         {
             if (collision.collider.CompareTag("Player"))
-                collision.transform.SetParent(null);
+            {
+                // 使用worldPositionStays=true保留玩家的全局缩放和位置
+                collision.transform.SetParent(null, true);
+            }
         }
     }
 }

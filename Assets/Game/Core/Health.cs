@@ -21,6 +21,33 @@ namespace SteelRain.Core
         public event Action Died;
 
         private bool dead;
+        private bool invincible;
+        private int invincibleRefCount;
+
+        public void SetInvincible(bool value)
+        {
+            // 使用引用计数避免多个系统同时设置无敌时互相干扰
+            if (value)
+            {
+                invincibleRefCount++;
+                invincible = true;
+            }
+            else
+            {
+                invincibleRefCount = Mathf.Max(0, invincibleRefCount - 1);
+                if (invincibleRefCount == 0)
+                    invincible = false;
+            }
+        }
+
+        /// <summary>
+        /// 强制清除无敌状态（用于复活等场景）。
+        /// </summary>
+        public void ClearInvincible()
+        {
+            invincibleRefCount = 0;
+            invincible = false;
+        }
 
         private void Awake()
         {
@@ -47,7 +74,7 @@ namespace SteelRain.Core
 
         public void ApplyDamage(DamageInfo info)
         {
-            if (dead || info.Amount <= 0 || info.SourceTeam == team)
+            if (dead || invincible || info.Amount <= 0 || info.SourceTeam == team)
                 return;
 
             if (team == Team.Player && CharacterSkill.ShieldActive)
@@ -93,6 +120,7 @@ namespace SteelRain.Core
         public void Revive(int reviveHealth)
         {
             dead = false;
+            ClearInvincible();
             Current = Mathf.Clamp(reviveHealth, 1, max);
             Changed?.Invoke(Current, max);
         }
@@ -100,6 +128,7 @@ namespace SteelRain.Core
         public void ReviveFull()
         {
             dead = false;
+            ClearInvincible();
             Current = max;
             Changed?.Invoke(Current, max);
         }

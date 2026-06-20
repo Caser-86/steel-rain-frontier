@@ -17,7 +17,8 @@ namespace SteelRain.Weapons
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
             if (definition.forms == null || definition.forms.Length == 0)
                 throw new ArgumentException("Weapon must have at least one form.", nameof(definition));
-            Ammo = ammo;
+            // 统一使用int.MaxValue表示无限弹药，避免-1导致CanFire返回false
+            Ammo = ammo < 0 ? int.MaxValue : ammo;
         }
 
         public void CycleForm()
@@ -48,7 +49,8 @@ namespace SteelRain.Weapons
 
             if (definition.baseAmmoInfinite)
             {
-                Ammo = -1;
+                // 保持Ammo为int.MaxValue表示无限弹药，避免UI显示-1
+                Ammo = int.MaxValue;
                 return true;
             }
 

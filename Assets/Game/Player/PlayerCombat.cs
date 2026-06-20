@@ -58,7 +58,12 @@ namespace SteelRain.Player
                 return;
 
             nextFireTime = Time.time + 1f / fireRate;
-            FirePattern(currentWeapon.CurrentForm, currentWeapon.GetDamage());
+            // 应用角色伤害倍率 + 商店永久武器强化加成
+            var charDef = characterRuntime?.Definition;
+            var dmgMultiplier = charDef != null ? charDef.damageMultiplier : 1f;
+            var shopBoost = 1f + ShopManager.WeaponBoostMultiplier;
+            var finalDamage = Mathf.RoundToInt(currentWeapon.GetDamage() * dmgMultiplier * shopBoost);
+            FirePattern(currentWeapon.CurrentForm, finalDamage);
             AudioManager.Play("sfx_gunshot", 0.7f);
             if (muzzleFlash != null && controller != null)
                 muzzleFlash.Flash(controller.AimDirection);
@@ -81,11 +86,25 @@ namespace SteelRain.Player
             var step = count == 1 ? 0f : form.spreadAngle / (count - 1);
             var aim = controller != null ? controller.AimDirection : Vector2.right;
 
+            // 根据当前角色获取子弹颜色和大小
+            var charDef = characterRuntime?.Definition;
+            var projColor = charDef != null ? charDef.projectileColor : Color.white;
+            var projScale = charDef != null ? charDef.projectileScale : 1f;
+
             for (var i = 0; i < count; i++)
             {
                 var direction = Quaternion.Euler(0f, 0f, startAngle + step * i) * aim;
                 var pos = muzzle != null ? muzzle.position : transform.position;
                 var projectile = Instantiate(projectilePrefab, pos, Quaternion.identity);
+
+                // 应用角色专属子弹外观
+                var sr = projectile.GetComponentInChildren<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.color = projColor;
+                    projectile.transform.localScale = Vector3.one * projScale;
+                }
+
                 projectile.LaunchWithDamage(direction, form.projectileSpeed, damage, form.pierceCount, Team.Player);
             }
         }
@@ -110,6 +129,11 @@ namespace SteelRain.Player
             SaveSystem.SaveWeaponLevel(currentWeapon.Definition.id, currentWeapon.Level);
             GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
+
+            // 升级视觉反馈：金色爆发 + 持续光环
+            SkillVFX.SpawnBurst(transform.position, new Color(1f, 0.85f, 0.2f, 1f), 2.5f);
+            StartCoroutine(SkillVFX.AuraLoop(transform, new Color(1f, 0.85f, 0.2f, 0.4f), 2f, 1.8f));
+            AudioManager.Play("sfx_upgrade", 1f);
         }
 
         public void ApplyCharacterRuntime(CharacterRuntime runtime)

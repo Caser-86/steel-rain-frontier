@@ -34,6 +34,11 @@ namespace SteelRain.Enemies
             health.Damaged += OnDamaged;
             health.Died += () =>
             {
+                if (definition != null)
+                {
+                    ScoreManager.AddKill(definition.scoreValue);
+                    UI.AchievementTracker.OnEnemyKilled(definition.scoreValue);
+                }
                 ExplosionEffect.Spawn(transform.position, 0.6f);
                 AudioManager.Play("sfx_explosion", 0.5f);
                 Destroy(gameObject);
@@ -55,7 +60,9 @@ namespace SteelRain.Enemies
             {
                 var dir = Mathf.Sign(dx);
                 if (dir == 0) dir = 1f;
-                body.linearVelocity = new Vector2(dir * definition.moveSpeed, body.linearVelocity.y);
+                // 应用难度速度倍率
+                var speed = definition.moveSpeed * DifficultyManager.GetEnemySpeedMultiplier();
+                body.linearVelocity = new Vector2(dir * speed, body.linearVelocity.y);
             }
             else
             {
@@ -65,13 +72,20 @@ namespace SteelRain.Enemies
 
         private void OnDamaged(DamageInfo info)
         {
-            // 如果攻击来自正面，恢复被减去的部分血量（挡弹）
-            var attackFromRight = info.Direction.x > 0;
-            if (attackFromRight == facingRight)
+            // 使用点积判断攻击是否来自正面：盾牌法向量与攻击方向夹角需大于约107度
+            // 修复原逻辑仅用 Direction.x > 0 判断导致从正上方射击可绕过盾牌的漏洞
+            var shieldNormal = facingRight ? Vector2.right : Vector2.left;
+            var dot = Vector2.Dot(info.Direction, shieldNormal);
+            // dot < -0.3 表示攻击方向与盾牌法向量相反（从正面攻击）
+            // 从正上方/正下方攻击时 dot ≈ 0，不触发挡弹，符合"打头顶绕过盾牌"的设计
+            if (dot < -0.3f)
             {
                 var blocked = Mathf.RoundToInt(info.Amount * blockReduction);
+                // 恢复被挡弹减少的血量，但不超过最大值
                 if (blocked > 0 && !health.IsDead)
+                {
                     health.Heal(blocked);
+                }
                 AudioManager.Play("sfx_boss_hit", 0.3f);
             }
         }
@@ -81,7 +95,10 @@ namespace SteelRain.Enemies
             if (definition == null) return;
             if (!collision.collider.TryGetComponent(out Health other)) return;
             if (other.Team == Team.Enemy) return;
-            other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(definition.contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, Vector2.right));
+            // 根据碰撞方向计算击退方向
+            var dir = (other.transform.position - transform.position).normalized;
+            if (dir == Vector3.zero) dir = Vector2.right;
+            other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(definition.contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, dir));
         }
 
         public void Initialize(EnemyDefinition def, Transform player)
@@ -89,7 +106,9 @@ namespace SteelRain.Enemies
             definition = def;
             target = player;
             if (health == null) health = GetComponent<Health>();
-            health.Initialize(def.maxHealth, Team.Enemy);
+            // 应用难度生命倍率
+            var scaledMaxHealth = Mathf.Max(1, Mathf.RoundToInt(def.maxHealth * DifficultyManager.GetHealthMultiplier()));
+            health.Initialize(scaledMaxHealth, Team.Enemy);
             if (spriteRenderer != null) spriteRenderer.color = def.spriteColor;
         }
 

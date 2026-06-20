@@ -1,4 +1,5 @@
 using SteelRain.Core;
+using SteelRain.UI;
 using UnityEngine;
 
 namespace SteelRain.Levels
@@ -13,6 +14,10 @@ namespace SteelRain.Levels
         {
             if (triggered || !other.CompareTag("Player")) return;
             triggered = true;
+
+            // 通知成就系统关卡完成
+            var tracker = FindFirstObjectByType<AchievementTracker>();
+            if (tracker != null) tracker.OnLevelComplete();
 
             if (nextLevelIndex >= 0)
                 LevelManager.LoadLevel(nextLevelIndex);

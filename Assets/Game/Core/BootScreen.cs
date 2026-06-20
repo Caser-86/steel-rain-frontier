@@ -19,10 +19,12 @@ namespace SteelRain.Core
         private Image barFill;
         private Text percentText;
         private Text tipText;
+        private Text continueText;
 
         private float startTime;
         private float fakeProgress;
         private bool loadingComplete;
+        private bool waitingForInput;
 
         private static readonly string[] Tips = new[]
         {
@@ -59,13 +61,34 @@ namespace SteelRain.Core
             if (!loadingComplete && t >= 1f && fakeProgress >= 0.99f)
             {
                 loadingComplete = true;
-                Debug.Log("[BootScreen] Loading scene: " + nextScene);
-                SceneManager.LoadScene(nextScene);
+                waitingForInput = true;
+                if (continueText != null)
+                {
+                    continueText.text = "PRESS ANY KEY TO CONTINUE";
+                    continueText.enabled = true;
+                }
+                // 跳过"加载中"文字
+                if (percentText != null) percentText.enabled = false;
+            }
+
+            if (waitingForInput && Input.anyKeyDown)
+            {
+                waitingForInput = false;
+                SteelRain.UI.SceneFader.FadeToScene(nextScene);
+            }
+
+            // 按任意键跳过启动画面
+            if (!loadingComplete && !waitingForInput && Input.anyKeyDown)
+            {
+                fakeProgress = 1f;
             }
         }
 
         private void BuildUI()
         {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+
             // Canvas
             var canvasGo = new GameObject("BootCanvas");
             canvasGo.transform.SetParent(transform);
@@ -127,7 +150,7 @@ namespace SteelRain.Core
             logoTextGo.transform.SetParent(canvasGo.transform);
             logoText = logoTextGo.AddComponent<Text>();
             logoText.text = "STEEL RAIN: FRONTIER";
-            logoText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) logoText.font = font;
             logoText.fontSize = 76;
             logoText.fontStyle = FontStyle.Bold;
             logoText.alignment = TextAnchor.MiddleCenter;
@@ -159,7 +182,7 @@ namespace SteelRain.Core
             taglineGo.transform.SetParent(canvasGo.transform);
             taglineText = taglineGo.AddComponent<Text>();
             taglineText.text = "A 2D Squad Shooter";
-            taglineText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) taglineText.font = font;
             taglineText.fontSize = 24;
             taglineText.fontStyle = FontStyle.Italic;
             taglineText.alignment = TextAnchor.MiddleCenter;
@@ -204,7 +227,7 @@ namespace SteelRain.Core
             percentGo.transform.SetParent(canvasGo.transform);
             percentText = percentGo.AddComponent<Text>();
             percentText.text = "0%";
-            percentText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) percentText.font = font;
             percentText.fontSize = 18;
             percentText.fontStyle = FontStyle.Bold;
             percentText.alignment = TextAnchor.MiddleCenter;
@@ -221,7 +244,7 @@ namespace SteelRain.Core
             tipGo.transform.SetParent(canvasGo.transform);
             tipText = tipGo.AddComponent<Text>();
             tipText.text = "TIP: ...";
-            tipText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) tipText.font = font;
             tipText.fontSize = 16;
             tipText.fontStyle = FontStyle.Italic;
             tipText.alignment = TextAnchor.MiddleCenter;
@@ -239,7 +262,7 @@ namespace SteelRain.Core
             versionGo.transform.SetParent(canvasGo.transform);
             var versionText = versionGo.AddComponent<Text>();
             versionText.text = "v1.0.0  -  Unity 6 LTS";
-            versionText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) versionText.font = font;
             versionText.fontSize = 14;
             versionText.alignment = TextAnchor.MiddleCenter;
             versionText.color = new Color(0.50f, 0.54f, 0.62f, 1f);
@@ -249,6 +272,25 @@ namespace SteelRain.Core
             versionRt.pivot = new Vector2(0.5f, 0);
             versionRt.anchoredPosition = new Vector2(0, 36);
             versionRt.sizeDelta = new Vector2(400, 30);
+
+            // "按任意键继续"提示
+            var continueGo = new GameObject("ContinueText");
+            continueGo.transform.SetParent(canvasGo.transform);
+            continueText = continueGo.AddComponent<Text>();
+            continueText.text = "";
+            if (font != null) continueText.font = font;
+            continueText.fontSize = 22;
+            continueText.fontStyle = FontStyle.Bold;
+            continueText.alignment = TextAnchor.MiddleCenter;
+            continueText.color = new Color(0.95f, 0.55f, 0.15f, 1f);
+            continueText.enabled = false;
+            continueText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var continueRt = continueGo.GetComponent<RectTransform>();
+            continueRt.anchorMin = new Vector2(0.5f, 0.5f);
+            continueRt.anchorMax = new Vector2(0.5f, 0.5f);
+            continueRt.pivot = new Vector2(0.5f, 0.5f);
+            continueRt.anchoredPosition = new Vector2(0, -160);
+            continueRt.sizeDelta = new Vector2(600, 40);
         }
     }
 }

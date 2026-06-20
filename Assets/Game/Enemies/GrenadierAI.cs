@@ -33,6 +33,11 @@ namespace SteelRain.Enemies
             health.Initialize(definition != null ? definition.maxHealth : 3, Team.Enemy);
             health.Died += () =>
             {
+                if (definition != null)
+                {
+                    ScoreManager.AddKill(definition.scoreValue);
+                    UI.AchievementTracker.OnEnemyKilled(definition.scoreValue);
+                }
                 ExplosionEffect.Spawn(transform.position, 0.5f);
                 AudioManager.Play("sfx_explosion", 0.4f);
                 Destroy(gameObject);
@@ -50,7 +55,9 @@ namespace SteelRain.Enemies
             if (dist > definition.attackRange)
             {
                 var dir = Mathf.Sign(dx);
-                body.linearVelocity = new Vector2(dir * definition.moveSpeed * slowMultiplier, body.linearVelocity.y);
+                // 应用难度速度倍率
+                var speed = definition.moveSpeed * slowMultiplier * DifficultyManager.GetEnemySpeedMultiplier();
+                body.linearVelocity = new Vector2(dir * speed, body.linearVelocity.y);
             }
             else
             {
@@ -86,7 +93,10 @@ namespace SteelRain.Enemies
             if (definition == null) return;
             if (!collision.collider.TryGetComponent(out Health other)) return;
             if (other.Team == Team.Enemy) return;
-            other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(definition.contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, Vector2.right));
+            // 根据碰撞方向计算击退方向
+            var dir = (other.transform.position - transform.position).normalized;
+            if (dir == Vector3.zero) dir = Vector2.right;
+            other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(definition.contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, dir));
         }
 
         public void Initialize(EnemyDefinition def, Transform player, Projectile projectile)
@@ -95,7 +105,9 @@ namespace SteelRain.Enemies
             target = player;
             projectilePrefab = projectile;
             if (health == null) health = GetComponent<Health>();
-            health.Initialize(def.maxHealth, Team.Enemy);
+            // 应用难度生命倍率
+            var scaledMaxHealth = Mathf.Max(1, Mathf.RoundToInt(def.maxHealth * DifficultyManager.GetHealthMultiplier()));
+            health.Initialize(scaledMaxHealth, Team.Enemy);
         }
 
         public void AssignTarget(Transform t) => target = t;

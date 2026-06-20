@@ -17,6 +17,8 @@ namespace SteelRain.Player
         [SerializeField] private float jumpBufferTime = 0.12f;
         [SerializeField] private float coyoteTime = 0.10f;
         [SerializeField] private float dustInterval = 0.15f;
+        [SerializeField] private float proneColliderHeightMultiplier = 0.35f;
+        [SerializeField] private KeyCode proneKey = KeyCode.Z;
 
         private Rigidbody2D body;
         private BoxCollider2D boxCollider;
@@ -24,14 +26,17 @@ namespace SteelRain.Player
         private PlayerDodge dodge;
         private Vector2 moveInput;
         private bool crouching;
+        private bool prone;
         private float jumpBufferCounter;
         private float coyoteCounter;
         private float dustTimer;
         private Vector2 originalColliderSize;
+        private SpriteRenderer spriteRenderer;
         private System.Action<DamageInfo> onDamagedHandler;
 
         public bool IsGrounded { get; private set; }
         public bool IsCrouching => crouching;
+        public bool IsProne => prone;
         public Vector2 AimDirection { get; private set; } = Vector2.right;
         public CharacterDefinition Character => character;
         public Health Health => health;
@@ -48,6 +53,7 @@ namespace SteelRain.Player
             boxCollider = GetComponent<BoxCollider2D>();
             health = GetComponent<Health>();
             dodge = GetComponent<PlayerDodge>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
 
             // 确保Rigidbody2D配置正确
             if (body != null)
@@ -63,14 +69,14 @@ namespace SteelRain.Player
                 boxCollider.isTrigger = false;
                 if (boxCollider.size == Vector2.zero)
                     boxCollider.size = new Vector2(0.8f, 1.2f);
+                originalColliderSize = boxCollider.size;
             }
-
-            originalColliderSize = boxCollider.size;
 
             if (character != null)
             {
                 health.Initialize(character.maxHealth, Team.Player);
                 body.gravityScale = character.gravityScale;
+                UpdateVisualSprite();
             }
 
             health.Changed += GameEvents.RaisePlayerHealthChanged;
@@ -100,7 +106,8 @@ namespace SteelRain.Player
             moveInput.x = Input.GetAxisRaw("Horizontal");
             moveInput.y = Input.GetAxisRaw("Vertical");
 
-            crouching = moveInput.y < -0.5f && IsGrounded;
+            prone = Input.GetKey(proneKey) && IsGrounded;
+            crouching = moveInput.y < -0.5f && IsGrounded && !prone;
 
             if (Input.GetButtonDown("Jump"))
                 jumpBufferCounter = jumpBufferTime;
@@ -134,16 +141,28 @@ namespace SteelRain.Player
 
             var velocity = body.linearVelocity;
 
-            var speed = crouching
-                ? character.moveSpeed * character.crouchSpeedMultiplier
-                : character.moveSpeed;
+            // 速度：prone 最慢，crouch 中等，正常最快
+            float speed;
+            if (prone)
+                speed = character.moveSpeed * 0.2f;
+            else if (crouching)
+                speed = character.moveSpeed * character.crouchSpeedMultiplier;
+            else
+                speed = character.moveSpeed;
 
             if (!MovementLocked && (dodge == null || !dodge.IsDodging))
                 velocity.x = moveInput.x * speed;
 
+            // Collider 高度：prone 最低，crouch 中等，正常最高
             if (originalColliderSize != Vector2.zero)
             {
-                if (crouching)
+                if (prone)
+                {
+                    var proneSize = originalColliderSize;
+                    proneSize.y *= proneColliderHeightMultiplier;
+                    boxCollider.size = proneSize;
+                }
+                else if (crouching)
                 {
                     var crouchSize = originalColliderSize;
                     crouchSize.y *= character.crouchColliderHeightMultiplier;
@@ -155,7 +174,8 @@ namespace SteelRain.Player
                 }
             }
 
-            if (jumpBufferCounter > 0 && coyoteCounter > 0 && !crouching)
+            // 跳跃（prone 状态下不能跳，需先起来）
+            if (jumpBufferCounter > 0 && coyoteCounter > 0 && !crouching && !prone)
             {
                 velocity.y = character.jumpVelocity;
                 jumpBufferCounter = 0;
@@ -167,6 +187,9 @@ namespace SteelRain.Player
                 velocity.y += Physics2D.gravity.y * (character.fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
 
             body.linearVelocity = velocity;
+
+            // 更新视觉精灵（根据状态切换）
+            UpdateVisualSprite();
 
             // 脚步尘土
             if (IsGrounded && Mathf.Abs(velocity.x) > 1f)
@@ -182,37 +205,50 @@ namespace SteelRain.Player
         }
 
         /// <summary>
-        /// 检测Player是否在地面上。使用多种方法确保可靠性。
+        /// 根据当前状态（prone/crouch/jump/normal）和角色定义切换精灵图。
+        /// 这是让 5 个角色看起来有差别的关键。
+        /// </summary>
+        private void UpdateVisualSprite()
+        {
+            if (spriteRenderer == null || character == null) return;
+
+            Sprite target = null;
+            if (prone && character.proneSprite != null)
+                target = character.proneSprite;
+            else if (crouching && character.crouchSprite != null)
+                target = character.crouchSprite;
+            else if (!IsGrounded && character.jumpSprite != null)
+                target = character.jumpSprite;
+            else if (character.portraitSprite != null)
+                target = character.portraitSprite;
+
+            if (target != null && spriteRenderer.sprite != target)
+                spriteRenderer.sprite = target;
+        }
+
+        /// <summary>
+        /// 检测Player是否在地面上。使用OverlapCircle确保可靠性。
         /// </summary>
         private bool CheckGrounded()
         {
             if (boxCollider == null) return false;
 
-            var colliderBounds = boxCollider.bounds;
-
-            // 方法1：使用OverlapBox检测Player底部下方，增大检测范围
-            var checkCenter = new Vector2(colliderBounds.center.x, colliderBounds.min.y - 0.15f);
-            var checkSize = new Vector2(colliderBounds.size.x * 0.9f, 0.3f);
-            var hit = Physics2D.OverlapBox(checkCenter, checkSize, 0f);
-            if (hit != null && hit.gameObject != gameObject)
-            {
-                return true;
-            }
-
-            // 方法2：使用OverlapCircle（增大半径）
+            // 使用groundCheck位置进行OverlapCircle检测，这是最可靠的方法
             if (groundCheck != null)
             {
-                var hit2 = Physics2D.OverlapCircle(groundCheck.position, 0.5f);
-                if (hit2 != null && hit2.gameObject != gameObject)
+                var hit = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundMask);
+                if (hit != null && hit.gameObject != gameObject)
                 {
                     return true;
                 }
             }
 
-            // 方法3：使用Raycast向下检测（增大距离）
-            var rayOrigin = new Vector2(colliderBounds.center.x, colliderBounds.min.y);
-            var rayHit = Physics2D.Raycast(rayOrigin, Vector2.down, 0.5f);
-            if (rayHit.collider != null && rayHit.collider.gameObject != gameObject)
+            // 备用方法：使用OverlapBox检测底部
+            var colliderBounds = boxCollider.bounds;
+            var checkCenter = new Vector2(colliderBounds.center.x, colliderBounds.min.y - 0.1f);
+            var checkSize = new Vector2(colliderBounds.size.x * 0.8f, 0.2f);
+            var hit2 = Physics2D.OverlapBox(checkCenter, checkSize, 0f, groundMask);
+            if (hit2 != null && hit2.gameObject != gameObject)
             {
                 return true;
             }
@@ -227,15 +263,21 @@ namespace SteelRain.Player
             if (body == null) body = GetComponent<Rigidbody2D>();
             if (boxCollider == null) boxCollider = GetComponent<BoxCollider2D>();
             if (health == null) health = GetComponent<Health>();
+            if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
             body.gravityScale = character.gravityScale;
             if (originalColliderSize == Vector2.zero)
                 originalColliderSize = boxCollider.size;
 
-            var sr = GetComponent<SpriteRenderer>();
-            if (sr != null) sr.color = character.tintColor;
+            if (spriteRenderer != null) spriteRenderer.color = character.tintColor;
 
-            health.InitializeWithCurrent(character.maxHealth, Team.Player, currentHealth);
+            // 切换角色时立即更换精灵图（这是让 5 个角色看起来有差别的关键）
+            UpdateVisualSprite();
+
+            // 应用商店购买的最大血量加成
+            var hpBonus = SaveSystem.LoadMaxHealthBonus();
+            var maxHealth = character.maxHealth + hpBonus;
+            health.InitializeWithCurrent(maxHealth, Team.Player, currentHealth);
         }
 
         private void OnDrawGizmosSelected()

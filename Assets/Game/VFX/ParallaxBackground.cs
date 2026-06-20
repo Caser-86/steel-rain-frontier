@@ -16,23 +16,23 @@ namespace SteelRain.VFX
         }
 
         [SerializeField] private Layer[] layers;
-        [SerializeField] private Transform camera;
+        [SerializeField] private Transform cam;
 
         private Vector3 lastCameraPos;
 
         private void Start()
         {
-            if (camera == null && Camera.main != null)
-                camera = Camera.main.transform;
-            if (camera != null)
-                lastCameraPos = camera.position;
+            if (cam == null && Camera.main != null)
+                cam = Camera.main.transform;
+            if (cam != null)
+                lastCameraPos = cam.position;
         }
 
         private void LateUpdate()
         {
-            if (camera == null || layers == null) return;
+            if (cam == null || layers == null) return;
 
-            var delta = camera.position - lastCameraPos;
+            var delta = cam.position - lastCameraPos;
 
             foreach (var layer in layers)
             {
@@ -44,7 +44,7 @@ namespace SteelRain.VFX
                 );
 
                 // 无限循环
-                var relativeX = layer.transform.position.x - camera.position.x;
+                var relativeX = layer.transform.position.x - cam.position.x;
                 if (Mathf.Abs(relativeX) > layer.horizontalExtent)
                 {
                     var offset = layer.horizontalExtent * 2f * Mathf.Sign(relativeX);
@@ -52,7 +52,7 @@ namespace SteelRain.VFX
                 }
             }
 
-            lastCameraPos = camera.position;
+            lastCameraPos = cam.position;
         }
     }
 }

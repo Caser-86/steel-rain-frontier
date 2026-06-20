@@ -53,6 +53,9 @@ namespace SteelRain.UI
 
         private void BuildNotificationUI()
         {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+
             // 通知面板
             notificationPanel = new GameObject("AchievementNotification");
             notificationPanel.transform.SetParent(transform);
@@ -86,7 +89,7 @@ namespace SteelRain.UI
             titleGo.transform.SetParent(notificationPanel.transform);
             titleText = titleGo.AddComponent<Text>();
             titleText.text = "ACHIEVEMENT UNLOCKED";
-            titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) titleText.font = font;
             titleText.fontSize = 12;
             titleText.color = UIPalette.Accent;
             titleText.fontStyle = FontStyle.Bold;
@@ -102,7 +105,7 @@ namespace SteelRain.UI
             nameGo.transform.SetParent(notificationPanel.transform);
             nameText = nameGo.AddComponent<Text>();
             nameText.text = "";
-            nameText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) nameText.font = font;
             nameText.fontSize = 18;
             nameText.color = UIPalette.TextPrimary;
             nameText.fontStyle = FontStyle.Bold;
@@ -118,7 +121,7 @@ namespace SteelRain.UI
             descGo.transform.SetParent(notificationPanel.transform);
             descText = descGo.AddComponent<Text>();
             descText.text = "";
-            descText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) descText.font = font;
             descText.fontSize = 12;
             descText.color = UIPalette.TextSecondary;
             descText.alignment = TextAnchor.UpperLeft;

@@ -44,6 +44,7 @@ namespace SteelRain.UI
         private void OnBossDefeated()
         {
             tracking = false;
+            bossHealth = null;
             if (panel != null) panel.SetActive(false);
         }
     }

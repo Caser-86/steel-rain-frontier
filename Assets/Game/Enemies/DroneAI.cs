@@ -34,9 +34,16 @@ namespace SteelRain.Enemies
             body = GetComponent<Rigidbody2D>();
             body.gravityScale = 0f;
             if (firePoint == null) firePoint = transform;
-            health.Initialize(definition != null ? definition.maxHealth : 2, Team.Enemy);
+            // Awake中使用基础生命值，Initialize时会应用难度倍率重新初始化
+            var baseHealth = definition != null ? definition.maxHealth : 2;
+            health.Initialize(baseHealth, Team.Enemy);
             health.Died += () =>
             {
+                if (definition != null)
+                {
+                    ScoreManager.AddKill(definition.scoreValue);
+                    UI.AchievementTracker.OnEnemyKilled(definition.scoreValue);
+                }
                 ExplosionEffect.Spawn(transform.position, 0.4f);
                 AudioManager.Play("sfx_explosion", 0.3f);
                 Destroy(gameObject);
@@ -56,7 +63,8 @@ namespace SteelRain.Enemies
             {
                 // 俯冲
                 var dir = (target.position - transform.position).normalized;
-                body.linearVelocity = dir * definition.moveSpeed * 1.5f * slowMultiplier;
+                var speedMultiplier = DifficultyManager.GetEnemySpeedMultiplier() * slowMultiplier;
+                body.linearVelocity = dir * definition.moveSpeed * 1.5f * speedMultiplier;
 
                 if (dist < 1.5f)
                 {
@@ -68,8 +76,9 @@ namespace SteelRain.Enemies
             {
                 // 悬浮追踪
                 var xDir = dx == 0f ? 0f : Mathf.Sign(dx);
+                var speedMultiplier = DifficultyManager.GetEnemySpeedMultiplier() * slowMultiplier;
                 var targetVel = new Vector2(
-                    xDir * definition.moveSpeed * 0.6f * slowMultiplier,
+                    xDir * definition.moveSpeed * 0.6f * speedMultiplier,
                     dy * 2f * slowMultiplier
                 );
                 body.linearVelocity = targetVel;
@@ -102,9 +111,14 @@ namespace SteelRain.Enemies
         {
             if (diving && collision.collider.TryGetComponent(out Health other) && other.Team == Team.Player)
             {
-                other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(definition.contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, Vector2.up));
+                // 根据碰撞方向计算击退方向
+                var dir = (other.transform.position - transform.position).normalized;
+                if (dir == Vector3.zero) dir = Vector2.up;
+                other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(definition.contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, dir));
                 diving = false;
                 nextDiveTime = Time.time + diveCooldown;
+                // 重置俯冲速度，避免无人机继续以俯冲速度移动
+                body.linearVelocity = Vector2.zero;
             }
         }
 
@@ -114,7 +128,9 @@ namespace SteelRain.Enemies
             target = player;
             projectilePrefab = projectile;
             if (health == null) health = GetComponent<Health>();
-            health.Initialize(def.maxHealth, Team.Enemy);
+            // 应用难度生命倍率
+            var scaledMaxHealth = Mathf.Max(1, Mathf.RoundToInt(def.maxHealth * DifficultyManager.GetHealthMultiplier()));
+            health.Initialize(scaledMaxHealth, Team.Enemy);
         }
 
         public void AssignTarget(Transform t) => target = t;

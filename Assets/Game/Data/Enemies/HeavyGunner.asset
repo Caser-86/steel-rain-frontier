@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 198335f6a6bcac740a98edbea731edc3, type: 3}
+  m_Name: HeavyGunner
+  m_EditorClassIdentifier: SteelRain.Game::SteelRain.Enemies.EnemyDefinition
+  id: heavygunner
+  displayName: Heavy Gunner
+  maxHealth: 5
+  moveSpeed: 1.8
+  detectRange: 9
+  attackRange: 7
+  attackCooldown: 1.6
+  attackPattern: 8
+  contactDamage: 2
+  rangedDamage: 1
+  projectileSpeed: 10
+  scoreValue: 150
+  spriteColor: {r: 0.3, g: 0.3, b: 0.4, a: 1}
+  projectileSpread: 25
+  projectileCount: 3
+  projectileColor: {r: 1, g: 0.6, b: 0.1, a: 1}
+  projectileScale: 1.4

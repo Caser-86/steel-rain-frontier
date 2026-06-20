@@ -19,6 +19,8 @@ namespace SteelRain.VFX
         private int shellIndex;
         private int dustIndex;
 
+        private static Sprite sharedDotSprite;
+
         private void Awake()
         {
             instance = this;
@@ -110,6 +112,9 @@ namespace SteelRain.VFX
 
         private Sprite CreateDotSprite()
         {
+            // 使用静态共享Sprite，避免每次创建新Texture2D导致内存泄漏
+            if (sharedDotSprite != null) return sharedDotSprite;
+
             int size = 8;
             var tex = new Texture2D(size, size);
             for (int y = 0; y < size; y++)
@@ -117,7 +122,9 @@ namespace SteelRain.VFX
                     tex.SetPixel(x, y, Color.white);
             tex.filterMode = FilterMode.Point;
             tex.Apply();
-            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 8f);
+            sharedDotSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 8f);
+            sharedDotSprite.name = "ParticleDot_Shared";
+            return sharedDotSprite;
         }
     }
 }

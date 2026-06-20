@@ -15,9 +15,13 @@ namespace SteelRain.UI
         [SerializeField] private Text squadText;
         [SerializeField] private Text scoreText;
         [SerializeField] private Text comboText;
+        [SerializeField] private Text currencyText;
         [SerializeField] private CharacterSkill skill;
 
         private PlayerSquad squad;
+        private string currentWeaponName = "";
+        private int currentAmmo = 0;
+        private string currentFormName = "";
 
         private void OnEnable()
         {
@@ -26,6 +30,7 @@ namespace SteelRain.UI
             GameEvents.WeaponFormChanged += OnWeaponFormChanged;
             GameEvents.WeaponLevelChanged += OnWeaponLevelChanged;
             GameEvents.PlayerCharacterChanged += OnCharacterChanged;
+            GameEvents.CurrencyChanged += OnCurrencyChanged;
             ScoreManager.ScoreChanged += OnScoreChanged;
             ScoreManager.ComboChanged += OnComboChanged;
         }
@@ -37,15 +42,23 @@ namespace SteelRain.UI
             GameEvents.WeaponFormChanged -= OnWeaponFormChanged;
             GameEvents.WeaponLevelChanged -= OnWeaponLevelChanged;
             GameEvents.PlayerCharacterChanged -= OnCharacterChanged;
+            GameEvents.CurrencyChanged -= OnCurrencyChanged;
             ScoreManager.ScoreChanged -= OnScoreChanged;
             ScoreManager.ComboChanged -= OnComboChanged;
         }
 
         private void Start()
         {
-            squad = FindObjectOfType<PlayerSquad>();
+            squad = FindFirstObjectByType<PlayerSquad>();
             if (scoreText != null)
                 scoreText.text = $"SCORE: {ScoreManager.Score}";
+            OnCurrencyChanged(CurrencyManager.Balance);
+        }
+
+        private void OnCurrencyChanged(int balance)
+        {
+            if (currencyText != null)
+                currencyText.text = $"军票: {balance}";
         }
 
         private void Update()
@@ -108,14 +121,24 @@ namespace SteelRain.UI
 
         private void OnAmmoChanged(string weaponName, int ammo)
         {
-            if (ammoText != null)
-                ammoText.text = ammo < 0 ? $"{weaponName} INF" : $"{weaponName} {ammo}";
+            currentWeaponName = weaponName;
+            currentAmmo = ammo;
+            UpdateAmmoDisplay();
         }
 
         private void OnWeaponFormChanged(string formName)
         {
-            if (ammoText != null && !string.IsNullOrEmpty(formName))
-                ammoText.text += $" [{formName}]";
+            currentFormName = formName ?? "";
+            UpdateAmmoDisplay();
+        }
+
+        private void UpdateAmmoDisplay()
+        {
+            if (ammoText == null) return;
+            // int.MaxValue表示无限弹药
+            var ammoStr = currentAmmo == int.MaxValue || currentAmmo < 0 ? "INF" : currentAmmo.ToString();
+            var formStr = string.IsNullOrEmpty(currentFormName) ? "" : $" [{currentFormName}]";
+            ammoText.text = $"{currentWeaponName} {ammoStr}{formStr}";
         }
 
         private void OnWeaponLevelChanged(int level)

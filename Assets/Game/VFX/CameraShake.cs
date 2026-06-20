@@ -9,12 +9,10 @@ namespace SteelRain.VFX
         [SerializeField] private float defaultDuration = 0.2f;
         [SerializeField] private float defaultStrength = 0.15f;
 
-        private Vector3 origin;
+        private Vector3 shakeOffset;
+        private Coroutine currentShake;
 
-        private void Awake()
-        {
-            origin = transform.localPosition;
-        }
+        public Vector3 ShakeOffset => shakeOffset;
 
         public void Shake()
         {
@@ -25,7 +23,8 @@ namespace SteelRain.VFX
         public void Shake(float duration, float strength)
         {
             var intensity = SaveSystem.LoadScreenShakeIntensity();
-            StartCoroutine(ShakeRoutine(duration, strength * intensity));
+            if (currentShake != null) StopCoroutine(currentShake);
+            currentShake = StartCoroutine(ShakeRoutine(duration, strength * intensity));
         }
 
         private IEnumerator ShakeRoutine(float duration, float strength)
@@ -34,10 +33,11 @@ namespace SteelRain.VFX
             while (Time.time < endTime)
             {
                 var offset = Random.insideUnitCircle * strength;
-                transform.localPosition = origin + new Vector3(offset.x, offset.y, 0f);
+                shakeOffset = new Vector3(offset.x, offset.y, 0f);
                 yield return null;
             }
-            transform.localPosition = origin;
+            shakeOffset = Vector3.zero;
+            currentShake = null;
         }
     }
 }

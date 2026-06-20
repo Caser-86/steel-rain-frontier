@@ -2,6 +2,7 @@ using System.Collections;
 using SteelRain.Audio;
 using SteelRain.Core;
 using SteelRain.Player;
+using SteelRain.UI;
 using SteelRain.VFX;
 using SteelRain.Weapons;
 using UnityEngine;
@@ -34,6 +35,9 @@ namespace SteelRain.Enemies
         [Header("Contact")]
         [SerializeField] private int contactDamage = 1;
 
+        [Header("Score")]
+        [SerializeField] private int scoreValue = 1000;
+
         private Health health;
         private Rigidbody2D body;
         private int currentPhase = 1;
@@ -48,7 +52,9 @@ namespace SteelRain.Enemies
             body.bodyType = RigidbodyType2D.Kinematic;
             if (firePoints == null || firePoints.Length == 0)
                 firePoints = new[] { transform };
-            health.Initialize(50, Team.Enemy);
+            // 应用难度生命倍率
+            var scaledMaxHealth = Mathf.Max(1, Mathf.RoundToInt(50 * DifficultyManager.GetHealthMultiplier()));
+            health.Initialize(scaledMaxHealth, Team.Enemy);
             health.Died += OnDeath;
             health.Damaged += OnDamaged;
         }
@@ -94,7 +100,8 @@ namespace SteelRain.Enemies
             var fp = firePoints[0];
             var dir = (target.position - fp.position).normalized;
             var proj = Instantiate(projectilePrefab, fp.position, Quaternion.identity);
-            proj.LaunchWithDamage(dir, projectileSpeed, singleDamage, 0, Team.Enemy);
+            var dmg = Mathf.RoundToInt(singleDamage * DifficultyManager.GetDamageMultiplier());
+            proj.LaunchWithDamage(dir, projectileSpeed, dmg, 0, Team.Enemy);
             AudioManager.Play("sfx_enemy_shoot", 0.5f);
         }
 
@@ -105,12 +112,13 @@ namespace SteelRain.Enemies
             var baseDir = (target.position - fp.position).normalized;
             var startAngle = -spreadAngle * 0.5f;
             var step = spreadCount == 1 ? 0f : spreadAngle / (spreadCount - 1);
+            var dmg = Mathf.RoundToInt(singleDamage * DifficultyManager.GetDamageMultiplier());
 
             for (int i = 0; i < spreadCount; i++)
             {
                 var dir = Quaternion.Euler(0, 0, startAngle + step * i) * baseDir;
                 var proj = Instantiate(projectilePrefab, fp.position, Quaternion.identity);
-                proj.LaunchWithDamage(dir, projectileSpeed * 0.8f, singleDamage, 0, Team.Enemy);
+                proj.LaunchWithDamage(dir, projectileSpeed * 0.8f, dmg, 0, Team.Enemy);
                 AudioManager.Play("sfx_enemy_shoot", 0.3f);
                 yield return new WaitForSeconds(0.1f);
             }
@@ -119,12 +127,13 @@ namespace SteelRain.Enemies
         private IEnumerator HomingShot()
         {
             if (projectilePrefab == null || target == null) yield break;
+            var baseDmg = Mathf.RoundToInt((singleDamage + 1) * DifficultyManager.GetDamageMultiplier());
             for (int i = 0; i < homingCount; i++)
             {
                 var fp = firePoints[i % firePoints.Length];
                 var dir = (target.position - fp.position).normalized;
                 var proj = Instantiate(projectilePrefab, fp.position, Quaternion.identity);
-                proj.LaunchWithDamage(dir, projectileSpeed * 1.2f, singleDamage + 1, 0, Team.Enemy);
+                proj.LaunchWithDamage(dir, projectileSpeed * 1.2f, baseDmg, 0, Team.Enemy);
                 AudioManager.Play("sfx_enemy_shoot", 0.4f);
                 yield return new WaitForSeconds(0.3f);
             }
@@ -139,6 +148,9 @@ namespace SteelRain.Enemies
         {
             AudioManager.Play("sfx_explosion", 1f);
             ExplosionEffect.Spawn(transform.position, 3f);
+            // 补全击杀分数和成就追踪
+            ScoreManager.AddKill(scoreValue);
+            AchievementTracker.OnEnemyKilled(scoreValue);
             GameEvents.RaiseBossDefeated();
             Destroy(gameObject);
         }
@@ -147,9 +159,20 @@ namespace SteelRain.Enemies
         {
             if (!collision.collider.TryGetComponent(out Health other)) return;
             if (other.Team == Team.Enemy) return;
-            other.ApplyDamage(new DamageInfo(contactDamage, Team.Enemy, Vector2.right));
+            // 根据碰撞方向计算击退方向
+            var dir = (other.transform.position - transform.position).normalized;
+            if (dir == Vector3.zero) dir = Vector2.right;
+            // 应用难度伤害倍率
+            var dmg = Mathf.RoundToInt(contactDamage * DifficultyManager.GetDamageMultiplier());
+            other.ApplyDamage(new DamageInfo(dmg, Team.Enemy, dir));
         }
 
-        public void AssignTarget(Transform newTarget) => target = newTarget;
+        public void AssignTarget(Transform newTarget)
+        {
+            target = newTarget;
+            var bossBar = FindFirstObjectByType<BossHealthBar>();
+            if (bossBar != null)
+                bossBar.TrackBoss(health, "Turret Boss");
+        }
     }
 }

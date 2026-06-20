@@ -1,6 +1,7 @@
 using System.Collections;
 using SteelRain.Audio;
 using SteelRain.Core;
+using SteelRain.Levels;
 using SteelRain.Player;
 using SteelRain.UI;
 using SteelRain.VFX;
@@ -46,12 +47,16 @@ namespace SteelRain.Enemies
         [Header("Contact")]
         [SerializeField] private int contactDamage = 2;
 
+        [Header("Score")]
+        [SerializeField] private int scoreValue = 500;
+
         private Health health;
         private Rigidbody2D body;
         private float nextGunTime;
         private float nextJumpTime;
         private int currentPhase = 1;
         private bool facingRight = true;
+        private float turnDelayTimer;
 
         public int CurrentPhase => currentPhase;
         public bool CoreExposed => currentPhase >= 3;
@@ -62,9 +67,15 @@ namespace SteelRain.Enemies
             body = GetComponent<Rigidbody2D>();
             if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             if (firePoint == null) firePoint = transform;
-            health.Initialize(35, Team.Enemy);
+            // 应用难度生命倍率
+            var scaledMaxHealth = Mathf.Max(1, Mathf.RoundToInt(35 * DifficultyManager.GetHealthMultiplier()));
+            health.Initialize(scaledMaxHealth, Team.Enemy);
             health.Died += OnDeath;
             health.Damaged += OnDamaged;
+
+            // Boss出现时触发叙事警告过场
+            var story = FindFirstObjectByType<StoryManager>();
+            if (story != null) story.PlayBossWarning();
         }
 
         private void Update()
@@ -76,16 +87,21 @@ namespace SteelRain.Enemies
 
             if (currentPhase >= 1 && Time.time >= nextGunTime)
             {
-                nextGunTime = Time.time + gunCooldown;
+                // Phase 4（Hard专属狂暴）：射速翻倍
+                var cd = currentPhase >= 4 ? gunCooldown * 0.5f : gunCooldown;
+                nextGunTime = Time.time + cd;
                 StartCoroutine(MachineGunSweep());
             }
 
             if (currentPhase >= 2 && Time.time >= nextJumpTime)
             {
                 var dx = Mathf.Abs(target.position.x - transform.position.x);
-                if (dx < 8f)
+                // Phase 4：跳跃砸地冷却减半，追踪范围扩大
+                var jumpRange = currentPhase >= 4 ? 12f : 8f;
+                if (dx < jumpRange)
                 {
-                    nextJumpTime = Time.time + jumpCooldown;
+                    var jc = currentPhase >= 4 ? jumpCooldown * 0.5f : jumpCooldown;
+                    nextJumpTime = Time.time + jc;
                     StartCoroutine(JumpSlam());
                 }
             }
@@ -94,14 +110,21 @@ namespace SteelRain.Enemies
         private void UpdatePhase()
         {
             var hpPercent = (float)health.Current / health.Max;
-            var newPhase = hpPercent <= coreExposedAtPercent ? 3 :
+            // Phase 4 仅在 Hard 难度触发（血量<15%），提供机制层面的额外挑战
+            var newPhase = DifficultyManager.HasBossExtraPhase() && hpPercent <= 0.15f ? 4 :
+                           hpPercent <= coreExposedAtPercent ? 3 :
                            hpPercent <= 0.6f ? 2 : 1;
             if (newPhase != currentPhase)
             {
                 currentPhase = newPhase;
                 AudioManager.Play("sfx_explosion", 0.5f);
-                if (spriteRenderer != null && currentPhase == 3)
-                    spriteRenderer.color = new Color(1f, 0.5f, 0.3f);
+                if (spriteRenderer != null)
+                {
+                    if (currentPhase == 3)
+                        spriteRenderer.color = new Color(1f, 0.5f, 0.3f);
+                    else if (currentPhase == 4)
+                        spriteRenderer.color = new Color(1f, 0.2f, 0.2f); // 狂暴红色
+                }
             }
         }
 
@@ -112,12 +135,20 @@ namespace SteelRain.Enemies
             var shouldFaceRight = dx > 0;
             if (shouldFaceRight != facingRight)
             {
-                // 阶段3转身慢
-                if (currentPhase == 3 && Random.value > turnSpeedPhase3 * Time.deltaTime * 10f)
-                    return;
+                // 阶段3转身慢：使用累积计时器实现稳定的转身延迟
+                if (currentPhase == 3)
+                {
+                    turnDelayTimer += Time.deltaTime;
+                    if (turnDelayTimer < turnSpeedPhase3) return;
+                }
+                turnDelayTimer = 0f;
                 facingRight = shouldFaceRight;
                 if (spriteRenderer != null)
                     spriteRenderer.flipX = !facingRight;
+            }
+            else
+            {
+                turnDelayTimer = 0f;
             }
         }
 
@@ -153,7 +184,7 @@ namespace SteelRain.Enemies
             // 砸地
             AudioManager.Play("sfx_explosion", 0.8f);
             ExplosionEffect.Spawn(transform.position, 2f);
-            var shake = UnityEngine.Object.FindObjectOfType<CameraShake>();
+            var shake = Camera.main?.GetComponent<CameraShake>();
             if (shake != null) shake.Shake(0.4f, 0.5f);
 
             // 冲击波伤害
@@ -177,6 +208,9 @@ namespace SteelRain.Enemies
         {
             AudioManager.Play("sfx_explosion", 1f);
             ExplosionEffect.Spawn(transform.position, 3f);
+            // 补全击杀分数和成就追踪
+            ScoreManager.AddKill(scoreValue);
+            AchievementTracker.OnEnemyKilled(scoreValue);
             GameEvents.RaiseBossDefeated();
             Destroy(gameObject);
         }
@@ -185,13 +219,16 @@ namespace SteelRain.Enemies
         {
             if (!collision.collider.TryGetComponent(out Health other)) return;
             if (other.Team == Team.Enemy) return;
-            other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, Vector2.right));
+            // 根据碰撞方向计算击退方向
+            var dir = (other.transform.position - transform.position).normalized;
+            if (dir == Vector3.zero) dir = Vector2.right;
+            other.ApplyDamage(new DamageInfo(Mathf.RoundToInt(contactDamage * DifficultyManager.GetDamageMultiplier()), Team.Enemy, dir));
         }
 
         public void AssignTarget(Transform newTarget)
         {
             target = newTarget;
-            var bossBar = FindObjectOfType<BossHealthBar>();
+            var bossBar = FindFirstObjectByType<BossHealthBar>();
             if (bossBar != null)
                 bossBar.TrackBoss(health, "Mini-Boss Walker");
         }

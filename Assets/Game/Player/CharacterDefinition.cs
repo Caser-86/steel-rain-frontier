@@ -17,6 +17,11 @@ namespace SteelRain.Player
         public string id = "aila";
         public string displayName = "Aila";
         public CharacterSkillId skillId = CharacterSkillId.BreakthroughFire;
+        [TextArea(2, 4)]
+        [Tooltip("角色背景故事，用于叙事过场和角色选择界面")]
+        public string lore = "";
+        [Tooltip("角色战斗风格简述（一句话）")]
+        public string combatStyle = "";
 
         [Header("Movement")]
         public int maxHealth = 6;
@@ -35,6 +40,16 @@ namespace SteelRain.Player
 
         [Header("Visual")]
         public Color tintColor = Color.white;
+        public Sprite portraitSprite;
+        public Sprite crouchSprite;
+        public Sprite proneSprite;
+        public Sprite jumpSprite;
+
+        [Header("Projectile")]
+        public Color projectileColor = Color.white;
+        public float projectileScale = 1f;
+        [Tooltip("角色伤害倍率，影响所有武器伤害")]
+        public float damageMultiplier = 1f;
 
         [Header("Skill")]
         public float skillCooldown = 10f;

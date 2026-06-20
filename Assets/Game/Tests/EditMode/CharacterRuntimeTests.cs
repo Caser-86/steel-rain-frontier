@@ -87,6 +87,20 @@ public sealed class CharacterRuntimeTests
 
         runtime.ClearCurrentWeaponUpgradeOnDeath();
 
+        // 死亡降级：3→2，而非直接清零
+        Assert.AreEqual(2, runtime.GetWeaponLevel("assault_rifle"));
+    }
+
+    [Test]
+    public void ClearCurrentWeaponUpgradeOnDeath_MinimumLevelZero()
+    {
+        var def = CreateDef("mara", 6);
+        var runtime = new CharacterRuntime(def);
+        runtime.SetWeaponLevel("assault_rifle", 1);
+
+        runtime.ClearCurrentWeaponUpgradeOnDeath();
+
+        // 已经是1级，降一级后为0
         Assert.AreEqual(0, runtime.GetWeaponLevel("assault_rifle"));
     }
 
@@ -100,7 +114,8 @@ public sealed class CharacterRuntimeTests
 
         runtime.ClearCurrentWeaponUpgradeOnDeath();
 
-        Assert.AreEqual(0, runtime.GetWeaponLevel("assault_rifle"));
+        // 死亡降级：当前武器3→2，其他武器不变
+        Assert.AreEqual(2, runtime.GetWeaponLevel("assault_rifle"));
         Assert.AreEqual(2, runtime.GetWeaponLevel("shotgun"));
     }
 

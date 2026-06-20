@@ -27,7 +27,7 @@ namespace SteelRain.Core
             QualitySettings.vSyncCount = 0;
 
             // 启动画面由 BootScreen 负责延时跳转
-            if (FindObjectOfType<BootScreen>() == null)
+            if (FindFirstObjectByType<BootScreen>() == null)
             {
                 gameObject.AddComponent<BootScreen>();
             }
@@ -35,7 +35,12 @@ namespace SteelRain.Core
 
         private void Update()
         {
-            ScoreManager.Update();
+            // ScoreManager.Update 已由 GameLoop 统一驱动，不再在此重复调用
+        }
+
+        private void OnApplicationQuit()
+        {
+            SaveSystem.SetQuitting();
         }
     }
 }

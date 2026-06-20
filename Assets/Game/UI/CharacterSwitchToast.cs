@@ -87,7 +87,7 @@ namespace SteelRain.UI
         {
             if (nameText == null) return;
             nameText.text = displayName.ToUpper();
-            var skill = FindObjectOfType<Player.CharacterSkill>();
+            var skill = FindFirstObjectByType<Player.CharacterSkill>();
             if (skillText != null)
             {
                 if (skill != null && skill.Runtime != null && skill.Runtime.Definition != null)
@@ -115,6 +115,9 @@ namespace SteelRain.UI
 
         private void BuildUI()
         {
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+
             // CanvasGroup 容器
             var rootGo = new GameObject("CharacterSwitchToast");
             rootGo.transform.SetParent(transform, false);
@@ -140,7 +143,7 @@ namespace SteelRain.UI
             startNameY = 30f;
             nameRect.anchoredPosition = new Vector2(0, startNameY);
             nameRect.sizeDelta = new Vector2(800, 80);
-            nameText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) nameText.font = font;
             nameText.fontSize = 64;
             nameText.fontStyle = FontStyle.Bold;
             nameText.alignment = TextAnchor.MiddleCenter;
@@ -172,7 +175,7 @@ namespace SteelRain.UI
             startSkillY = -40f;
             skillRect.anchoredPosition = new Vector2(0, startSkillY);
             skillRect.sizeDelta = new Vector2(600, 40);
-            skillText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font != null) skillText.font = font;
             skillText.fontSize = 22;
             skillText.fontStyle = FontStyle.Italic;
             skillText.alignment = TextAnchor.MiddleCenter;

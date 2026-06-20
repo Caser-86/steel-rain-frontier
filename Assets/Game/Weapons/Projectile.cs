@@ -60,7 +60,12 @@ namespace SteelRain.Weapons
         private void Update()
         {
             if (Time.time >= despawnAt)
-                Destroy(gameObject);
+            {
+                // 优先归还对象池，无池则销毁
+                var pooled = GetComponent<PooledObject>();
+                if (pooled != null) pooled.Despawn();
+                else Destroy(gameObject);
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -71,7 +76,14 @@ namespace SteelRain.Weapons
             if (health.Team == sourceTeam)
                 return;
 
-            health.ApplyDamage(new DamageInfo(damage, sourceTeam, body.linearVelocity.normalized));
+            // 计算击退方向，如果速度为零则使用子弹到目标的方向
+            var knockbackDir = body.linearVelocity.normalized;
+            if (knockbackDir == Vector2.zero)
+                knockbackDir = (other.transform.position - transform.position).normalized;
+            if (knockbackDir == Vector2.zero)
+                knockbackDir = Vector2.right;
+
+            health.ApplyDamage(new DamageInfo(damage, sourceTeam, knockbackDir));
 
             if (createExplosionOnHit)
             {
@@ -85,7 +97,10 @@ namespace SteelRain.Weapons
                 return;
             }
 
-            Destroy(gameObject);
+            // 优先归还对象池，无池则销毁
+            var pooled = GetComponent<PooledObject>();
+            if (pooled != null) pooled.Despawn();
+            else Destroy(gameObject);
         }
     }
 }

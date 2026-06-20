@@ -81,13 +81,14 @@ public sealed class WeaponRuntimeTests
     }
 
     [Test]
-    public void ConsumeAmmo_InfiniteWeapon_SetsAmmoToMinusOne()
+    public void ConsumeAmmo_InfiniteWeapon_KeepsInfinite()
     {
         var weapon = CreateTestWeapon();
         var runtime = new WeaponRuntime(weapon, -1);
 
         Assert.IsTrue(runtime.ConsumeAmmo());
-        Assert.AreEqual(-1, runtime.Ammo);
+        // 无限弹药使用int.MaxValue表示，避免UI显示-1
+        Assert.AreEqual(int.MaxValue, runtime.Ammo);
     }
 
     [Test]

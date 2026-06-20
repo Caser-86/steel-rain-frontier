@@ -30,7 +30,9 @@ namespace SteelRain.Player
 
         public void ClearCurrentWeaponUpgradeOnDeath()
         {
-            SetWeaponLevel(SelectedWeaponId, 0);
+            // 死亡时降一级而非清空，避免死亡螺旋导致玩家陷入"武器变弱→更难通关→再死亡"
+            var current = GetWeaponLevel(SelectedWeaponId);
+            SetWeaponLevel(SelectedWeaponId, Mathf.Max(0, current - 1));
         }
     }
 }

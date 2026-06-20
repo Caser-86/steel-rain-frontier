@@ -11,12 +11,14 @@ namespace SteelRain.Pickups
 
         private float spawnTime;
         private Vector3 originalPosition;
+        private Vector3 originalLocalPosition;
         private SpriteRenderer spriteRenderer;
 
         private void OnEnable()
         {
             spawnTime = Time.time;
             originalPosition = transform.position;
+            originalLocalPosition = transform.localPosition;
             if (spriteRenderer == null)
                 spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
@@ -29,9 +31,17 @@ namespace SteelRain.Pickups
                 return;
             }
 
-            // 浮动动画
+            // 浮动动画（使用localPosition避免覆盖父对象移动）
             var bobY = Mathf.Sin(Time.time * 3f) * 0.1f;
-            transform.position = originalPosition + Vector3.up * bobY;
+            if (transform.parent != null)
+            {
+                // 保留原始localPosition的x和z，只修改y
+                transform.localPosition = new Vector3(originalLocalPosition.x, originalLocalPosition.y + bobY, originalLocalPosition.z);
+            }
+            else
+            {
+                transform.position = originalPosition + Vector3.up * bobY;
+            }
 
             // 最后 5 秒闪烁
             var age = Time.time - spawnTime;

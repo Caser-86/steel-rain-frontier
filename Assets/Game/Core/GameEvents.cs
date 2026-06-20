@@ -14,6 +14,8 @@ namespace SteelRain.Core
         public static event Action CheckpointReached;
         public static event Action PlayerDied;
         public static event Action BossDefeated;
+        public static event Action<int> CurrencyChanged;
+        public static event Action MaxHealthUpgraded;
 
         public static void RaisePlayerHealthChanged(int current, int max) =>
             PlayerHealthChanged?.Invoke(current, max);
@@ -41,5 +43,11 @@ namespace SteelRain.Core
 
         public static void RaiseBossDefeated() =>
             BossDefeated?.Invoke();
+
+        public static void RaiseCurrencyChanged(int balance) =>
+            CurrencyChanged?.Invoke(balance);
+
+        public static void RaiseMaxHealthUpgraded() =>
+            MaxHealthUpgraded?.Invoke();
     }
 }

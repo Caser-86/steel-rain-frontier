@@ -27,10 +27,18 @@ namespace SteelRain.VFX
             var cam = Camera.main;
             if (cam == null) return;
 
+            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (font == null)
+            {
+                // fallback: 尝试Arial
+                font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            }
+            if (font == null) return; // 无法显示文字，跳过
+
             var go = new GameObject("DmgNum");
             go.transform.SetParent(instance.transform);
             var text = go.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = font;
             text.fontSize = isCrit ? 28 : 20;
             text.color = isCrit ? Color.yellow : Color.white;
             text.alignment = TextAnchor.MiddleCenter;

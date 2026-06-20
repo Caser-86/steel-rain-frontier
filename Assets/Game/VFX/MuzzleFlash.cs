@@ -14,6 +14,7 @@ namespace SteelRain.VFX
 
         private SpriteRenderer flashRenderer;
         private Coroutine flashRoutine;
+        private static Sprite sharedFlashSprite;
 
         private void Awake()
         {
@@ -48,6 +49,9 @@ namespace SteelRain.VFX
 
         private Sprite CreateFlashSprite()
         {
+            // 使用静态共享Sprite，避免每个MuzzleFlash实例都创建新Texture2D
+            if (sharedFlashSprite != null) return sharedFlashSprite;
+
             int size = 16;
             var tex = new Texture2D(size, size);
             var center = new Vector2(size / 2f, size / 2f);
@@ -62,7 +66,9 @@ namespace SteelRain.VFX
             }
             tex.filterMode = FilterMode.Point;
             tex.Apply();
-            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0f, 0.5f), 16f);
+            sharedFlashSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0f, 0.5f), 16f);
+            sharedFlashSprite.name = "MuzzleFlash_Shared";
+            return sharedFlashSprite;
         }
     }
 }

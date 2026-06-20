@@ -9,7 +9,10 @@ namespace SteelRain.Enemies
         ShieldAdvance,
         DroneDive,
         FlamethrowerCone,
-        MortarMarker
+        MortarMarker,
+        RapidCharge,      // 快速冲锋近战
+        SniperShot,       // 远程狙击
+        HeavyMachineGun   // 重型机枪
     }
 
     [CreateAssetMenu(menuName = "Steel Rain/Enemy Definition")]
@@ -33,5 +36,15 @@ namespace SteelRain.Enemies
         public float projectileSpeed = 8f;
         public int scoreValue = 100;
         public Color spriteColor = new Color(0.8f, 0.4f, 0.3f);
+
+        [Header("Advanced")]
+        [Tooltip("子弹散射角度，0为单发")]
+        public float projectileSpread = 0f;
+        [Tooltip("一次发射的子弹数")]
+        public int projectileCount = 1;
+        [Tooltip("敌人子弹颜色")]
+        public Color projectileColor = new Color(1f, 0.5f, 0.3f, 1f);
+        [Tooltip("敌人子弹大小")]
+        public float projectileScale = 1f;
     }
 }

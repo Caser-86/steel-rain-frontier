@@ -40,7 +40,18 @@ namespace SteelRain.Levels
 
             for (var i = 0; i < count; i++)
             {
-                var offset = i < spawnOffsets.Length ? spawnOffsets[i] : Vector2.zero;
+                // 如果spawnOffsets未配置或长度不足，使用默认偏移避免敌人重叠
+                Vector2 offset;
+                if (spawnOffsets != null && i < spawnOffsets.Length)
+                {
+                    offset = spawnOffsets[i];
+                }
+                else
+                {
+                    // 默认偏移：水平排列，间距1.5单位
+                    offset = new Vector2(i * 1.5f, 0f);
+                }
+
                 var enemy = Instantiate(enemyPrefab, (Vector2)transform.position + offset, Quaternion.identity);
 
                 if (defHolder != null && defHolder.definition != null && player != null)

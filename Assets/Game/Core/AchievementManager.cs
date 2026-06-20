@@ -111,6 +111,7 @@ namespace SteelRain.Core
 
         /// <summary>
         /// 解锁成就。如果已解锁则返回false。
+        /// 解锁后自动奖励军票，构建成就-经济闭环。
         /// </summary>
         public static bool Unlock(AchievementId id)
         {
@@ -119,9 +120,44 @@ namespace SteelRain.Core
             PlayerPrefs.SetInt(KeyPrefix + id, 1);
             PlayerPrefs.Save();
 
-            Debug.Log($"[Achievement] Unlocked: {GetAchievementName(id)} - {GetAchievementDescription(id)}");
+            // 成就解锁奖励军票
+            var reward = GetAchievementReward(id);
+            if (reward > 0)
+                CurrencyManager.Add(reward);
+
+            Debug.Log($"[Achievement] Unlocked: {GetAchievementName(id)} - {GetAchievementDescription(id)} (+{reward}军票)");
             AchievementUnlocked?.Invoke(id);
             return true;
+        }
+
+        /// <summary>
+        /// 获取成就奖励军票数。稀有成就奖励更高。
+        /// </summary>
+        public static int GetAchievementReward(AchievementId id)
+        {
+            return id switch
+            {
+                AchievementId.FirstBlood => 50,
+                AchievementId.Kill10 => 100,
+                AchievementId.Kill50 => 300,
+                AchievementId.Kill100 => 500,
+                AchievementId.FirstBoss => 500,
+                AchievementId.NoDeathComplete => 800,
+                AchievementId.PacifistRun => 1000,
+                AchievementId.Combo5 => 100,
+                AchievementId.Combo10 => 300,
+                AchievementId.Combo20 => 500,
+                AchievementId.AllCharactersUsed => 200,
+                AchievementId.WeaponMaster => 400,
+                AchievementId.Level1Complete => 500,
+                AchievementId.Level2Complete => 800,
+                AchievementId.GameComplete => 2000,
+                AchievementId.Speedrun => 1500,
+                AchievementId.Survivor => 600,
+                AchievementId.SharpShooter => 400,
+                AchievementId.Veteran => 300,
+                _ => 0
+            };
         }
 
         /// <summary>
@@ -200,11 +236,12 @@ namespace SteelRain.Core
 
         /// <summary>
         /// 增加浮点统计值（用于游戏时间等）。
+        /// 注意：此方法不调用PlayerPrefs.Save()，需要外部定期保存。
         /// </summary>
         public static void AddFloatStat(StatId stat, float amount)
         {
             var current = GetFloatStat(stat);
-            SetFloatStat(stat, current + amount);
+            SetFloatStatNoSave(stat, current + amount);
         }
 
         /// <summary>
@@ -216,11 +253,27 @@ namespace SteelRain.Core
         }
 
         /// <summary>
+        /// 设置浮点统计值（不保存，用于频繁更新）。
+        /// </summary>
+        public static void SetFloatStatNoSave(StatId stat, float value)
+        {
+            PlayerPrefs.SetFloat(KeyStatsPrefix + stat, value);
+        }
+
+        /// <summary>
         /// 设置浮点统计值。
         /// </summary>
         public static void SetFloatStat(StatId stat, float value)
         {
             PlayerPrefs.SetFloat(KeyStatsPrefix + stat, value);
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>
+        /// 保存所有未保存的统计到PlayerPrefs。
+        /// </summary>
+        public static void SaveAll()
+        {
             PlayerPrefs.Save();
         }
 
@@ -268,10 +321,7 @@ namespace SteelRain.Core
             foreach (AchievementId id in Enum.GetValues(typeof(AchievementId)))
                 PlayerPrefs.DeleteKey(KeyPrefix + id);
             foreach (StatId stat in Enum.GetValues(typeof(StatId)))
-            {
                 PlayerPrefs.DeleteKey(KeyStatsPrefix + stat);
-                PlayerPrefs.DeleteKey(KeyStatsPrefix + stat);
-            }
             PlayerPrefs.Save();
         }
     }

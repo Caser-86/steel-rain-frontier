@@ -17,8 +17,8 @@ MonoBehaviour:
   skillId: 2
   maxHealth: 6
   moveSpeed: 7
-  jumpVelocity: 9
-  gravityScale: 3.3
+  jumpVelocity: 11
+  gravityScale: 2.8
   fallGravityMultiplier: 1.35
   crouchSpeedMultiplier: 0.45
   crouchColliderHeightMultiplier: 0.6
@@ -26,4 +26,12 @@ MonoBehaviour:
   dodgeSpeed: 11
   dodgeDuration: 0.16
   dodgeCooldown: 0.65
-  skillCooldown: 10
+  tintColor: {r: 0.9, g: 0.5, b: 0.8, a: 1}
+  portraitSprite: {fileID: 21300000, guid: b8f9ce7c8c7890c47ac03a29e4a7a6a7, type: 3}
+  crouchSprite: {fileID: 21300000, guid: 982914f6e6b4d4e479d62b3811a40737, type: 3}
+  proneSprite: {fileID: 21300000, guid: d98cf59b30f12a742b417a84b7011b4f, type: 3}
+  jumpSprite: {fileID: 21300000, guid: 8f6e1de3100a52b49b80c9b0f44c9522, type: 3}
+  projectileColor: {r: 0.3, g: 1, b: 0.5, a: 1}
+  projectileScale: 0.7
+  damageMultiplier: 2
+  skillCooldown: 8

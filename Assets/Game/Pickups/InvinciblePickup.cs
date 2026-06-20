@@ -29,10 +29,11 @@ namespace SteelRain.Pickups
 
         private IEnumerator InvincibilityRoutine(Health health, MonoBehaviour runner)
         {
-            health.Initialize(health.Max, Team.Neutral);
+            // 使用invincible标志而非改变team，避免玩家子弹伤害自己
+            health.SetInvincible(true);
             yield return new WaitForSeconds(duration);
             if (health != null && !health.IsDead)
-                health.InitializeWithCurrent(health.Max, Team.Player, health.Current);
+                health.SetInvincible(false);
         }
     }
 

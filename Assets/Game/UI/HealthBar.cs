@@ -29,14 +29,15 @@ namespace SteelRain.UI
 
         private void Update()
         {
-            if (damageFillImage == null) return;
+            if (damageFillImage == null || maxDisplayHealth <= 0) return;
             if (displayHealth > currentDisplayHealth)
             {
                 displayHealth = Mathf.Lerp(displayHealth, currentDisplayHealth, Time.deltaTime * damageLagSpeed);
-                damageFillImage.fillAmount = maxDisplayHealth > 0 ? displayHealth / maxDisplayHealth : 0f;
+                damageFillImage.fillAmount = displayHealth / maxDisplayHealth;
             }
             else
             {
+                displayHealth = currentDisplayHealth;
                 damageFillImage.fillAmount = currentDisplayHealth > 0 ? currentDisplayHealth / maxDisplayHealth : 0f;
             }
         }

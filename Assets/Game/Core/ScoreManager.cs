@@ -27,6 +27,11 @@ namespace SteelRain.Core
             score += points;
             ScoreChanged?.Invoke(score);
             ComboChanged?.Invoke(combo);
+
+            // 击杀掉落军票，构建"体验-反馈-消耗-追求"闭环
+            var drop = CurrencyManager.CalculateDrop(basePoints);
+            if (drop > 0)
+                CurrencyManager.Add(drop);
         }
 
         public static void Update()
@@ -80,6 +85,9 @@ namespace SteelRain.Core
 
         public static void AddToLeaderboard(int newScore)
         {
+            // 不添加0分到排行榜
+            if (newScore <= 0) return;
+
             var scores = GetLeaderboard();
             for (int i = 0; i < scores.Length; i++)
             {
