@@ -157,7 +157,6 @@ namespace SteelRain.Enemies
             if (enemyProjectilePrefab == null || target == null) yield break;
 
             var baseDir = (target.position - firePoint.position).normalized;
-            var slowMultiplier = CharacterSkill.TimeRiftActive ? 0.4f : 1f;
             for (int i = 0; i < gunBurstCount; i++)
             {
                 if (target == null) yield break;
@@ -165,7 +164,7 @@ namespace SteelRain.Enemies
                 var dir = Quaternion.Euler(0, 0, spread * 30f) * baseDir;
                 var proj = Instantiate(enemyProjectilePrefab, firePoint.position, Quaternion.identity);
                 var dmg = Mathf.RoundToInt(gunDamage * DifficultyManager.GetDamageMultiplier());
-                proj.LaunchWithDamage(dir, gunProjectileSpeed * slowMultiplier, dmg, 0, Team.Enemy);
+                proj.LaunchWithDamage(dir, gunProjectileSpeed, dmg, 0, Team.Enemy);
                 AudioManager.Play("sfx_enemy_shoot", 0.4f);
                 yield return new WaitForSeconds(gunBurstInterval);
             }
@@ -173,8 +172,7 @@ namespace SteelRain.Enemies
 
         private IEnumerator JumpSlam()
         {
-            var slowMultiplier = CharacterSkill.TimeRiftActive ? 0.4f : 1f;
-            body.linearVelocity = new Vector2(0f, jumpForce * slowMultiplier);
+            body.linearVelocity = new Vector2(0f, jumpForce);
             yield return new WaitForSeconds(0.6f);
 
             // 等待落地
@@ -211,6 +209,11 @@ namespace SteelRain.Enemies
             // 补全击杀分数和成就追踪
             ScoreManager.AddKill(scoreValue);
             AchievementTracker.OnEnemyKilled(scoreValue);
+
+            // Boss掉落
+            var loot = GetComponent<Pickups.LootDrop>();
+            if (loot != null) loot.SpawnLoot(transform.position);
+
             GameEvents.RaiseBossDefeated();
             Destroy(gameObject);
         }

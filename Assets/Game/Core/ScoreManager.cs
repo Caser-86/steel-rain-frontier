@@ -27,11 +27,17 @@ namespace SteelRain.Core
             score += points;
             ScoreChanged?.Invoke(score);
             ComboChanged?.Invoke(combo);
+            // 军票掉落已由 LootDrop 系统生成物理拾取物，此处不再直接添加
+        }
 
-            // 击杀掉落军票，构建"体验-反馈-消耗-追求"闭环
-            var drop = CurrencyManager.CalculateDrop(basePoints);
-            if (drop > 0)
-                CurrencyManager.Add(drop);
+        /// <summary>
+        /// 直接添加分数（不触发连击），用于波次奖励等。
+        /// </summary>
+        public static void AddScore(int points)
+        {
+            if (points <= 0) return;
+            score += points;
+            ScoreChanged?.Invoke(score);
         }
 
         public static void Update()

@@ -57,13 +57,12 @@ namespace SteelRain.Enemies
             var dx = target.position.x - transform.position.x;
             var dy = target.position.y + hoverHeight - transform.position.y;
             var dist = Mathf.Abs(dx);
-            var slowMultiplier = CharacterSkill.TimeRiftActive ? 0.4f : 1f;
 
             if (diving)
             {
                 // 俯冲
                 var dir = (target.position - transform.position).normalized;
-                var speedMultiplier = DifficultyManager.GetEnemySpeedMultiplier() * slowMultiplier;
+                var speedMultiplier = DifficultyManager.GetEnemySpeedMultiplier();
                 body.linearVelocity = dir * definition.moveSpeed * 1.5f * speedMultiplier;
 
                 if (dist < 1.5f)
@@ -101,7 +100,7 @@ namespace SteelRain.Enemies
             if (projectilePrefab == null || target == null) return;
             var dir = (target.position - firePoint.position).normalized;
             var proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-            var speed = definition.projectileSpeed * (CharacterSkill.TimeRiftActive ? 0.4f : 1f);
+            var speed = definition.projectileSpeed;
             var dmg = Mathf.RoundToInt(definition.rangedDamage * DifficultyManager.GetDamageMultiplier());
             proj.LaunchWithDamage(dir, speed, dmg, 0, Team.Enemy);
             AudioManager.Play("sfx_enemy_shoot", 0.4f);

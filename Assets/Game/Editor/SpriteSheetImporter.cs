@@ -16,7 +16,7 @@ namespace SteelRain.Editor
     /// 支持的 Sheet 类型：
     /// 1. 角色双 4×4 网格（30有效帧）：player_xxx_sheet1.png + player_xxx_sheet2.png
     ///    - Sheet1: idle/walk/run/jump（15有效帧 + 1占位）
-    ///    - Sheet2: crouch/prone/shoot/death/skill/weapon（15有效帧 + 1占位）
+    ///    - Sheet2: crouch/prone/shoot/death/weapon（14有效帧 + 2占位）
     /// 2. 敌人单/双 4×4 网格：enemy_xxx_sheet.png（向后兼容）
     /// 3. Boss 4×4 网格：miniboss_xxx_sheet.png / turret_xxx_sheet.png
     /// 4. 地形 1×8 横排：ground_xxx_sheet.png
@@ -282,7 +282,7 @@ namespace SteelRain.Editor
 
         /// <summary>
         /// 根据规格生成子精灵命名列表（按网格顺序：左到右、上到下）。
-        /// 双 Sheet 角色：Sheet1 移动动作，Sheet2 战斗/技能动作。
+        /// 双 Sheet 角色：Sheet1 移动动作，Sheet2 战斗动作。
         /// </summary>
         private static string[] GetSubSpriteNames(SheetSpec spec)
         {
@@ -293,16 +293,16 @@ namespace SteelRain.Editor
             {
                 if (spec.SheetIndex == 2)
                 {
-                    // Sheet2 - 战斗/技能/武器
+                    // Sheet2 - 战斗/武器
                     // Row 0: crouch_0, crouch_1, crouch_2, prone_0
                     // Row 1: shoot_0, shoot_1, shoot_2, shoot_3
                     // Row 2: death_0, death_1, death_2, death_3
-                    // Row 3: skill_0, pistol_0, knife_0, _unused
+                    // Row 3: _unused, pistol_0, knife_0, _unused
                     string[] actions = {
                         "crouch_0", "crouch_1", "crouch_2", "prone_0",
                         "shoot_0", "shoot_1", "shoot_2", "shoot_3",
                         "death_0", "death_1", "death_2", "death_3",
-                        "skill_0", "pistol_0", "knife_0", "_unused"
+                        "_unused", "pistol_0", "knife_0", "_unused"
                     };
                     foreach (var act in actions)
                         names.Add($"{baseName}_{act}");
@@ -484,7 +484,7 @@ namespace SteelRain.Editor
 
         private static void ParseAnimName(string animName, out string charName, out string actionName)
         {
-            string[] actions = { "idle", "walk", "run", "jump", "dash", "crouch", "prone", "shoot", "death", "skill", "pistol", "knife" };
+            string[] actions = { "idle", "walk", "run", "jump", "dash", "crouch", "prone", "shoot", "death", "pistol", "knife" };
             charName = animName;
             actionName = "idle";
 

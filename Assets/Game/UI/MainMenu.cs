@@ -11,6 +11,7 @@ namespace SteelRain.UI
         [SerializeField] private Button continueButton;
         [SerializeField] private Button endlessButton;
         [SerializeField] private Button newGameButton;
+        [SerializeField] private Button characterSelectButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button achievementsButton;
         [SerializeField] private Button quitButton;
@@ -24,14 +25,12 @@ namespace SteelRain.UI
         private GameObject cachedPanel;
         private GameObject cachedMenu;
         private AchievementPanel achievementPanel;
+        private CharacterSelectScreen characterSelectScreen;
 
         private void Start()
         {
-            Debug.Log("[MainMenu] Start called");
-
             // 检查EventSystem
             var es = FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>();
-            Debug.Log("[MainMenu] EventSystem found: " + (es != null));
 
             // 如果没有EventSystem，自动创建
             if (es == null)
@@ -39,7 +38,6 @@ namespace SteelRain.UI
                 var esGo = new GameObject("EventSystem");
                 esGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
                 esGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-                Debug.Log("[MainMenu] EventSystem auto-created");
             }
 
             if (startButton != null)
@@ -56,14 +54,26 @@ namespace SteelRain.UI
             if (endlessButton != null)
             {
                 // 通关后才解锁无尽模式
-                var gameComplete = AchievementManager.IsUnlocked(AchievementManager.AchievementId.GameComplete);
-                endlessButton.gameObject.SetActive(gameComplete);
+                var unlocked = SaveSystem.IsEndlessUnlocked() ||
+                               AchievementManager.IsUnlocked(AchievementManager.AchievementId.GameComplete);
+                endlessButton.gameObject.SetActive(unlocked);
                 endlessButton.onClick.AddListener(StartEndlessMode);
+
+                // 显示最高波次记录
+                if (unlocked)
+                {
+                    var bestWave = SaveSystem.GetEndlessBestWave();
+                    var text = endlessButton.GetComponentInChildren<Text>();
+                    if (text != null && bestWave > 0)
+                        text.text = $"Endless Mode (Best: Wave {bestWave})";
+                }
             }
             if (settingsButton != null)
                 settingsButton.onClick.AddListener(ToggleSettings);
             if (achievementsButton != null)
                 achievementsButton.onClick.AddListener(ToggleAchievements);
+            if (characterSelectButton != null)
+                characterSelectButton.onClick.AddListener(ToggleCharacterSelect);
             if (quitButton != null)
                 quitButton.onClick.AddListener(QuitGame);
             if (easyButton != null)
@@ -81,7 +91,6 @@ namespace SteelRain.UI
             if (cachedMenu == null) cachedMenu = transform.Find("MenuContent")?.gameObject;
 
             UpdateDifficultyDisplay();
-            Debug.Log("[MainMenu] Start complete. startButton=" + (startButton != null) + " newGameButton=" + (newGameButton != null));
         }
 
         private void Update()
@@ -126,14 +135,12 @@ namespace SteelRain.UI
 
         private void StartGame()
         {
-            Debug.Log("[MainMenu] StartGame clicked, fading to Level01_VerticalSlice");
             Time.timeScale = 1f;
             SceneFader.FadeToScene("Level01_VerticalSlice");
         }
 
         private void ContinueGame()
         {
-            Debug.Log("[MainMenu] ContinueGame clicked");
             Time.timeScale = 1f;
             // 继续到上一次检查点所在的关卡
             var levelIndex = SaveSystem.LoadLevelIndex();
@@ -145,17 +152,15 @@ namespace SteelRain.UI
 
         private void NewGame()
         {
-            Debug.Log("[MainMenu] NewGame clicked");
             SaveSystem.ClearAll();
             ScoreManager.Reset();
-            CharacterUnlockManager.Reset();
+            TempBuffState.Reset();
             Time.timeScale = 1f;
             SceneFader.FadeToScene("Level01_VerticalSlice");
         }
 
         private void StartEndlessMode()
         {
-            Debug.Log("[MainMenu] StartEndlessMode clicked");
             ScoreManager.Reset();
             Time.timeScale = 1f;
             LevelManager.LoadEndlessMode();
@@ -192,6 +197,21 @@ namespace SteelRain.UI
                     cachedMenu.SetActive(false);
                 achievementPanel.Show();
             }
+        }
+
+        private void ToggleCharacterSelect()
+        {
+            if (characterSelectScreen == null)
+                characterSelectScreen = FindFirstObjectByType<CharacterSelectScreen>();
+            if (characterSelectScreen == null)
+            {
+                var go = new GameObject("CharacterSelectScreen");
+                go.transform.SetParent(transform);
+                characterSelectScreen = go.AddComponent<CharacterSelectScreen>();
+            }
+            if (cachedMenu != null)
+                cachedMenu.SetActive(false);
+            characterSelectScreen.Show();
         }
 
         private void QuitGame()

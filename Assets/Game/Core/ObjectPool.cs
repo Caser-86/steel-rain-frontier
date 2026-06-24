@@ -5,7 +5,7 @@ namespace SteelRain.Core
 {
     /// <summary>
     /// 通用对象池：预分配游戏对象实例，避免运行时频繁 Instantiate/Destroy 造成 GC 压力。
-    /// 适用于子弹、爆炸特效、技能特效等高频生成销毁的对象。
+    /// 适用于子弹、爆炸特效等高频生成销毁的对象。
     /// </summary>
     public sealed class ObjectPool : MonoBehaviour
     {

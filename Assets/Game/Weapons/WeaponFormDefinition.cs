@@ -19,13 +19,5 @@ namespace SteelRain.Weapons
         public float spreadAngle = 0f;
         public int pierceCount = 0;
         public float explosionRadius = 0f;
-
-        [Header("Upgrade Scaling")]
-        public float levelOneDamageMultiplier = 1.3f;
-        public float levelTwoDamageMultiplier = 1.7f;
-        public float levelThreeDamageMultiplier = 2.0f;
-        public float levelOneFireRateMultiplier = 1.1f;
-        public float levelTwoFireRateMultiplier = 1.25f;
-        public float levelThreeFireRateMultiplier = 1.4f;
     }
 }

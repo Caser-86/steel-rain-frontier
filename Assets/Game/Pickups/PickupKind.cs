@@ -4,9 +4,7 @@ namespace SteelRain.Pickups
     {
         SmallHealth,
         LargeHealth,
-        Ammo,
         Shield,
-        Invincible,
-        WeaponUpgrade
+        Invincible
     }
 }

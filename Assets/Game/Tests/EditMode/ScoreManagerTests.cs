@@ -50,6 +50,33 @@ public sealed class ScoreManagerTests
     }
 
     [Test]
+    public void AddScore_IncreasesScoreWithoutCombo()
+    {
+        ScoreManager.AddScore(50);
+        Assert.AreEqual(50, ScoreManager.Score);
+        // AddScore 不触发连击
+        Assert.AreEqual(0, ScoreManager.Combo);
+    }
+
+    [Test]
+    public void AddScore_NegativeOrZero_DoesNothing()
+    {
+        ScoreManager.AddScore(50);
+        ScoreManager.AddScore(0);
+        ScoreManager.AddScore(-10);
+        Assert.AreEqual(50, ScoreManager.Score);
+    }
+
+    [Test]
+    public void AddScore_FiresScoreChanged()
+    {
+        int last = -1;
+        ScoreManager.ScoreChanged += s => last = s;
+        ScoreManager.AddScore(42);
+        Assert.AreEqual(42, last);
+    }
+
+    [Test]
     public void Reset_ZeroesScoreAndCombo()
     {
         ScoreManager.AddKill(10);

@@ -50,8 +50,8 @@ namespace SteelRain.Levels
             if (health != null)
                 health.ReviveFull();
 
-            // 重置本关卡内所有已消耗的武器升级胶囊，避免死亡螺旋
-            WeaponUpgradePickup.ResetAllOnRespawn();
+            // 重置本关卡内所有已消耗的武器拾取物，避免死亡螺旋
+            WeaponPickup.ResetAllOnRespawn();
         }
     }
 }

@@ -3,11 +3,15 @@ using UnityEngine;
 
 namespace SteelRain.Core
 {
+    /// <summary>
+    /// 存档系统（合金弹头简化版）。
+    /// 仅保留：检查点、小队存活、关卡进度、设置、最高分。
+    /// 无 NGP、无武器等级、无商店进度。
+    /// </summary>
     public static class SaveSystem
     {
         private const string KeyCheckpointX = "Save_CheckpointX";
         private const string KeyCheckpointY = "Save_CheckpointY";
-        private const string KeyWeaponLevel = "Save_WeaponLevel_";
         private const string KeyMasterVolume = "Settings_MasterVolume";
         private const string KeyMusicVolume = "Settings_MusicVolume";
         private const string KeySfxVolume = "Settings_SfxVolume";
@@ -16,13 +20,13 @@ namespace SteelRain.Core
         private const string KeyResolutionH = "Settings_ResolutionH";
         private const string KeyScreenShake = "Settings_ScreenShake";
         private const string KeyHighScore = "Save_HighScore";
-        // 小队存档：存活状态、当前角色、各角色血量、关卡内分数
         private const string KeySquadAlive = "Save_SquadAlive";
         private const string KeySquadActiveIndex = "Save_SquadActiveIndex";
         private const string KeySquadHealth = "Save_SquadHealth_";
         private const string KeyLevelScore = "Save_LevelScore";
         private const string KeyLevelIndex = "Save_LevelIndex";
-        private const string KeyMaxHealthBonus = "Save_MaxHealthBonus";
+        private const string KeyEndlessUnlocked = "Save_EndlessUnlocked";
+        private const string KeyEndlessBestWave = "Save_EndlessBestWave";
 
         private static bool isQuitting;
 
@@ -59,33 +63,6 @@ namespace SteelRain.Core
             {
                 Debug.LogWarning($"[SaveSystem] LoadCheckpoint failed: {e.Message}");
                 return fallback;
-            }
-        }
-
-        public static void SaveWeaponLevel(string weaponId, int level)
-        {
-            if (isQuitting) return;
-            try
-            {
-                PlayerPrefs.SetInt(KeyWeaponLevel + weaponId, level);
-                PlayerPrefs.Save();
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[SaveSystem] SaveWeaponLevel failed: {e.Message}");
-            }
-        }
-
-        public static int LoadWeaponLevel(string weaponId)
-        {
-            try
-            {
-                return PlayerPrefs.GetInt(KeyWeaponLevel + weaponId, 0);
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[SaveSystem] LoadWeaponLevel failed: {e.Message}");
-                return 0;
             }
         }
 
@@ -212,9 +189,6 @@ namespace SteelRain.Core
 
         // ===== 小队与关卡进度存档 =====
 
-        /// <summary>
-        /// 保存小队存活状态（位掩码，bit0=角色0存活...）、当前角色索引、各角色血量。
-        /// </summary>
         public static void SaveSquadState(int aliveMask, int activeIndex, int[] healths)
         {
             if (isQuitting) return;
@@ -265,9 +239,6 @@ namespace SteelRain.Core
             catch { return false; }
         }
 
-        /// <summary>
-        /// 清除小队存档（关卡完成或重新开始时调用）。
-        /// </summary>
         public static void ClearSquadSave()
         {
             try
@@ -324,24 +295,56 @@ namespace SteelRain.Core
             catch { return 0; }
         }
 
-        public static void SaveMaxHealthBonus(int bonus)
+        // ===== 无尽模式解锁 =====
+
+        public static bool IsEndlessUnlocked()
+        {
+            try { return PlayerPrefs.GetInt(KeyEndlessUnlocked, 0) == 1; }
+            catch { return false; }
+        }
+
+        public static void UnlockEndlessMode()
         {
             if (isQuitting) return;
             try
             {
-                PlayerPrefs.SetInt(KeyMaxHealthBonus, bonus);
+                PlayerPrefs.SetInt(KeyEndlessUnlocked, 1);
                 PlayerPrefs.Save();
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[SaveSystem] SaveMaxHealthBonus failed: {e.Message}");
+                Debug.LogWarning($"[SaveSystem] UnlockEndlessMode failed: {e.Message}");
             }
         }
 
-        public static int LoadMaxHealthBonus()
+        /// <summary>
+        /// 获取无尽模式最高波次。
+        /// </summary>
+        public static int GetEndlessBestWave()
         {
-            try { return PlayerPrefs.GetInt(KeyMaxHealthBonus, 0); }
+            try { return PlayerPrefs.GetInt(KeyEndlessBestWave, 0); }
             catch { return 0; }
+        }
+
+        /// <summary>
+        /// 更新无尽模式最高波次（仅在超过记录时保存）。
+        /// </summary>
+        public static void UpdateEndlessBestWave(int wave)
+        {
+            if (isQuitting || wave <= 0) return;
+            try
+            {
+                var current = PlayerPrefs.GetInt(KeyEndlessBestWave, 0);
+                if (wave > current)
+                {
+                    PlayerPrefs.SetInt(KeyEndlessBestWave, wave);
+                    PlayerPrefs.Save();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveSystem] UpdateEndlessBestWave failed: {e.Message}");
+            }
         }
     }
 }

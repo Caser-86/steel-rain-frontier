@@ -27,14 +27,18 @@ namespace SteelRain.Core
             Combo10,             // 10连击
             Combo20,             // 20连击
             AllCharactersUsed,   // 使用所有4个角色
-            WeaponMaster,        // 所有武器升级到满级
             Level1Complete,      // 完成关卡1
             Level2Complete,      // 完成关卡2
+            Level3Complete,      // 完成关卡3
+            Level4Complete,      // 完成关卡4
+            Level5Complete,      // 完成关卡5
             GameComplete,        // 完成整个游戏
             Speedrun,            // 快速通关（10分钟内）
             Survivor,            // 生存者（血量低于1时击败Boss）
             SharpShooter,        // 神射手（连击达到20且不中断）
-            Veteran              // 老兵（累计游戏时间1小时）
+            Veteran,             // 老兵（累计游戏时间1小时）
+            EndlessWave10,       // 无尽模式到达第10波
+            EndlessWave20        // 无尽模式到达第20波
         }
 
         // 统计数据
@@ -67,14 +71,18 @@ namespace SteelRain.Core
             { AchievementId.Combo10, "Combo Master" },
             { AchievementId.Combo20, "Combo Legend" },
             { AchievementId.AllCharactersUsed, "Squad Leader" },
-            { AchievementId.WeaponMaster, "Weapon Master" },
             { AchievementId.Level1Complete, "Beach Victor" },
             { AchievementId.Level2Complete, "Factory Victor" },
+            { AchievementId.Level3Complete, "Warzone Victor" },
+            { AchievementId.Level4Complete, "Bunker Victor" },
+            { AchievementId.Level5Complete, "Citadel Victor" },
             { AchievementId.GameComplete, "War Hero" },
             { AchievementId.Speedrun, "Speed Demon" },
             { AchievementId.Survivor, "Survivor" },
             { AchievementId.SharpShooter, "Sharp Shooter" },
-            { AchievementId.Veteran, "Veteran" }
+            { AchievementId.Veteran, "Veteran" },
+            { AchievementId.EndlessWave10, "Wave Survivor" },
+            { AchievementId.EndlessWave20, "Endless Warrior" }
         };
 
         // 成就描述
@@ -91,14 +99,18 @@ namespace SteelRain.Core
             { AchievementId.Combo10, "Achieve a 10x combo" },
             { AchievementId.Combo20, "Achieve a 20x combo" },
             { AchievementId.AllCharactersUsed, "Use all 4 characters in one level" },
-            { AchievementId.WeaponMaster, "Max out all weapon upgrades" },
             { AchievementId.Level1Complete, "Complete Level 1: Beach" },
             { AchievementId.Level2Complete, "Complete Level 2: Factory" },
+            { AchievementId.Level3Complete, "Complete Level 3: Warzone" },
+            { AchievementId.Level4Complete, "Complete Level 4: Bunker" },
+            { AchievementId.Level5Complete, "Complete Level 5: Citadel" },
             { AchievementId.GameComplete, "Complete the entire game" },
             { AchievementId.Speedrun, "Complete the game in under 10 minutes" },
             { AchievementId.Survivor, "Defeat a boss with less than 1 HP" },
             { AchievementId.SharpShooter, "Reach 20x combo without breaking it" },
-            { AchievementId.Veteran, "Play for 1 hour total" }
+            { AchievementId.Veteran, "Play for 1 hour total" },
+            { AchievementId.EndlessWave10, "Reach Wave 10 in Endless Mode" },
+            { AchievementId.EndlessWave20, "Reach Wave 20 in Endless Mode" }
         };
 
         /// <summary>
@@ -111,7 +123,6 @@ namespace SteelRain.Core
 
         /// <summary>
         /// 解锁成就。如果已解锁则返回false。
-        /// 解锁后自动奖励军票，构建成就-经济闭环。
         /// </summary>
         public static bool Unlock(AchievementId id)
         {
@@ -120,44 +131,8 @@ namespace SteelRain.Core
             PlayerPrefs.SetInt(KeyPrefix + id, 1);
             PlayerPrefs.Save();
 
-            // 成就解锁奖励军票
-            var reward = GetAchievementReward(id);
-            if (reward > 0)
-                CurrencyManager.Add(reward);
-
-            Debug.Log($"[Achievement] Unlocked: {GetAchievementName(id)} - {GetAchievementDescription(id)} (+{reward}军票)");
             AchievementUnlocked?.Invoke(id);
             return true;
-        }
-
-        /// <summary>
-        /// 获取成就奖励军票数。稀有成就奖励更高。
-        /// </summary>
-        public static int GetAchievementReward(AchievementId id)
-        {
-            return id switch
-            {
-                AchievementId.FirstBlood => 50,
-                AchievementId.Kill10 => 100,
-                AchievementId.Kill50 => 300,
-                AchievementId.Kill100 => 500,
-                AchievementId.FirstBoss => 500,
-                AchievementId.NoDeathComplete => 800,
-                AchievementId.PacifistRun => 1000,
-                AchievementId.Combo5 => 100,
-                AchievementId.Combo10 => 300,
-                AchievementId.Combo20 => 500,
-                AchievementId.AllCharactersUsed => 200,
-                AchievementId.WeaponMaster => 400,
-                AchievementId.Level1Complete => 500,
-                AchievementId.Level2Complete => 800,
-                AchievementId.GameComplete => 2000,
-                AchievementId.Speedrun => 1500,
-                AchievementId.Survivor => 600,
-                AchievementId.SharpShooter => 400,
-                AchievementId.Veteran => 300,
-                _ => 0
-            };
         }
 
         /// <summary>
@@ -304,7 +279,10 @@ namespace SteelRain.Core
                 case StatId.LevelsCompleted:
                     if (value >= 1) Unlock(AchievementId.Level1Complete);
                     if (value >= 2) Unlock(AchievementId.Level2Complete);
-                    if (value >= 2) Unlock(AchievementId.GameComplete);
+                    if (value >= 3) Unlock(AchievementId.Level3Complete);
+                    if (value >= 4) Unlock(AchievementId.Level4Complete);
+                    if (value >= 5) Unlock(AchievementId.Level5Complete);
+                    if (value >= 5) Unlock(AchievementId.GameComplete);
                     break;
 
                 case StatId.TotalPlayTime:

@@ -20,9 +20,6 @@ namespace SteelRain.Game
             }
             instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // 启动时检查角色解锁状态（确保已有成就能正确解锁角色）
-            CharacterUnlockManager.CheckUnlocks();
         }
 
         private void Update()

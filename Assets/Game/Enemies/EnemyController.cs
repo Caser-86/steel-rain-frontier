@@ -51,6 +51,12 @@ namespace SteelRain.Enemies
                 // 触发成就系统
                 UI.AchievementTracker.OnEnemyKilled(definition.scoreValue);
             }
+
+            // 掉落系统
+            var loot = GetComponent<Pickups.LootDrop>();
+            if (loot != null)
+                loot.SpawnLoot(transform.position);
+
             ExplosionEffect.Spawn(transform.position, 0.5f);
             AudioManager.Play("sfx_explosion", 0.4f);
             Destroy(gameObject);
@@ -78,7 +84,6 @@ namespace SteelRain.Enemies
 
             var delta = target.position - transform.position;
             var distance = Mathf.Abs(delta.x);
-            var slowMultiplier = CharacterSkill.TimeRiftActive ? 0.4f : 1f;
 
             if (distance > definition.detectRange)
             {
@@ -90,7 +95,7 @@ namespace SteelRain.Enemies
             {
                 var direction = Mathf.Sign(delta.x);
                 // 应用难度速度倍率
-                var speed = definition.moveSpeed * slowMultiplier * DifficultyManager.GetEnemySpeedMultiplier();
+                var speed = definition.moveSpeed * DifficultyManager.GetEnemySpeedMultiplier();
                 body.linearVelocity = new Vector2(direction * speed, body.linearVelocity.y);
                 if (spriteRenderer != null)
                     spriteRenderer.flipX = direction < 0;
@@ -124,7 +129,7 @@ namespace SteelRain.Enemies
                     break;
                 case EnemyAttackPattern.SniperShot:
                     // 狙击：单发高速大子弹，预警闪光
-                    SkillVFX.SpawnWarningZone(firePoint.position, 0.5f, 0.4f);
+                    CombatVFX.SpawnWarningZone(firePoint.position, 0.5f, 0.4f);
                     StartCoroutine(SniperFire());
                     break;
                 case EnemyAttackPattern.RapidCharge:
@@ -159,7 +164,7 @@ namespace SteelRain.Enemies
                 projectile.transform.localScale = Vector3.one * 2f;
             }
 
-            var speed = definition.projectileSpeed * 1.8f * (CharacterSkill.TimeRiftActive ? 0.4f : 1f);
+            var speed = definition.projectileSpeed * 1.8f;
             var dmg = Mathf.RoundToInt(definition.rangedDamage * 2 * DifficultyManager.GetDamageMultiplier());
             projectile.LaunchWithDamage(dir, speed, dmg, 0, Team.Enemy);
             AudioManager.Play("sfx_enemy_shoot", 0.7f);
@@ -191,7 +196,7 @@ namespace SteelRain.Enemies
                     projectile.transform.localScale = Vector3.one * definition.projectileScale;
                 }
 
-                var speed = definition.projectileSpeed * (CharacterSkill.TimeRiftActive ? 0.4f : 1f);
+                var speed = definition.projectileSpeed;
                 var dmg = Mathf.RoundToInt(definition.rangedDamage * DifficultyManager.GetDamageMultiplier());
                 projectile.LaunchWithDamage(dir, speed, dmg, 0, Team.Enemy);
             }

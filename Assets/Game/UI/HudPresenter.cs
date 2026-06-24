@@ -5,18 +5,20 @@ using UnityEngine.UI;
 
 namespace SteelRain.UI
 {
+    /// <summary>
+    /// HUD 显示（合金弹头简化版）。
+    /// 仅显示：血量、弹药、角色名、小队存活、分数、连击。
+    /// 无技能、无武器等级、无军票。
+    /// </summary>
     public sealed class HudPresenter : MonoBehaviour
     {
         [SerializeField] private Text healthText;
         [SerializeField] private Text ammoText;
-        [SerializeField] private Text weaponLevelText;
         [SerializeField] private Text characterText;
-        [SerializeField] private Text skillText;
         [SerializeField] private Text squadText;
         [SerializeField] private Text scoreText;
         [SerializeField] private Text comboText;
-        [SerializeField] private Text currencyText;
-        [SerializeField] private CharacterSkill skill;
+        [SerializeField] private Text waveText;
 
         private PlayerSquad squad;
         private string currentWeaponName = "";
@@ -28,9 +30,8 @@ namespace SteelRain.UI
             GameEvents.PlayerHealthChanged += OnHealthChanged;
             GameEvents.AmmoChanged += OnAmmoChanged;
             GameEvents.WeaponFormChanged += OnWeaponFormChanged;
-            GameEvents.WeaponLevelChanged += OnWeaponLevelChanged;
             GameEvents.PlayerCharacterChanged += OnCharacterChanged;
-            GameEvents.CurrencyChanged += OnCurrencyChanged;
+            GameEvents.EndlessWaveChanged += OnWaveChanged;
             ScoreManager.ScoreChanged += OnScoreChanged;
             ScoreManager.ComboChanged += OnComboChanged;
         }
@@ -40,9 +41,8 @@ namespace SteelRain.UI
             GameEvents.PlayerHealthChanged -= OnHealthChanged;
             GameEvents.AmmoChanged -= OnAmmoChanged;
             GameEvents.WeaponFormChanged -= OnWeaponFormChanged;
-            GameEvents.WeaponLevelChanged -= OnWeaponLevelChanged;
             GameEvents.PlayerCharacterChanged -= OnCharacterChanged;
-            GameEvents.CurrencyChanged -= OnCurrencyChanged;
+            GameEvents.EndlessWaveChanged -= OnWaveChanged;
             ScoreManager.ScoreChanged -= OnScoreChanged;
             ScoreManager.ComboChanged -= OnComboChanged;
         }
@@ -52,45 +52,24 @@ namespace SteelRain.UI
             squad = FindFirstObjectByType<PlayerSquad>();
             if (scoreText != null)
                 scoreText.text = $"SCORE: {ScoreManager.Score}";
-            OnCurrencyChanged(CurrencyManager.Balance);
-        }
-
-        private void OnCurrencyChanged(int balance)
-        {
-            if (currencyText != null)
-                currencyText.text = $"军票: {balance}";
-        }
-
-        private void Update()
-        {
-            if (skill == null || skillText == null) return;
-            if (skill.IsReady)
-            {
-                skillText.text = "Skill: READY";
-                skillText.color = new Color(0.2f, 1f, 0.3f, 1f);
-            }
-            else
-            {
-                var pct = Mathf.RoundToInt(skill.CooldownPercent * 100f);
-                skillText.text = $"Skill: {pct}%";
-                skillText.color = new Color(0.6f, 0.6f, 0.6f, 1f);
-            }
-
+            // 初始绘制一次小队名单（后续由事件驱动刷新）
             UpdateSquadRoster();
         }
 
         private void UpdateSquadRoster()
         {
             if (squadText == null || squad == null) return;
-            squadText.text = "";
+            // 使用 StringBuilder 避免每帧多次字符串分配
+            var sb = new System.Text.StringBuilder(64);
             for (int i = 0; i < 4; i++)
             {
                 var runtime = squad.GetRuntime(i);
                 if (runtime == null) continue;
                 var isActive = squad.ActiveIndex == i;
                 var marker = isActive ? "> " : "  ";
-                squadText.text += $"{marker}{runtime.Definition.displayName}\n";
+                sb.Append(marker).Append(runtime.Definition.displayName).Append('\n');
             }
+            squadText.text = sb.ToString();
         }
 
         private void OnScoreChanged(int newScore)
@@ -135,22 +114,26 @@ namespace SteelRain.UI
         private void UpdateAmmoDisplay()
         {
             if (ammoText == null) return;
-            // int.MaxValue表示无限弹药
             var ammoStr = currentAmmo == int.MaxValue || currentAmmo < 0 ? "INF" : currentAmmo.ToString();
             var formStr = string.IsNullOrEmpty(currentFormName) ? "" : $" [{currentFormName}]";
             ammoText.text = $"{currentWeaponName} {ammoStr}{formStr}";
-        }
-
-        private void OnWeaponLevelChanged(int level)
-        {
-            if (weaponLevelText != null)
-                weaponLevelText.text = $"Weapon Lv{level}";
         }
 
         private void OnCharacterChanged(string displayName)
         {
             if (characterText != null)
                 characterText.text = displayName;
+            // 角色切换/死亡时刷新小队名单（事件驱动，替代每帧轮询）
+            UpdateSquadRoster();
+        }
+
+        private void OnWaveChanged(int wave)
+        {
+            if (waveText == null) return;
+            waveText.gameObject.SetActive(true);
+            waveText.enabled = true;
+            var isBoss = wave % 5 == 0;
+            waveText.text = isBoss ? $"WAVE {wave} - BOSS!" : $"WAVE {wave}";
         }
     }
 }

@@ -1,6 +1,5 @@
 using SteelRain.Audio;
 using SteelRain.Core;
-using SteelRain.Player;
 using UnityEngine;
 
 namespace SteelRain.Pickups
@@ -16,9 +15,11 @@ namespace SteelRain.Pickups
                 return;
             if (health.Team != Team.Player)
                 return;
+            if (TempBuffState.ShieldActive)
+                return;
 
-            CharacterSkill.ShieldActive = true;
-            CharacterSkill.ShieldTimer = duration;
+            TempBuffState.ShieldActive = true;
+            TempBuffState.ShieldTimer = duration;
             AudioManager.Play("sfx_upgrade", 0.7f);
             gameObject.SetActive(false);
         }

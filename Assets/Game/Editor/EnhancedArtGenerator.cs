@@ -92,10 +92,9 @@ namespace SteelRain.Editor
         private static void GeneratePlayerSprites()
         {
             MakePlayerAila();
-            MakePlayerKael();
-            MakePlayerMira();
-            MakePlayerZen();
-            MakePlayerNova();
+            MakePlayerBruno();
+            MakePlayerMara();
+            MakePlayerNiko();
 
             // 为每个角色生成 prone/crouch/jump 三种动作变体
             // 这样在游戏中切换角色或按下蹲下/趴下/跳跃键时能看到明显差别
@@ -103,7 +102,7 @@ namespace SteelRain.Editor
         }
 
         /// <summary>
-        /// 为 5 个角色生成 prone（趴下）、crouch（蹲下）、jump（跳跃）三种动作的精灵。
+        /// 为 4 个角色生成 prone（趴下）、crouch（蹲下）、jump（跳跃）三种动作的精灵。
         /// 每个角色保留其标志性的颜色和武器，但姿势不同：
         /// - prone：身体水平贴地，高度只有原来的 35%
         /// - crouch：单膝跪地，高度 60%
@@ -112,22 +111,19 @@ namespace SteelRain.Editor
         private static void MakePlayerActionVariants()
         {
             MakePlayerProne("aila",   new Color32(60, 100, 165, 255),  new Color32(200, 55, 55, 255),  "rifle");
-            MakePlayerProne("kael",   new Color32(165, 60, 55, 255),   new Color32(220, 180, 80, 255), "shield");
-            MakePlayerProne("mira",   new Color32(70, 110, 70, 255),   new Color32(180, 150, 100, 255),"sniper");
-            MakePlayerProne("zen",    new Color32(110, 80, 140, 255),  new Color32(240, 200, 80, 255), "wrench");
-            MakePlayerProne("nova",   new Color32(220, 130, 50, 255),  new Color32(200, 80, 50, 255),  "smg");
+            MakePlayerProne("bruno",  new Color32(165, 60, 55, 255),   new Color32(220, 180, 80, 255), "shield");
+            MakePlayerProne("mara",   new Color32(70, 110, 70, 255),   new Color32(180, 150, 100, 255),"sniper");
+            MakePlayerProne("niko",   new Color32(110, 80, 140, 255),  new Color32(240, 200, 80, 255), "wrench");
 
             MakePlayerCrouch("aila",  new Color32(60, 100, 165, 255),  new Color32(200, 55, 55, 255),  "rifle");
-            MakePlayerCrouch("kael",  new Color32(165, 60, 55, 255),   new Color32(220, 180, 80, 255), "shield");
-            MakePlayerCrouch("mira",  new Color32(70, 110, 70, 255),   new Color32(180, 150, 100, 255),"sniper");
-            MakePlayerCrouch("zen",   new Color32(110, 80, 140, 255),  new Color32(240, 200, 80, 255), "wrench");
-            MakePlayerCrouch("nova",  new Color32(220, 130, 50, 255),  new Color32(200, 80, 50, 255),  "smg");
+            MakePlayerCrouch("bruno", new Color32(165, 60, 55, 255),   new Color32(220, 180, 80, 255), "shield");
+            MakePlayerCrouch("mara",  new Color32(70, 110, 70, 255),   new Color32(180, 150, 100, 255),"sniper");
+            MakePlayerCrouch("niko",  new Color32(110, 80, 140, 255),  new Color32(240, 200, 80, 255), "wrench");
 
             MakePlayerJump("aila",    new Color32(60, 100, 165, 255),  new Color32(200, 55, 55, 255),  "rifle");
-            MakePlayerJump("kael",    new Color32(165, 60, 55, 255),   new Color32(220, 180, 80, 255), "shield");
-            MakePlayerJump("mira",    new Color32(70, 110, 70, 255),   new Color32(180, 150, 100, 255),"sniper");
-            MakePlayerJump("zen",     new Color32(110, 80, 140, 255),  new Color32(240, 200, 80, 255), "wrench");
-            MakePlayerJump("nova",    new Color32(220, 130, 50, 255),  new Color32(200, 80, 50, 255),  "smg");
+            MakePlayerJump("bruno",   new Color32(165, 60, 55, 255),   new Color32(220, 180, 80, 255), "shield");
+            MakePlayerJump("mara",    new Color32(70, 110, 70, 255),   new Color32(180, 150, 100, 255),"sniper");
+            MakePlayerJump("niko",    new Color32(110, 80, 140, 255),  new Color32(240, 200, 80, 255), "wrench");
         }
 
         // 通用颜色定义
@@ -176,10 +172,9 @@ namespace SteelRain.Editor
 
             // 标志性装饰
             if (charName == "aila") FillRect(px, w, 12, 4, 16, 5, accent); // 红围巾
-            if (charName == "kael") FillRect(px, w, 14, 9, 22, 12, accent); // 盾牌在身下
-            if (charName == "mira") FillRect(px, w, 25, 11, 28, 13, accent); // 瞄准镜
-            if (charName == "zen")  FillRect(px, w, 18, 3, 21, 5, accent); // 工具腰带
-            if (charName == "nova") FillRect(px, w, 12, 3, 14, 4, accent); // 红发飘动
+            if (charName == "bruno") FillRect(px, w, 14, 9, 22, 12, accent); // 盾牌在身下
+            if (charName == "mara")  FillRect(px, w, 25, 11, 28, 13, accent); // 瞄准镜
+            if (charName == "niko")  FillRect(px, w, 18, 3, 21, 5, accent); // 工具腰带
 
             DrawOutline(px, w, h, OutlineDark);
             SaveSprite($"player_{charName}_prone", tex, px);
@@ -248,10 +243,9 @@ namespace SteelRain.Editor
             DrawWeaponCrouch(px, w, weapon, coat, accent);
             // 标志性装饰
             if (charName == "aila") FillRect(px, w, 9, 14, 14, 15, accent);
-            if (charName == "kael") FillRect(px, w, 16, 8, 21, 16, accent);
-            if (charName == "mira") FillRect(px, w, 12, 16, 14, 18, accent);
-            if (charName == "zen")  FillRect(px, w, 10, 8, 13, 10, accent);
-            if (charName == "nova") FillRect(px, w, 9, 20, 14, 21, accent);
+            if (charName == "bruno") FillRect(px, w, 16, 8, 21, 16, accent);
+            if (charName == "mara")  FillRect(px, w, 12, 16, 14, 18, accent);
+            if (charName == "niko")  FillRect(px, w, 10, 8, 13, 10, accent);
 
             DrawOutline(px, w, h, OutlineDark);
             SaveSprite($"player_{charName}_crouch", tex, px);
@@ -327,10 +321,9 @@ namespace SteelRain.Editor
             DrawWeaponJump(px, w, weapon, coat, accent);
             // 标志性装饰
             if (charName == "aila") FillRect(px, w, 9, 22, 14, 23, accent);
-            if (charName == "kael") FillRect(px, w, 4, 16, 8, 22, accent);
-            if (charName == "mira") FillRect(px, w, 12, 26, 14, 28, accent);
-            if (charName == "zen")  FillRect(px, w, 10, 12, 13, 14, accent);
-            if (charName == "nova") FillRect(px, w, 9, 28, 14, 30, accent);
+            if (charName == "bruno") FillRect(px, w, 4, 16, 8, 22, accent);
+            if (charName == "mara")  FillRect(px, w, 12, 26, 14, 28, accent);
+            if (charName == "niko")  FillRect(px, w, 10, 12, 13, 14, accent);
 
             DrawOutline(px, w, h, OutlineDark);
             SaveSprite($"player_{charName}_jump", tex, px);
@@ -432,9 +425,9 @@ namespace SteelRain.Editor
             SaveSprite("player_aila", tex, px);
         }
 
-        private static void MakePlayerKael()
+        private static void MakePlayerBruno()
         {
-            // Kael - 盾兵：红色重甲 + 大盾牌 + 短剑（举盾防御姿势）
+            // Bruno - 盾兵：红色重甲 + 大盾牌 + 短剑（举盾防御姿势）
             int w = 24, h = 32;
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
             var px = new Color32[w * h];
@@ -498,12 +491,12 @@ namespace SteelRain.Editor
             px[20 * w + 16] = swordHilt;
 
             DrawOutline(px, w, h, outline);
-            SaveSprite("player_kael", tex, px);
+            SaveSprite("player_bruno", tex, px);
         }
 
-        private static void MakePlayerMira()
+        private static void MakePlayerMara()
         {
-            // Mira - 狙击手：绿色迷彩服 + 长狙击枪 + 瞄准镜（半蹲瞄准姿势）
+            // Mara - 狙击手：绿色迷彩服 + 长狙击枪 + 瞄准镜（半蹲瞄准姿势）
             int w = 24, h = 32;
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
             var px = new Color32[w * h];
@@ -568,12 +561,12 @@ namespace SteelRain.Editor
             FillRect(px, w, 14, 14, 15, 16, rifle);
 
             DrawOutline(px, w, h, outline);
-            SaveSprite("player_mira", tex, px);
+            SaveSprite("player_mara", tex, px);
         }
 
-        private static void MakePlayerZen()
+        private static void MakePlayerNiko()
         {
-            // Zen - 工程师：紫色风衣 + 护目镜 + 扳手（举工具姿势）
+            // Niko - 突击手：紫色风衣 + 护目镜 + 扳手（举工具姿势）
             int w = 24, h = 32;
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
             var px = new Color32[w * h];
@@ -634,74 +627,7 @@ namespace SteelRain.Editor
             FillRect(px, w, 19, 23, 20, 24, tool);
 
             DrawOutline(px, w, h, outline);
-            SaveSprite("player_zen", tex, px);
-        }
-
-        private static void MakePlayerNova()
-        {
-            // Nova - 冲锋枪手：橙色夹克 + 红头发 + 冲锋枪（双手持枪冲锋姿势）
-            int w = 24, h = 32;
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
-            var px = new Color32[w * h];
-            Clear(px, w, h);
-
-            var skin = new Color32(235, 200, 160, 255);
-            var hair = new Color32(220, 130, 50, 255);
-            var hairLight = new Color32(240, 160, 80, 255);
-            var jacket = new Color32(200, 110, 40, 255);
-            var jacketLight = new Color32(230, 140, 60, 255);
-            var jacketShadow = new Color32(160, 85, 30, 255);
-            var pants = new Color32(70, 50, 40, 255);
-            var boots = new Color32(40, 30, 25, 255);
-            var smg = new Color32(50, 50, 55, 255);
-            var smgDetail = new Color32(90, 90, 95, 255);
-            var mag = new Color32(40, 35, 30, 255);
-            var outline = new Color32(25, 15, 10, 255);
-
-            // 红头发（火焰般向后飘）
-            FillRect(px, w, 8, 24, 15, 30, hair);
-            FillRect(px, w, 7, 26, 8, 29, hair);
-            FillRect(px, w, 15, 26, 16, 29, hair);
-            // 头发高光
-            px[28 * w + 10] = hairLight;
-            px[28 * w + 13] = hairLight;
-            // 脸
-            FillRect(px, w, 9, 25, 14, 28, skin);
-            // 眼睛（坚定）
-            px[26 * w + 10] = outline;
-            px[26 * w + 13] = outline;
-            // 橙色夹克身体（身体前倾冲锋姿势）
-            FillRect(px, w, 8, 13, 15, 20, jacket);
-            FillRect(px, w, 8, 13, 8, 20, jacketShadow);
-            FillRect(px, w, 14, 13, 15, 20, jacketLight);
-            // 夹克拉链
-            FillRect(px, w, 11, 13, 12, 20, jacketShadow);
-            // 夹克领子
-            FillRect(px, w, 9, 20, 11, 21, jacketLight);
-            FillRect(px, w, 12, 20, 14, 21, jacketLight);
-            // 双手持冲锋枪（身体前倾）
-            FillRect(px, w, 6, 14, 8, 17, jacket);
-            FillRect(px, w, 15, 14, 17, 17, jacket);
-            // 腿（前后分开，冲锋跑姿）
-            FillRect(px, w, 8, 7, 11, 13, pants);
-            FillRect(px, w, 12, 7, 15, 13, pants);
-            FillRect(px, w, 6, 5, 9, 8, pants);
-            FillRect(px, w, 14, 4, 17, 8, pants);
-            // 靴子
-            FillRect(px, w, 6, 3, 9, 5, boots);
-            FillRect(px, w, 14, 3, 17, 5, boots);
-            // 冲锋枪（短粗，双手持）
-            FillRect(px, w, 16, 15, 21, 16, smg);
-            FillRect(px, w, 15, 16, 16, 16, smg);
-            // 弹匣（向下）
-            FillRect(px, w, 17, 13, 18, 15, mag);
-            // 枪口
-            FillRect(px, w, 21, 15, 22, 16, smgDetail);
-            // 枪柄
-            FillRect(px, w, 16, 13, 17, 15, smg);
-
-            DrawOutline(px, w, h, outline);
-            SaveSprite("player_nova", tex, px);
+            SaveSprite("player_niko", tex, px);
         }
 
         private static void GenerateEnemySprites()
@@ -1477,10 +1403,9 @@ namespace SteelRain.Editor
         private static void GeneratePropSprites()
         {
             MakeCrate();
-            MakeUpgradeCapsule();
+            MakeWeaponPickup();
             MakeCheckpointFlag();
             MakeHealthPickup();
-            MakeWeaponPickup();
             MakeExplosiveBarrel();
             MakeSandbag();
             MakeBarricade();
@@ -1520,37 +1445,6 @@ namespace SteelRain.Editor
 
             DrawOutline(px, w, h, outline);
             SaveSprite("crate", tex, px);
-        }
-
-        private static void MakeUpgradeCapsule()
-        {
-            int w = 16, h = 22;
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
-            var px = new Color32[w * h];
-            Clear(px, w, h);
-            var glass = new Color32(80, 180, 255, 200);
-            var glassLight = new Color32(150, 220, 255, 220);
-            var glassDark = new Color32(40, 120, 200, 200);
-            var metal = new Color32(120, 120, 130, 255);
-            var metalLight = new Color32(170, 170, 180, 255);
-            var core = new Color32(255, 240, 100, 255);
-            var coreGlow = new Color32(255, 255, 180, 255);
-            var outline = new Color32(20, 30, 50, 255);
-
-            FillRect(px, w, 4, 18, 11, 21, metal);
-            FillRect(px, w, 5, 19, 10, 20, metalLight);
-            FillRect(px, w, 4, 6, 11, 17, glass);
-            FillRect(px, w, 4, 6, 4, 17, glassDark);
-            FillRect(px, w, 10, 6, 11, 17, glassLight);
-            FillRect(px, w, 6, 9, 9, 13, core);
-            FillRect(px, w, 7, 10, 8, 12, coreGlow);
-            FillRect(px, w, 4, 1, 11, 5, metal);
-            FillRect(px, w, 5, 2, 10, 4, metalLight);
-            px[14 * w + 5] = glassLight;
-            px[12 * w + 5] = glassLight;
-
-            DrawOutline(px, w, h, outline);
-            SaveSprite("upgrade_capsule", tex, px);
         }
 
         private static void MakeCheckpointFlag()
@@ -2254,7 +2148,6 @@ namespace SteelRain.Editor
             MakeUIHeart();
             MakeUIEnergy();
             MakeUIWeaponIcon();
-            MakeUISkillIcon();
             MakeUIArrow();
             MakeUIFrame();
         }
@@ -2340,39 +2233,6 @@ namespace SteelRain.Editor
 
             DrawOutline(px, w, h, outline);
             SaveSprite("ui_weapon", tex, px);
-        }
-
-        private static void MakeUISkillIcon()
-        {
-            int w = 16, h = 16;
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
-            var px = new Color32[w * h];
-            Clear(px, w, h);
-            var star = new Color32(255, 220, 80, 255);
-            var starLight = new Color32(255, 250, 180, 255);
-            var starDark = new Color32(200, 160, 40, 255);
-            var outline = new Color32(80, 60, 15, 255);
-
-            // 星形技能图标
-            FillRect(px, w, 7, 12, 8, 15, star);
-            FillRect(px, w, 6, 9, 9, 12, star);
-            FillRect(px, w, 5, 7, 10, 9, star);
-            FillRect(px, w, 4, 5, 11, 7, star);
-            FillRect(px, w, 3, 4, 12, 5, star);
-            FillRect(px, w, 2, 5, 13, 6, star);
-            FillRect(px, w, 3, 6, 12, 6, star);
-            FillRect(px, w, 5, 3, 6, 5, star);
-            FillRect(px, w, 9, 3, 10, 5, star);
-            FillRect(px, w, 5, 2, 6, 3, star);
-            FillRect(px, w, 9, 2, 10, 3, star);
-            FillRect(px, w, 7, 13, 8, 14, starLight);
-            FillRect(px, w, 6, 10, 7, 11, starLight);
-            FillRect(px, w, 8, 10, 9, 11, starLight);
-            px[4 * w + 7] = starDark;
-            px[5 * w + 8] = starDark;
-
-            DrawOutline(px, w, h, outline);
-            SaveSprite("ui_skill", tex, px);
         }
 
         private static void MakeUIArrow()

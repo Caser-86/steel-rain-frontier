@@ -50,13 +50,12 @@ namespace SteelRain.Enemies
 
             var dx = target.position.x - transform.position.x;
             var dist = Mathf.Abs(dx);
-            var slowMultiplier = CharacterSkill.TimeRiftActive ? 0.4f : 1f;
 
             if (dist > definition.attackRange)
             {
                 var dir = Mathf.Sign(dx);
                 // 应用难度速度倍率
-                var speed = definition.moveSpeed * slowMultiplier * DifficultyManager.GetEnemySpeedMultiplier();
+                var speed = definition.moveSpeed * DifficultyManager.GetEnemySpeedMultiplier();
                 body.linearVelocity = new Vector2(dir * speed, body.linearVelocity.y);
             }
             else
@@ -78,13 +77,12 @@ namespace SteelRain.Enemies
             var startPos = firePoint.position;
             var targetPos = target.position;
             var dir = (targetPos - startPos).normalized;
-            var slowMultiplier = CharacterSkill.TimeRiftActive ? 0.4f : 1f;
 
             // 抛物线：给一个向上的初速度
             var throwDir = new Vector2(dir.x, dir.y + arcHeight / 3f).normalized;
             var proj = Instantiate(projectilePrefab, startPos, Quaternion.identity);
             var dmg = Mathf.RoundToInt(definition.rangedDamage * DifficultyManager.GetDamageMultiplier());
-            proj.LaunchWithDamage(throwDir, grenadeSpeed * slowMultiplier, dmg, 0, Team.Enemy);
+            proj.LaunchWithDamage(throwDir, grenadeSpeed, dmg, 0, Team.Enemy);
             AudioManager.Play("sfx_enemy_shoot", 0.5f);
         }
 

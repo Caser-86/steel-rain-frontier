@@ -7134,17 +7134,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 05e6bcff3ef5d9f4eb0363b5ebbe104d, type: 3}
---- !u!114 &407266105 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 561109985584844725, guid: 05e6bcff3ef5d9f4eb0363b5ebbe104d, type: 3}
-  m_PrefabInstance: {fileID: 407266104}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a85105361b8d48146a4e52ccb1bef47f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: SteelRain.Game::SteelRain.Player.CharacterSkill
 --- !u!4 &407266106 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4040239016363294803, guid: 05e6bcff3ef5d9f4eb0363b5ebbe104d, type: 3}

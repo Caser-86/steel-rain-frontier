@@ -399,7 +399,7 @@ namespace SteelRain.Editor
         {
             var list = new List<string>();
 
-            // ===== 玩家角色（5角色 × 29帧 = 145张）=====
+            // ===== 玩家角色（4角色 × 29帧 = 116张）=====
             // Aila
             list.AddRange(ExpandAnim("player_aila_idle", 2));
             list.AddRange(ExpandAnim("player_aila_walk", 6));
@@ -409,41 +409,32 @@ namespace SteelRain.Editor
             list.AddRange(ExpandAnim("player_aila_shoot", 4));
             list.AddRange(ExpandAnim("player_aila_death", 4));
 
-            // Kael
-            list.AddRange(ExpandAnim("player_kael_idle", 2));
-            list.AddRange(ExpandAnim("player_kael_walk", 6));
-            list.AddRange(ExpandAnim("player_kael_run", 6));
-            list.AddRange(ExpandAnim("player_kael_jump", 4));
-            list.AddRange(ExpandAnim("player_kael_crouch", 3));
-            list.AddRange(ExpandAnim("player_kael_shoot", 4));
-            list.AddRange(ExpandAnim("player_kael_death", 4));
+            // Bruno
+            list.AddRange(ExpandAnim("player_bruno_idle", 2));
+            list.AddRange(ExpandAnim("player_bruno_walk", 6));
+            list.AddRange(ExpandAnim("player_bruno_run", 6));
+            list.AddRange(ExpandAnim("player_bruno_jump", 4));
+            list.AddRange(ExpandAnim("player_bruno_crouch", 3));
+            list.AddRange(ExpandAnim("player_bruno_shoot", 4));
+            list.AddRange(ExpandAnim("player_bruno_death", 4));
 
-            // Mira
-            list.AddRange(ExpandAnim("player_mira_idle", 2));
-            list.AddRange(ExpandAnim("player_mira_walk", 6));
-            list.AddRange(ExpandAnim("player_mira_run", 6));
-            list.AddRange(ExpandAnim("player_mira_jump", 4));
-            list.AddRange(ExpandAnim("player_mira_crouch", 3));
-            list.AddRange(ExpandAnim("player_mira_shoot", 4));
-            list.AddRange(ExpandAnim("player_mira_death", 4));
+            // Mara
+            list.AddRange(ExpandAnim("player_mara_idle", 2));
+            list.AddRange(ExpandAnim("player_mara_walk", 6));
+            list.AddRange(ExpandAnim("player_mara_run", 6));
+            list.AddRange(ExpandAnim("player_mara_jump", 4));
+            list.AddRange(ExpandAnim("player_mara_crouch", 3));
+            list.AddRange(ExpandAnim("player_mara_shoot", 4));
+            list.AddRange(ExpandAnim("player_mara_death", 4));
 
-            // Zen
-            list.AddRange(ExpandAnim("player_zen_idle", 2));
-            list.AddRange(ExpandAnim("player_zen_walk", 6));
-            list.AddRange(ExpandAnim("player_zen_run", 6));
-            list.AddRange(ExpandAnim("player_zen_jump", 4));
-            list.AddRange(ExpandAnim("player_zen_crouch", 3));
-            list.AddRange(ExpandAnim("player_zen_shoot", 4));
-            list.AddRange(ExpandAnim("player_zen_death", 4));
-
-            // Nova
-            list.AddRange(ExpandAnim("player_nova_idle", 2));
-            list.AddRange(ExpandAnim("player_nova_walk", 6));
-            list.AddRange(ExpandAnim("player_nova_run", 6));
-            list.AddRange(ExpandAnim("player_nova_jump", 4));
-            list.AddRange(ExpandAnim("player_nova_crouch", 3));
-            list.AddRange(ExpandAnim("player_nova_shoot", 4));
-            list.AddRange(ExpandAnim("player_nova_death", 4));
+            // Niko
+            list.AddRange(ExpandAnim("player_niko_idle", 2));
+            list.AddRange(ExpandAnim("player_niko_walk", 6));
+            list.AddRange(ExpandAnim("player_niko_run", 6));
+            list.AddRange(ExpandAnim("player_niko_jump", 4));
+            list.AddRange(ExpandAnim("player_niko_crouch", 3));
+            list.AddRange(ExpandAnim("player_niko_shoot", 4));
+            list.AddRange(ExpandAnim("player_niko_death", 4));
 
             // ===== 敌人（6敌人 × 多帧 = 约 78张）=====
             // 步枪兵
@@ -502,8 +493,8 @@ namespace SteelRain.Editor
 
             // ===== 道具（20张）=====
             list.AddRange(new[] {
-                "crate.png", "upgrade_capsule.png", "checkpoint_flag.png",
-                "health_pickup.png", "weapon_pickup.png", "explosive_barrel.png",
+                "crate.png", "weapon_pickup.png", "checkpoint_flag.png",
+                "health_pickup.png", "explosive_barrel.png",
                 "sandbag.png", "barricade.png", "spikes.png", "signpost.png",
                 "ammo_box.png", "energy_core.png", "keycard.png", "landmine.png",
                 "fuel_barrel.png", "binoculars.png", "radio.png",
@@ -529,14 +520,14 @@ namespace SteelRain.Editor
                 "heal_effect.png", "upgrade_effect.png", "bullet_trail.png"
             });
 
-            // ===== UI 图标（20张）=====
+            // ===== UI 图标（15张）=====
             list.AddRange(new[] {
                 "ui_health.png", "ui_ammo.png", "ui_score.png", "ui_pause.png",
                 "ui_play.png", "ui_settings.png", "ui_back.png", "ui_achievement.png",
-                "ui_avatar_aila.png", "ui_avatar_kael.png",
-                "ui_avatar_mira.png", "ui_avatar_zen.png", "ui_avatar_nova.png",
-                "ui_level_select.png", "ui_shop.png", "ui_mission.png",
-                "ui_lock.png", "ui_unlock.png", "ui_coin.png", "ui_diamond.png"
+                "ui_avatar_aila.png", "ui_avatar_bruno.png",
+                "ui_avatar_mara.png", "ui_avatar_niko.png",
+                "ui_level_select.png", "ui_mission.png",
+                "ui_lock.png", "ui_unlock.png"
             });
 
             // ===== 补充资源（v2.1，代码引用必需，35张）=====
@@ -561,7 +552,7 @@ namespace SteelRain.Editor
             // UI 资源（EnhancedArtGenerator 命名）
             list.AddRange(new[] {
                 "ui_heart.png", "ui_energy.png", "ui_weapon.png",
-                "ui_skill.png", "ui_arrow.png", "ui_frame.png"
+                "ui_arrow.png", "ui_frame.png"
             });
 
             // 特效（EnhancedArtGenerator 命名）
@@ -579,8 +570,8 @@ namespace SteelRain.Editor
             // 这些是 EnhancedArtGenerator 生成、VerticalSliceBuilder 引用的单张默认帧
             // 可复制对应的 idle_0 帧作为别名
             list.AddRange(new[] {
-                "player_kael.png", "player_mira.png",
-                "player_zen.png", "player_nova.png",
+                "player_aila.png", "player_bruno.png",
+                "player_mara.png", "player_niko.png",
                 "enemy_rifle.png", "enemy_shield.png",
                 "enemy_drone.png", "enemy_grenadier.png",
                 "enemy_flamer.png",

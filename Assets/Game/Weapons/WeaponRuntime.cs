@@ -10,7 +10,6 @@ namespace SteelRain.Weapons
         public WeaponDefinition Definition => definition;
         public WeaponFormDefinition CurrentForm => definition.forms[formIndex];
         public int Ammo { get; private set; }
-        public int Level { get; private set; }
 
         public WeaponRuntime(WeaponDefinition definition, int ammo)
         {
@@ -24,17 +23,6 @@ namespace SteelRain.Weapons
         public void CycleForm()
         {
             formIndex = (formIndex + 1) % definition.forms.Length;
-        }
-
-        public int Upgrade()
-        {
-            Level = Math.Min(3, Level + 1);
-            return Level;
-        }
-
-        public void ResetUpgrades()
-        {
-            Level = 0;
         }
 
         public bool CanFire()
@@ -60,26 +48,12 @@ namespace SteelRain.Weapons
 
         public int GetDamage()
         {
-            var multiplier = Level switch
-            {
-                1 => CurrentForm.levelOneDamageMultiplier,
-                2 => CurrentForm.levelTwoDamageMultiplier,
-                3 => CurrentForm.levelThreeDamageMultiplier,
-                _ => 1f
-            };
-            return Math.Max(1, (int)Math.Round(CurrentForm.damage * multiplier));
+            return Math.Max(1, CurrentForm.damage);
         }
 
         public float GetFireRate()
         {
-            var multiplier = Level switch
-            {
-                1 => CurrentForm.levelOneFireRateMultiplier,
-                2 => CurrentForm.levelTwoFireRateMultiplier,
-                3 => CurrentForm.levelThreeFireRateMultiplier,
-                _ => 1f
-            };
-            return CurrentForm.fireRate * multiplier;
+            return CurrentForm.fireRate;
         }
     }
 }

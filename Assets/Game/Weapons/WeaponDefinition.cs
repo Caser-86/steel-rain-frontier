@@ -14,10 +14,7 @@ namespace SteelRain.Weapons
         public WeaponFormDefinition[] forms;
         public Projectile projectilePrefab;
 
-        [Header("Upgrade")]
+        [Header("Ammo")]
         public bool baseAmmoInfinite = true;
-        public string levelOneLabel = "Firepower Boost";
-        public string levelTwoLabel = "Evolved Form";
-        public string levelThreeLabel = "Tactical Awakening";
     }
 }

@@ -28,12 +28,12 @@ namespace SteelRain.Core
 
         private static readonly string[] Tips = new[]
         {
-            "Switch characters to combine skills.",
-            "Weapon upgrades stack - hunt those capsules!",
+            "Switch characters to keep fighting when one falls.",
+            "Pick up weapon crates to swap weapons.",
             "Aim for headshots to maximize combo.",
             "Shield soldiers block frontal damage.",
             "Drones ignore terrain - keep moving!",
-            "Use the slow field to dodge boss swarms."
+            "Dodge through enemies to avoid damage."
         };
 
         private void Awake()
@@ -43,7 +43,6 @@ namespace SteelRain.Core
                 BuildUI();
                 startTime = Time.unscaledTime;
                 if (tipText != null) tipText.text = "TIP: " + Tips[Random.Range(0, Tips.Length)];
-                Debug.Log("[BootScreen] Awake complete, startTime=" + startTime + " nextScene=" + nextScene);
             }
             catch (System.Exception e)
             {

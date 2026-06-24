@@ -61,15 +61,15 @@ namespace SteelRain.EditorTools
             var heavyGunnerPrefab = CreateHeavyGunnerPrefab(projectilePrefab);
             CreateMiniBossPrefab();
             CreateTurretBossPrefab();
-            var upgradePickupPrefab = CreateUpgradePickupPrefab();
+            var weaponSwapPickupPrefab = CreateBasicWeaponPickupPrefab();
             var healthPickupPrefab = CreateHealthPickupPrefab();
             var cratePrefab = CreateCratePrefab(healthPickupPrefab);
             BuildLevel01Scene(playerPrefab, enemyPrefab, enemyDefs, projectilePrefab,
-                upgradePickupPrefab, cratePrefab, healthPickupPrefab, characters,
+                weaponSwapPickupPrefab, cratePrefab, healthPickupPrefab, characters,
                 shieldPrefab, dronePrefab, grenadierPrefab, weapons,
                 chargerPrefab, sniperPrefab, heavyGunnerPrefab);
             BuildLevel02Scene(playerPrefab, enemyPrefab, enemyDefs, projectilePrefab,
-                upgradePickupPrefab, cratePrefab, healthPickupPrefab, characters,
+                weaponSwapPickupPrefab, cratePrefab, healthPickupPrefab, characters,
                 shieldPrefab, dronePrefab, grenadierPrefab, weapons,
                 chargerPrefab, sniperPrefab, heavyGunnerPrefab);
             CreateBootScene();
@@ -442,7 +442,8 @@ namespace SteelRain.EditorTools
             MakeDroneSprite("enemy_drone", 18, 12, new Color(0.4f, 0.5f, 0.6f));
             MakeBossSprite("miniboss_walker", 40, 48, new Color(0.3f, 0.3f, 0.35f));
             MakeSprite("crate", 14, 14, new Color(0.6f, 0.45f, 0.25f));
-            MakeSprite("upgrade_capsule", 10, 14, new Color(0.2f, 0.6f, 1f));
+            MakeSprite("weapon_pickup", 10, 14, new Color(0.2f, 0.6f, 1f));
+            MakeSprite("health_pickup", 10, 10, new Color(0.2f, 0.9f, 0.3f));
             MakeSprite("checkpoint_flag", 8, 24, new Color(0.9f, 0.85f, 0.2f));
             MakeSprite("background_sky", 64, 64, new Color(0.15f, 0.12f, 0.2f));
             MakeSprite("background_sea", 64, 32, new Color(0.1f, 0.2f, 0.35f));
@@ -556,7 +557,7 @@ namespace SteelRain.EditorTools
                 existing.lore = "前联邦特种部队队长，在\u201C铁雨\u201D事变中失去整个小队。" +
                                 "她带着对逝去战友的承诺，重新组建四人小队深入敌后。" +
                                 "冷静、果断，是团队的战术核心。";
-                existing.combatStyle = "全能型突击手：均衡的火力与机动性，突破火线技能可瞬间穿透敌阵";
+                existing.combatStyle = "全能型突击手：均衡的火力与机动性，适合突破火线";
                 EditorUtility.SetDirty(existing);
                 return existing;
             }
@@ -574,8 +575,6 @@ namespace SteelRain.EditorTools
             aila.dodgeSpeed = 12f;
             aila.dodgeDuration = 0.16f;
             aila.dodgeCooldown = 0.65f;
-            aila.skillId = CharacterSkillId.BreakthroughFire;
-            aila.skillCooldown = 6f;
             aila.tintColor = new Color(0.7f, 0.85f, 1f, 1f);
             aila.projectileColor = new Color(1f, 0.9f, 0.3f, 1f);   // 金黄色子弹
             aila.projectileScale = 1.0f;
@@ -583,7 +582,7 @@ namespace SteelRain.EditorTools
             aila.lore = "前联邦特种部队队长，在\u201c铁雨\u201d事变中失去整个小队。" +
                         "她带着对逝去战友的承诺，重新组建四人小队深入敌后。" +
                         "冷静、果断，是团队的战术核心。";
-            aila.combatStyle = "全能型突击手：均衡的火力与机动性，突破火线技能可瞬间穿透敌阵";
+            aila.combatStyle = "全能型突击手：均衡的火力与机动性，适合突破火线";
             AssignCharacterSprites(aila, "aila");
             AssetDatabase.CreateAsset(aila, path);
             return aila;
@@ -591,8 +590,8 @@ namespace SteelRain.EditorTools
 
         /// <summary>
         /// 为角色赋值 portrait/crouch/prone/jump 四种精灵。
-        /// 这是让 5 个角色在游戏中看起来有差别的关键。
-        /// spriteName 是精灵文件名（如 aila/kael/mira/zen/nova），可能与角色 id 不同。
+        /// 这是让 4 个角色在游戏中看起来有差别的关键。
+        /// spriteName 是精灵文件名（如 aila/bruno/mara/niko），可能与角色 id 不同。
         /// </summary>
         private static void AssignCharacterSprites(CharacterDefinition def, string spriteName)
         {
@@ -614,7 +613,7 @@ namespace SteelRain.EditorTools
                 bruno.lore = "前重装步兵，在战场上以\u201c移动堡垒\u201d闻名。" +
                              "他的战壕巨盾曾保护无数战友撤离。" +
                              "沉默寡言，但用行动证明忠诚。";
-                bruno.combatStyle = "重装防御者：高血量高伤害，战壕巨盾技能可创造临时掩体";
+                bruno.combatStyle = "重装防御者：高血量高伤害，适合正面突破";
                 EditorUtility.SetDirty(bruno);
             }
             if (bruno == null)
@@ -632,8 +631,6 @@ namespace SteelRain.EditorTools
                 bruno.dodgeSpeed = 10f;
                 bruno.dodgeDuration = 0.18f;
                 bruno.dodgeCooldown = 0.75f;
-                bruno.skillId = CharacterSkillId.TrenchShield;
-                bruno.skillCooldown = 7f;
                 bruno.tintColor = new Color(0.8f, 0.6f, 0.4f, 1f);
                 bruno.projectileColor = new Color(1f, 0.4f, 0.2f, 1f);  // 橙红色大子弹
                 bruno.projectileScale = 1.6f;
@@ -641,8 +638,8 @@ namespace SteelRain.EditorTools
                 bruno.lore = "前重装步兵，在战场上以\u201c移动堡垒\u201d闻名。" +
                              "他的战壕巨盾曾保护无数战友撤离。" +
                              "沉默寡言，但用行动证明忠诚。";
-                bruno.combatStyle = "重装防御者：高血量高伤害，战壕巨盾技能可创造临时掩体";
-                AssignCharacterSprites(bruno, "kael");
+                bruno.combatStyle = "重装防御者：高血量高伤害，适合正面突破";
+                AssignCharacterSprites(bruno, "bruno");
                 AssetDatabase.CreateAsset(bruno, brunoPath);
             }
 
@@ -652,8 +649,8 @@ namespace SteelRain.EditorTools
             {
                 mara.lore = "天才狙击手，曾是奥运射击冠军。" +
                             "战争爆发后她放弃了奖牌，拿起了真正的步枪。" +
-                            "她的轰炸矩阵技能能呼叫精准的轨道打击。";
-                mara.combatStyle = "远程狙击手：超高单体伤害，轰炸矩阵技能可覆盖大片区域";
+                            "她的精准射击能覆盖战场各个角落。";
+                mara.combatStyle = "远程狙击手：超高单体伤害，适合远程压制";
                 EditorUtility.SetDirty(mara);
             }
             if (mara == null)
@@ -671,17 +668,15 @@ namespace SteelRain.EditorTools
                 mara.dodgeSpeed = 11f;
                 mara.dodgeDuration = 0.16f;
                 mara.dodgeCooldown = 0.65f;
-                mara.skillId = CharacterSkillId.BombardmentMatrix;
-                mara.skillCooldown = 8f;
                 mara.tintColor = new Color(0.9f, 0.5f, 0.8f, 1f);
                 mara.projectileColor = new Color(0.3f, 1f, 0.5f, 1f);   // 绿色细长子弹（狙击）
                 mara.projectileScale = 0.7f;
                 mara.damageMultiplier = 2.0f;   // 狙击高伤
                 mara.lore = "天才狙击手，曾是奥运射击冠军。" +
                             "战争爆发后她放弃了奖牌，拿起了真正的步枪。" +
-                            "她的轰炸矩阵技能能呼叫精准的轨道打击。";
-                mara.combatStyle = "远程狙击手：超高单体伤害，轰炸矩阵技能可覆盖大片区域";
-                AssignCharacterSprites(mara, "mira");
+                            "她的精准射击能覆盖战场各个角落。";
+                mara.combatStyle = "远程狙击手：超高单体伤害，适合远程压制";
+                AssignCharacterSprites(mara, "mara");
                 AssetDatabase.CreateAsset(mara, maraPath);
             }
 
@@ -689,10 +684,10 @@ namespace SteelRain.EditorTools
             var niko = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(nikoPath);
             if (niko != null)
             {
-                niko.lore = "神秘的少年黑客，能操控时间流速。" +
+                niko.lore = "神秘的少年黑客，拥有奇特的时间感知能力。" +
                             "没人知道他的真实身份，只知道他称这场战争为\u201c既定命运\u201d。" +
-                            "他的时间裂隙技能可让整个战场减速。";
-                niko.combatStyle = "时空操控者：高频低伤射击，时间裂隙技能可全局减速敌人";
+                            "他能在战斗中快速穿梭，避开敌人攻击。";
+                niko.combatStyle = "高频机动型：高频低伤射击，机动性极强";
                 EditorUtility.SetDirty(niko);
             }
             if (niko == null)
@@ -710,17 +705,15 @@ namespace SteelRain.EditorTools
                 niko.dodgeSpeed = 13f;
                 niko.dodgeDuration = 0.15f;
                 niko.dodgeCooldown = 0.6f;
-                niko.skillId = CharacterSkillId.TimeRift;
-                niko.skillCooldown = 7f;
                 niko.tintColor = new Color(0.5f, 1f, 0.7f, 1f);
                 niko.projectileColor = new Color(0.6f, 0.3f, 1f, 1f);   // 紫色快速小子弹
                 niko.projectileScale = 0.8f;
                 niko.damageMultiplier = 0.7f;   // 快速低伤
-                niko.lore = "神秘的少年黑客，能操控时间流速。" +
+                niko.lore = "神秘的少年黑客，拥有奇特的时间感知能力。" +
                             "没人知道他的真实身份，只知道他称这场战争为\u201c既定命运\u201d。" +
-                            "他的时间裂隙技能可让整个战场减速。";
-                niko.combatStyle = "时空操控者：高频低伤射击，时间裂隙技能可全局减速敌人";
-                AssignCharacterSprites(niko, "zen");
+                            "他能在战斗中快速穿梭，避开敌人攻击。";
+                niko.combatStyle = "高频机动型：高频低伤射击，机动性极强";
+                AssignCharacterSprites(niko, "niko");
                 AssetDatabase.CreateAsset(niko, nikoPath);
             }
 
@@ -936,10 +929,7 @@ namespace SteelRain.EditorTools
             var combat = go.AddComponent<PlayerCombat>();
             var dodge = go.AddComponent<PlayerDodge>();
             go.AddComponent<HitFlash>();
-            // Easy 难度自动回血组件（仅在 Easy 难度生效，其他难度自动失效）
-            go.AddComponent<AutoHeal>();
             var muzzleFlash = go.AddComponent<MuzzleFlash>();
-            var skill = go.AddComponent<CharacterSkill>();
 
             var groundCheck = new GameObject("GroundCheck");
             groundCheck.transform.SetParent(go.transform);
@@ -967,13 +957,6 @@ namespace SteelRain.EditorTools
             soDodge.FindProperty("controller").objectReferenceValue = controller;
             soDodge.ApplyModifiedProperties();
 
-            // 技能
-            var soSkill = new SerializedObject(skill);
-            soSkill.FindProperty("controller").objectReferenceValue = controller;
-            soSkill.FindProperty("combat").objectReferenceValue = combat;
-            soSkill.FindProperty("skillProjectilePrefab").objectReferenceValue = projectile;
-            soSkill.ApplyModifiedProperties();
-
             // 4 人小队
             if (allCharacters != null && allCharacters.Length >= 2)
             {
@@ -981,7 +964,6 @@ namespace SteelRain.EditorTools
                 var soSquad = new SerializedObject(squad);
                 soSquad.FindProperty("controller").objectReferenceValue = controller;
                 soSquad.FindProperty("combat").objectReferenceValue = combat;
-                soSquad.FindProperty("skill").objectReferenceValue = skill;
                 var membersProp = soSquad.FindProperty("members");
                 membersProp.arraySize = allCharacters.Length;
                 for (int i = 0; i < allCharacters.Length; i++)
@@ -1346,15 +1328,15 @@ namespace SteelRain.EditorTools
             UnityEngine.Object.DestroyImmediate(go);
         }
 
-        private static GameObject CreateUpgradePickupPrefab()
+        private static GameObject CreateBasicWeaponPickupPrefab()
         {
-            var path = $"{PrefabDir}/Pickup_Upgrade.prefab";
+            var path = $"{PrefabDir}/Pickup_WeaponSwap.prefab";
             if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
                 return AssetDatabase.LoadAssetAtPath<GameObject>(path);
 
-            var go = new GameObject("Pickup_Upgrade");
+            var go = new GameObject("Pickup_WeaponSwap");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = LoadOrImportSprite($"{ArtDir}/upgrade_capsule.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/weapon_pickup.png");
             sr.sortingOrder = 8;
             sr.color = new Color(0.2f, 0.6f, 1f, 1f);
 
@@ -1362,7 +1344,7 @@ namespace SteelRain.EditorTools
             col.isTrigger = true;
             col.size = new Vector2(0.5f, 0.7f);
 
-            go.AddComponent<WeaponUpgradePickup>();
+            go.AddComponent<WeaponPickup>();
             var timed = go.AddComponent<TimedPickup>();
 
             PrefabUtility.SaveAsPrefabAsset(go, path);
@@ -1378,7 +1360,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject($"Pickup_Weapon_{weapon.id}");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = LoadOrImportSprite($"{ArtDir}/upgrade_capsule.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/weapon_pickup.png");
             sr.sortingOrder = 8;
             sr.color = tint;
 
@@ -1386,7 +1368,7 @@ namespace SteelRain.EditorTools
             col.isTrigger = true;
             col.size = new Vector2(0.6f, 0.8f);
 
-            var pickup = go.AddComponent<WeaponSwapPickup>();
+            var pickup = go.AddComponent<WeaponPickup>();
             var so = new SerializedObject(pickup);
             so.FindProperty("weapon").objectReferenceValue = weapon;
             so.ApplyModifiedProperties();
@@ -1404,7 +1386,7 @@ namespace SteelRain.EditorTools
 
             var go = new GameObject("Pickup_Health");
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = LoadOrImportSprite($"{ArtDir}/upgrade_capsule.png");
+            sr.sprite = LoadOrImportSprite($"{ArtDir}/health_pickup.png");
             sr.sortingOrder = 8;
             sr.color = new Color(0.2f, 0.9f, 0.3f, 1f);
 
@@ -1454,7 +1436,7 @@ namespace SteelRain.EditorTools
 
         private static void BuildLevel01Scene(GameObject playerPrefab, GameObject enemyPrefab,
             EnemyDefinition[] enemyDefs, Projectile projectile,
-            GameObject upgradePickupPrefab, GameObject cratePrefab,
+            GameObject weaponSwapPickupPrefab, GameObject cratePrefab,
             GameObject healthPickupPrefab, CharacterDefinition[] characters,
             GameObject shieldPrefab, GameObject dronePrefab, GameObject grenadierPrefab,
             WeaponDefinition[] weapons,
@@ -1608,13 +1590,13 @@ namespace SteelRain.EditorTools
             CreateCheckpoint("CP_F_PreBoss", new Vector3(442f, 1.5f, 0f), cpMgr);
 
             // 最终 Boss 竞技场
-            var bossPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/MiniBoss_Walker.prefab");
+            var bossPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/TurretBoss.prefab");
             if (bossPrefab != null)
             {
                 var boss = PrefabUtility.InstantiatePrefab(bossPrefab) as GameObject;
                 boss.transform.position = new Vector3(455f, 1.5f, 0f);
                 FixSpriteReferences(boss, bossPrefab);
-                var bossComp = boss.GetComponent<MiniBossWalker>();
+                var bossComp = boss.GetComponent<TurretBoss>();
                 if (bossComp != null) bossComp.AssignTarget(player.transform);
             }
 
@@ -1638,7 +1620,7 @@ namespace SteelRain.EditorTools
             // 背景音乐播放器
             BuildMusicPlayer(player.transform);
 
-            // 武器与升级：分布在 6 个段落中，鼓励探索
+            // 武器与拾取物：分布在 6 个段落中，鼓励探索
             var shotgun = weapons[1];
             var rocket = weapons[2];
             var shotgunPickupPrefab = CreateWeaponPickupPrefab(shotgun, new Color(0.9f, 0.4f, 0.1f));
@@ -1647,20 +1629,20 @@ namespace SteelRain.EditorTools
             // 武器拾取（关键节点）
             PlacePickup(shotgunPickupPrefab, new Vector3(35f, 1.5f, 0f), "Weapon_Shotgun_Beach");
             PlacePickup(rocketPickupPrefab, new Vector3(265f, 5f, 0f), "Weapon_Rocket_CityHigh");
-            // 升级胶囊（每段一个主线 + 隐藏奖励）
-            PlacePickup(upgradePickupPrefab, new Vector3(18f, 1.5f, 0f), "Upgrade_A_Beach");
-            PlacePickup(upgradePickupPrefab, new Vector3(100f, 4.5f, 0f), "Upgrade_B_VillageHigh");
-            PlacePickup(upgradePickupPrefab, new Vector3(180f, 4f, 0f), "Upgrade_C_TrenchHigh");
-            PlacePickup(upgradePickupPrefab, new Vector3(285f, 3.5f, 0f), "Upgrade_D_City");
-            PlacePickup(upgradePickupPrefab, new Vector3(345f, 4.5f, 0f), "Upgrade_E_IndustrialHigh");
-            PlacePickup(upgradePickupPrefab, new Vector3(442f, 1.5f, 0f), "Upgrade_F_PreBoss");
+            // 武器切换拾取物（每段一个主线 + 隐藏奖励）
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(18f, 1.5f, 0f), "WeaponSwap_A_Beach");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(100f, 4.5f, 0f), "WeaponSwap_B_VillageHigh");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(180f, 4f, 0f), "WeaponSwap_C_TrenchHigh");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(285f, 3.5f, 0f), "WeaponSwap_D_City");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(345f, 4.5f, 0f), "WeaponSwap_E_IndustrialHigh");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(442f, 1.5f, 0f), "WeaponSwap_F_PreBoss");
             // 隐藏奖励（高处平台）
-            PlacePickup(upgradePickupPrefab, new Vector3(51f, 5.5f, 0f), "Upgrade_Hidden_BeachPlatform");
-            PlacePickup(upgradePickupPrefab, new Vector3(104f, 6f, 0f), "Upgrade_Hidden_VillagePlatform");
-            PlacePickup(upgradePickupPrefab, new Vector3(201f, 6f, 0f), "Upgrade_Hidden_TrenchPlatform");
-            PlacePickup(upgradePickupPrefab, new Vector3(276f, 6.5f, 0f), "Upgrade_Hidden_CityPlatform");
-            PlacePickup(upgradePickupPrefab, new Vector3(368f, 6f, 0f), "Upgrade_Hidden_IndustrialPlatform");
-            PlacePickup(upgradePickupPrefab, new Vector3(424f, 6.5f, 0f), "Upgrade_Hidden_FactoryPlatform");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(51f, 5.5f, 0f), "WeaponSwap_Hidden_BeachPlatform");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(104f, 6f, 0f), "WeaponSwap_Hidden_VillagePlatform");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(201f, 6f, 0f), "WeaponSwap_Hidden_TrenchPlatform");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(276f, 6.5f, 0f), "WeaponSwap_Hidden_CityPlatform");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(368f, 6f, 0f), "WeaponSwap_Hidden_IndustrialPlatform");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(424f, 6.5f, 0f), "WeaponSwap_Hidden_FactoryPlatform");
 
             // 可破坏箱子（散布全图，提供掩体和掉落）
             PlacePickup(cratePrefab, new Vector3(8f, 1f, 0f), "Crate_A1");
@@ -1734,7 +1716,7 @@ namespace SteelRain.EditorTools
             // 交互式 FTUE 教学管理器
             BuildTutorialManager();
 
-            // 对象池（子弹/爆炸特效/技能特效）
+            // 对象池（子弹/爆炸特效）
             BuildObjectPool(projectile);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -1801,7 +1783,7 @@ namespace SteelRain.EditorTools
             introProp.GetArrayElementAtIndex(0).FindPropertyRelative("displayDuration").floatValue = 4f;
             introProp.GetArrayElementAtIndex(1).FindPropertyRelative("speaker").stringValue = "Aila";
             introProp.GetArrayElementAtIndex(1).FindPropertyRelative("text").stringValue =
-                "目标：穿越六段战区，摧毁工厂核心。全员，准备登陆。";
+                "目标：穿越五大战区，直捣敌方要塞。全员，准备登陆。";
             introProp.GetArrayElementAtIndex(1).FindPropertyRelative("displayDuration").floatValue = 4f;
 
             // Boss 警告叙事
@@ -1809,11 +1791,11 @@ namespace SteelRain.EditorTools
             bossProp.arraySize = 2;
             bossProp.GetArrayElementAtIndex(0).FindPropertyRelative("speaker").stringValue = "Mara";
             bossProp.GetArrayElementAtIndex(0).FindPropertyRelative("text").stringValue =
-                "前方检测到大型机甲信号...是四足侦察机甲！";
+                "前方检测到大型炮塔信号...是敌方海岸炮塔！";
             bossProp.GetArrayElementAtIndex(0).FindPropertyRelative("displayDuration").floatValue = 3.5f;
             bossProp.GetArrayElementAtIndex(1).FindPropertyRelative("speaker").stringValue = "Bruno";
             bossProp.GetArrayElementAtIndex(1).FindPropertyRelative("text").stringValue =
-                "它的核心在背部，等它跳跃砸地时暴露！准备战斗！";
+                "注意它的散射弹幕和追踪导弹！准备战斗！";
             bossProp.GetArrayElementAtIndex(1).FindPropertyRelative("displayDuration").floatValue = 4f;
 
             // 关卡结局叙事
@@ -1821,11 +1803,11 @@ namespace SteelRain.EditorTools
             outroProp.arraySize = 2;
             outroProp.GetArrayElementAtIndex(0).FindPropertyRelative("speaker").stringValue = "Niko";
             outroProp.GetArrayElementAtIndex(0).FindPropertyRelative("text").stringValue =
-                "时间线正在收敛...工厂核心已摧毁。";
+                "海岸炮塔已摧毁。通往内陆的道路打开了。";
             outroProp.GetArrayElementAtIndex(0).FindPropertyRelative("displayDuration").floatValue = 4f;
             outroProp.GetArrayElementAtIndex(1).FindPropertyRelative("speaker").stringValue = "Aila";
             outroProp.GetArrayElementAtIndex(1).FindPropertyRelative("text").stringValue =
-                "干得漂亮，小队。但这只是开始。下一站：工厂内部。";
+                "干得漂亮，小队。下一站：工厂内部。";
             outroProp.GetArrayElementAtIndex(1).FindPropertyRelative("displayDuration").floatValue = 4f;
 
             so.ApplyModifiedProperties();
@@ -1877,7 +1859,7 @@ namespace SteelRain.EditorTools
             so.FindProperty("progressText").objectReferenceValue = progressText;
             so.FindProperty("canvasGroup").objectReferenceValue = canvasGroup;
 
-            // 配置教学步骤：移动→射击→角色切换→武器形态→技能
+            // 配置教学步骤：移动→射击→角色切换→武器形态→躲避
             var stepsProp = so.FindProperty("steps");
             stepsProp.arraySize = 5;
 
@@ -1976,17 +1958,17 @@ namespace SteelRain.EditorTools
 
             // 教程触发器3：角色切换教学
             CreateTutorialTrigger(new Vector3(12f, 1.5f, 0f), "Tutorial_Switch",
-                "Press 1/2/3/4 to switch characters. Each has unique skills.",
+                "Press 1/2/3/4 to switch characters. Tab to rotate.",
                 tutorialText);
 
-            // 教程触发器4：技能教学
-            CreateTutorialTrigger(new Vector3(20f, 1.5f, 0f), "Tutorial_Skill",
-                "Press Q or Right Click to use character skill (requires Lv3 weapon).",
-                tutorialText);
-
-            // 教程触发器5：闪避教学
-            CreateTutorialTrigger(new Vector3(30f, 1.5f, 0f), "Tutorial_Dodge",
+            // 教程触发器4：闪避教学
+            CreateTutorialTrigger(new Vector3(20f, 1.5f, 0f), "Tutorial_Dodge",
                 "Press Left Shift to dodge. Time it right to avoid damage.",
+                tutorialText);
+
+            // 教程触发器5：武器拾取教学
+            CreateTutorialTrigger(new Vector3(30f, 1.5f, 0f), "Tutorial_WeaponPickup",
+                "Pick up weapon crates to switch weapons. Death resets to pistol.",
                 tutorialText);
 
             // 教程触发器6：武器形态切换
@@ -2049,8 +2031,8 @@ namespace SteelRain.EditorTools
         }
 
         private static void BuildLevel02Scene(GameObject playerPrefab, GameObject enemyPrefab,
-            EnemyDefinition[] enemyDefs, Projectile projectilePrefab,
-            GameObject upgradePickupPrefab, GameObject cratePrefab,
+            EnemyDefinition[] enemyDefs, Projectile projectile,
+            GameObject weaponSwapPickupPrefab, GameObject cratePrefab,
             GameObject healthPickupPrefab, CharacterDefinition[] characters,
             GameObject shieldPrefab, GameObject dronePrefab, GameObject grenadierPrefab,
             WeaponDefinition[] weapons,
@@ -2152,12 +2134,12 @@ namespace SteelRain.EditorTools
             // 碎裂平台
             CreateCrumblingPlatform(new Vector3(70f, 3f, 0f), "Crumble_1");
 
-            var bossPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/TurretBoss.prefab");
+            var bossPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/MiniBoss_Walker.prefab");
             if (bossPrefab != null)
             {
                 var boss = PrefabUtility.InstantiatePrefab(bossPrefab) as GameObject;
                 boss.transform.position = new Vector3(155f, 2f, 0f);
-                var bossComp = boss.GetComponent<TurretBoss>();
+                var bossComp = boss.GetComponent<MiniBossWalker>();
                 if (bossComp != null) bossComp.AssignTarget(player.transform);
             }
 
@@ -2170,8 +2152,8 @@ namespace SteelRain.EditorTools
             BuildPauseMenu();
             BuildAudioManager();
             BuildMusicPlayerBossOnly(player.transform);
-            PlacePickup(upgradePickupPrefab, new Vector3(20f, 1.5f, 0f), "L2_Upgrade_1");
-            PlacePickup(upgradePickupPrefab, new Vector3(70f, 1.5f, 0f), "L2_Upgrade_2");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(20f, 1.5f, 0f), "L2_WeaponSwap_1");
+            PlacePickup(weaponSwapPickupPrefab, new Vector3(70f, 1.5f, 0f), "L2_WeaponSwap_2");
             PlacePickup(cratePrefab, new Vector3(30f, 1f, 0f), "L2_Crate_1");
             PlacePickup(healthPickupPrefab, new Vector3(55f, 1.5f, 0f), "L2_Health_1");
             PlacePickup(healthPickupPrefab, new Vector3(115f, 1.5f, 0f), "L2_Health_2");
@@ -2281,25 +2263,25 @@ namespace SteelRain.EditorTools
             introProp.GetArrayElementAtIndex(0).FindPropertyRelative("displayDuration").floatValue = 4f;
             introProp.GetArrayElementAtIndex(1).FindPropertyRelative("speaker").stringValue = "Niko";
             introProp.GetArrayElementAtIndex(1).FindPropertyRelative("text").stringValue =
-                "检测到深处有炮塔Boss...它的三段攻击模式很危险。";
+                "检测到深处有四足机甲...它的跳跃砸地很危险。";
             introProp.GetArrayElementAtIndex(1).FindPropertyRelative("displayDuration").floatValue = 4f;
 
             var bossProp = so.FindProperty("bossWarningBeats");
             bossProp.arraySize = 1;
             bossProp.GetArrayElementAtIndex(0).FindPropertyRelative("speaker").stringValue = "Mara";
             bossProp.GetArrayElementAtIndex(0).FindPropertyRelative("text").stringValue =
-                "炮塔Boss激活了！注意它的散射和追踪导弹！";
+                "四足机甲激活了！等它跳跃砸地时核心暴露！";
             bossProp.GetArrayElementAtIndex(0).FindPropertyRelative("displayDuration").floatValue = 3.5f;
 
             var outroProp = so.FindProperty("outroBeats");
             outroProp.arraySize = 2;
             outroProp.GetArrayElementAtIndex(0).FindPropertyRelative("speaker").stringValue = "Bruno";
             outroProp.GetArrayElementAtIndex(0).FindPropertyRelative("text").stringValue =
-                "炮塔核心已摧毁。工厂防御系统瘫痪。";
+                "机甲核心已摧毁。工厂防御系统瘫痪。";
             outroProp.GetArrayElementAtIndex(0).FindPropertyRelative("displayDuration").floatValue = 4f;
             outroProp.GetArrayElementAtIndex(1).FindPropertyRelative("speaker").stringValue = "Aila";
             outroProp.GetArrayElementAtIndex(1).FindPropertyRelative("text").stringValue =
-                "任务完成。小队，撤离。我们为这场战争赢得了关键的一步。";
+                "工厂已清理。下一站：前线战区。继续推进。";
             outroProp.GetArrayElementAtIndex(1).FindPropertyRelative("displayDuration").floatValue = 4f;
 
             so.ApplyModifiedProperties();
@@ -3160,18 +3142,10 @@ namespace SteelRain.EditorTools
             ammoText.rectTransform.anchorMin = new Vector2(0.78f, 0.18f);
             ammoText.rectTransform.anchorMax = new Vector2(1.0f, 0.22f);
             ammoText.alignment = TextAnchor.MiddleCenter;
-            var levelText = CreateHudText(canvasGo, "WeaponLevelText", new Vector2(0, -50), "Weapon Lv0", 14, SteelRain.UI.UIPalette.Warning, FontStyle.Bold);
-            levelText.rectTransform.anchorMin = new Vector2(0.78f, 0.13f);
-            levelText.rectTransform.anchorMax = new Vector2(1.0f, 0.17f);
-            levelText.alignment = TextAnchor.MiddleCenter;
-            var charText = CreateHudText(canvasGo, "CharacterText", new Vector2(0, -76), "Aila", 16, SteelRain.UI.UIPalette.Accent, FontStyle.Bold);
+            var charText = CreateHudText(canvasGo, "CharacterText", new Vector2(0, -50), "Aila", 16, SteelRain.UI.UIPalette.Accent, FontStyle.Bold);
             charText.rectTransform.anchorMin = new Vector2(0.78f, 0.09f);
             charText.rectTransform.anchorMax = new Vector2(1.0f, 0.13f);
             charText.alignment = TextAnchor.MiddleCenter;
-            var skillText = CreateHudText(canvasGo, "SkillText", new Vector2(0, -100), "Skill: READY", 13, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
-            skillText.rectTransform.anchorMin = new Vector2(0.78f, 0.05f);
-            skillText.rectTransform.anchorMax = new Vector2(1.0f, 0.09f);
-            skillText.alignment = TextAnchor.MiddleCenter;
 
             // 小队列表
             var squadText = CreateHudText(canvasGo, "SquadText", new Vector2(0, 0), "", 12, SteelRain.UI.UIPalette.TextSecondary, FontStyle.Normal);
@@ -3194,12 +3168,6 @@ namespace SteelRain.EditorTools
             comboText.rectTransform.anchorMax = new Vector2(0.60f, 0.92f);
             comboText.alignment = TextAnchor.MiddleCenter;
 
-            // 军票余额（经济系统）
-            var currencyText = CreateHudText(canvasGo, "CurrencyText", new Vector2(0, 0), "军票: 0", 18, new Color(1f, 0.85f, 0.2f, 1f), FontStyle.Bold);
-            currencyText.rectTransform.anchorMin = new Vector2(0.42f, 0.87f);
-            currencyText.rectTransform.anchorMax = new Vector2(0.58f, 0.92f);
-            currencyText.alignment = TextAnchor.MiddleCenter;
-
             // 检查点提示
             var checkpointText = CreateHudText(canvasGo, "CheckpointText", new Vector2(0, 0), "", 24, SteelRain.UI.UIPalette.Accent, FontStyle.Bold);
             checkpointText.enabled = false;
@@ -3207,19 +3175,14 @@ namespace SteelRain.EditorTools
             checkpointText.rectTransform.anchorMax = new Vector2(0.7f, 0.55f);
             checkpointText.alignment = TextAnchor.MiddleCenter;
 
-            var skill = player.GetComponent<CharacterSkill>();
             var hud = canvasGo.AddComponent<HudPresenter>();
             var so = new SerializedObject(hud);
             so.FindProperty("healthText").objectReferenceValue = healthText;
             so.FindProperty("ammoText").objectReferenceValue = ammoText;
-            so.FindProperty("weaponLevelText").objectReferenceValue = levelText;
             so.FindProperty("characterText").objectReferenceValue = charText;
-            so.FindProperty("skillText").objectReferenceValue = skillText;
             so.FindProperty("squadText").objectReferenceValue = squadText;
             so.FindProperty("scoreText").objectReferenceValue = scoreText;
             so.FindProperty("comboText").objectReferenceValue = comboText;
-            so.FindProperty("currencyText").objectReferenceValue = currencyText;
-            so.FindProperty("skill").objectReferenceValue = skill;
             so.ApplyModifiedProperties();
 
             // 检查点提示
@@ -3330,7 +3293,10 @@ namespace SteelRain.EditorTools
                 new EditorBuildSettingsScene("Assets/Scenes/Boot.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/MainMenu.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/Level01_VerticalSlice.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/Level02_Factory.unity", true)
+                new EditorBuildSettingsScene("Assets/Scenes/Level02_Factory.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/Level03_Warzone.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/Level04_Bunker.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/Level05_Citadel.unity", true)
             };
             EditorBuildSettings.scenes = scenes;
             Debug.Log("[VerticalSliceBuilder] Build scenes registered.");
@@ -3839,20 +3805,11 @@ namespace SteelRain.EditorTools
             var retryBtn = CreateMenuButton(panel, "RetryBtn", new Vector2(0, -90), "RETRY", 200, 50, true);
             var menuBtn = CreateMenuButton(panel, "MenuBtn", new Vector2(0, -150), "MAIN MENU", 200, 50, false);
 
-            // 复活信标按钮（默认隐藏，有信标时显示）
-            var reviveBtn = CreateMenuButton(panel, "ReviveBtn", new Vector2(0, -30), "使用复活信标", 260, 50, false);
-            reviveBtn.gameObject.SetActive(false);
-            var reviveTextComp = reviveBtn.GetComponentInChildren<Text>();
-            if (reviveTextComp != null)
-                reviveTextComp.text = "使用复活信标 (0)";
-
             var gameOver = canvasGo.AddComponent<GameOverScreen>();
             var so = new SerializedObject(gameOver);
             so.FindProperty("panel").objectReferenceValue = panel;
             so.FindProperty("retryButton").objectReferenceValue = retryBtn;
             so.FindProperty("menuButton").objectReferenceValue = menuBtn;
-            so.FindProperty("reviveButton").objectReferenceValue = reviveBtn;
-            so.FindProperty("reviveText").objectReferenceValue = reviveTextComp;
             so.FindProperty("scoreText").objectReferenceValue = goScoreText;
             so.ApplyModifiedProperties();
         }

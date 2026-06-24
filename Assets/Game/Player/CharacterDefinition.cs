@@ -2,21 +2,12 @@ using UnityEngine;
 
 namespace SteelRain.Player
 {
-    public enum CharacterSkillId
-    {
-        BreakthroughFire,
-        TrenchShield,
-        BombardmentMatrix,
-        TimeRift
-    }
-
     [CreateAssetMenu(menuName = "Steel Rain/Character Definition")]
     public sealed class CharacterDefinition : ScriptableObject
     {
         [Header("Identity")]
         public string id = "aila";
         public string displayName = "Aila";
-        public CharacterSkillId skillId = CharacterSkillId.BreakthroughFire;
         [TextArea(2, 4)]
         [Tooltip("角色背景故事，用于叙事过场和角色选择界面")]
         public string lore = "";
@@ -50,8 +41,5 @@ namespace SteelRain.Player
         public float projectileScale = 1f;
         [Tooltip("角色伤害倍率，影响所有武器伤害")]
         public float damageMultiplier = 1f;
-
-        [Header("Skill")]
-        public float skillCooldown = 10f;
     }
 }

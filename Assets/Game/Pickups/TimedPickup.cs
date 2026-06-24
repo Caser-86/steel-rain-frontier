@@ -3,7 +3,7 @@ using UnityEngine;
 namespace SteelRain.Pickups
 {
     /// <summary>
-    /// 定时消失的拾取物。武器升级胶囊永不过期。
+    /// 定时消失的拾取物。
     /// </summary>
     public sealed class TimedPickup : MonoBehaviour
     {
@@ -57,10 +57,8 @@ namespace SteelRain.Pickups
         {
             return kind switch
             {
-                PickupKind.WeaponUpgrade => false,
                 PickupKind.SmallHealth => age >= 18f,
                 PickupKind.LargeHealth => age >= 25f,
-                PickupKind.Ammo => age >= 30f,
                 PickupKind.Shield => age >= 30f,
                 PickupKind.Invincible => age >= 30f,
                 _ => age >= 30f
@@ -71,10 +69,8 @@ namespace SteelRain.Pickups
         {
             return kind switch
             {
-                PickupKind.WeaponUpgrade => -1f,
                 PickupKind.SmallHealth => 18f,
                 PickupKind.LargeHealth => 25f,
-                PickupKind.Ammo => 30f,
                 PickupKind.Shield => 30f,
                 PickupKind.Invincible => 30f,
                 _ => 30f

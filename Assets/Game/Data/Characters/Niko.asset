@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: SteelRain.Game::SteelRain.Player.CharacterDefinition
   id: niko
   displayName: Niko
-  skillId: 3
   maxHealth: 5
   moveSpeed: 7.5
   jumpVelocity: 12
@@ -34,4 +33,3 @@ MonoBehaviour:
   projectileColor: {r: 0.6, g: 0.3, b: 1, a: 1}
   projectileScale: 0.8
   damageMultiplier: 0.7
-  skillCooldown: 7

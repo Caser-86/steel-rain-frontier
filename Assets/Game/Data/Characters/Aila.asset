@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: SteelRain.Game::SteelRain.Player.CharacterDefinition
   id: aila
   displayName: Aila
-  skillId: 0
   maxHealth: 6
   moveSpeed: 7.2
   jumpVelocity: 11
@@ -34,4 +33,3 @@ MonoBehaviour:
   projectileColor: {r: 1, g: 0.9, b: 0.3, a: 1}
   projectileScale: 1
   damageMultiplier: 1
-  skillCooldown: 6

@@ -15,6 +15,8 @@ namespace SteelRain.UI
         private static float gameStartTime; // 改为静态，跨场景持久化
         private bool hasKilledThisLevel;
         private float saveTimer;
+        private float cachedPlayTime; // 缓存游戏时间，避免每帧读 PlayerPrefs
+        private bool veteranUnlocked;
         private const float SaveInterval = 5f; // 每5秒保存一次
         private static AchievementTracker instance;
 
@@ -42,6 +44,9 @@ namespace SteelRain.UI
         {
             instance = this;
             levelStartTime = Time.time;
+            // 缓存当前累计游戏时间，避免 Update 中每帧读 PlayerPrefs
+            cachedPlayTime = AchievementManager.GetFloatStat(AchievementManager.StatId.TotalPlayTime);
+            veteranUnlocked = AchievementManager.IsUnlocked(AchievementManager.AchievementId.Veteran);
             // 每个关卡都记录游戏开始时间，用于Speedrun成就
             if (LevelManager.CurrentLevel == 0)
             {
@@ -59,13 +64,14 @@ namespace SteelRain.UI
 
         private void Update()
         {
-            // 更新游戏时间统计（使用NoSave版本避免每帧保存）
-            AchievementManager.AddFloatStat(AchievementManager.StatId.TotalPlayTime, Time.deltaTime);
+            // 使用缓存的累计时间累加，避免每帧调用 PlayerPrefs.GetFloat
+            cachedPlayTime += Time.deltaTime;
+            AchievementManager.SetFloatStatNoSave(AchievementManager.StatId.TotalPlayTime, cachedPlayTime);
 
-            // 检查老兵成就（1小时）
-            var playTime = AchievementManager.GetFloatStat(AchievementManager.StatId.TotalPlayTime);
-            if (playTime >= 3600f)
+            // 检查老兵成就（1小时），已解锁则跳过判定
+            if (!veteranUnlocked && cachedPlayTime >= 3600f)
             {
+                veteranUnlocked = true;
                 AchievementManager.Unlock(AchievementManager.AchievementId.Veteran);
             }
 
@@ -172,9 +178,9 @@ namespace SteelRain.UI
                 AchievementManager.Unlock(AchievementManager.AchievementId.PacifistRun);
             }
 
-            // 检查快速通关成就
-            var levelDuration = Time.time - gameStartTime;
-            if (LevelManager.CurrentLevel >= LevelManager.TotalLevels - 1 && levelDuration < 600f)
+            // 检查快速通关成就（从第一关到最后一关总时长 < 10分钟）
+            var gameDuration = Time.time - gameStartTime;
+            if (LevelManager.CurrentLevel >= LevelManager.TotalLevels - 1 && gameDuration < 600f)
             {
                 AchievementManager.Unlock(AchievementManager.AchievementId.Speedrun);
             }

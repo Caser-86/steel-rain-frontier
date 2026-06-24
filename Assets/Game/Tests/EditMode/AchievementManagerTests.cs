@@ -185,13 +185,24 @@ namespace SteelRain.Tests
         }
 
         [Test]
-        public void AddStat_LevelsCompleted2_TriggersGameCompleteAchievement()
+        public void AddStat_LevelsCompleted3_TriggersLevel3CompleteAchievement()
         {
             // Act
-            AchievementManager.AddStat(AchievementManager.StatId.LevelsCompleted, 2);
+            AchievementManager.AddStat(AchievementManager.StatId.LevelsCompleted, 3);
+
+            // Assert
+            Assert.IsTrue(AchievementManager.IsUnlocked(AchievementManager.AchievementId.Level3Complete));
+        }
+
+        [Test]
+        public void AddStat_LevelsCompleted5_TriggersGameCompleteAchievement()
+        {
+            // Act
+            AchievementManager.AddStat(AchievementManager.StatId.LevelsCompleted, 5);
 
             // Assert
             Assert.IsTrue(AchievementManager.IsUnlocked(AchievementManager.AchievementId.GameComplete));
+            Assert.IsTrue(AchievementManager.IsUnlocked(AchievementManager.AchievementId.Level5Complete));
         }
 
         [Test]

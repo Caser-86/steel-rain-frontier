@@ -6,7 +6,7 @@ namespace SteelRain.UI
 {
     /// <summary>
     /// 交互式首次用户体验（FTUE）管理器。
-    /// 逐步引导玩家完成移动、射击、角色切换、武器形态切换、技能释放，
+    /// 逐步引导玩家完成移动、射击、角色切换、武器形态切换、闪避，
     /// 每步需玩家实际操作确认后才进入下一步，避免"显示4秒就消失"的无效教学。
     /// </summary>
     public sealed class TutorialManager : MonoBehaviour
@@ -18,7 +18,7 @@ namespace SteelRain.UI
             [TextArea(2, 3)] public string instruction;
             public KeyCode requiredKey;          // 需要按下的键（KeyCode.None 表示无需按键）
             public int requiredActionCount;       // 需要执行的次数（如射击3次）
-            public bool waitForTrigger;           // 是否等待外部触发（如拾取武器升级）
+            public bool waitForTrigger;           // 是否等待外部触发（如拾取武器）
         }
 
         [Header("UI References")]
@@ -98,7 +98,7 @@ namespace SteelRain.UI
         }
 
         /// <summary>
-        /// 外部系统（如拾取武器升级、释放技能）调用以完成当前等待触发器的步骤。
+        /// 外部系统（如拾取武器）调用以完成当前等待触发器的步骤。
         /// </summary>
         public void CompleteCurrentStep()
         {

@@ -16,12 +16,6 @@ public sealed class WeaponRuntimeTests
         form.ammoCost = 1;
         form.fireRate = 10f;
         form.projectileSpeed = 20f;
-        form.levelOneDamageMultiplier = 1.5f;
-        form.levelTwoDamageMultiplier = 2.0f;
-        form.levelThreeDamageMultiplier = 3.0f;
-        form.levelOneFireRateMultiplier = 1.1f;
-        form.levelTwoFireRateMultiplier = 1.2f;
-        form.levelThreeFireRateMultiplier = 1.3f;
         weapon.forms = new[] { form };
 
         return weapon;
@@ -35,49 +29,12 @@ public sealed class WeaponRuntimeTests
 
         Assert.AreEqual(weapon, runtime.Definition);
         Assert.AreEqual(50, runtime.Ammo);
-        Assert.AreEqual(0, runtime.Level);
     }
 
     [Test]
     public void Constructor_NullWeapon_Throws()
     {
         Assert.Throws<System.ArgumentNullException>(() => new WeaponRuntime(null, 0));
-    }
-
-    [Test]
-    public void Upgrade_IncreasesLevel()
-    {
-        var weapon = CreateTestWeapon();
-        var runtime = new WeaponRuntime(weapon, -1);
-
-        Assert.AreEqual(1, runtime.Upgrade());
-        Assert.AreEqual(2, runtime.Upgrade());
-        Assert.AreEqual(3, runtime.Upgrade());
-    }
-
-    [Test]
-    public void Upgrade_CapsAtThree()
-    {
-        var weapon = CreateTestWeapon();
-        var runtime = new WeaponRuntime(weapon, -1);
-
-        runtime.Upgrade();
-        runtime.Upgrade();
-        runtime.Upgrade();
-        Assert.AreEqual(3, runtime.Upgrade());
-        Assert.AreEqual(3, runtime.Level);
-    }
-
-    [Test]
-    public void ResetUpgrades_SetsLevelToZero()
-    {
-        var weapon = CreateTestWeapon();
-        var runtime = new WeaponRuntime(weapon, -1);
-
-        runtime.Upgrade();
-        runtime.Upgrade();
-        runtime.ResetUpgrades();
-        Assert.AreEqual(0, runtime.Level);
     }
 
     [Test]
@@ -114,7 +71,7 @@ public sealed class WeaponRuntimeTests
     }
 
     [Test]
-    public void GetDamage_BaseLevel_ReturnsBaseDamage()
+    public void GetDamage_ReturnsBaseDamage()
     {
         var weapon = CreateTestWeapon();
         var runtime = new WeaponRuntime(weapon, -1);
@@ -123,19 +80,7 @@ public sealed class WeaponRuntimeTests
     }
 
     [Test]
-    public void GetDamage_Level3_ReturnsScaledDamage()
-    {
-        var weapon = CreateTestWeapon();
-        var runtime = new WeaponRuntime(weapon, -1);
-
-        runtime.Upgrade();
-        runtime.Upgrade();
-        runtime.Upgrade();
-        Assert.AreEqual(6, runtime.GetDamage());
-    }
-
-    [Test]
-    public void GetFireRate_BaseLevel_ReturnsBaseRate()
+    public void GetFireRate_ReturnsBaseRate()
     {
         var weapon = CreateTestWeapon();
         var runtime = new WeaponRuntime(weapon, -1);

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: SteelRain.Game::SteelRain.Player.CharacterDefinition
   id: mara
   displayName: Mara
-  skillId: 2
   maxHealth: 6
   moveSpeed: 7
   jumpVelocity: 11
@@ -34,4 +33,3 @@ MonoBehaviour:
   projectileColor: {r: 0.3, g: 1, b: 0.5, a: 1}
   projectileScale: 0.7
   damageMultiplier: 2
-  skillCooldown: 8

@@ -151,7 +151,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b586fd7c7fe93084cb7f1ba292b065e9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: SteelRain.Game::SteelRain.Pickups.WeaponUpgradePickup
+  m_EditorClassIdentifier: SteelRain.Game::SteelRain.Pickups.WeaponPickup
 --- !u!114 &1332768361376239199
 MonoBehaviour:
   m_ObjectHideFlags: 0

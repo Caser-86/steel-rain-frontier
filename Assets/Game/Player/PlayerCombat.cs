@@ -19,7 +19,6 @@ namespace SteelRain.Player
         private float nextFireTime;
 
         public WeaponRuntime CurrentWeapon => currentWeapon;
-        public int CurrentWeaponLevel => currentWeapon?.Level ?? 0;
 
         private void Awake()
         {
@@ -28,7 +27,6 @@ namespace SteelRain.Player
                 currentWeapon = new WeaponRuntime(startingWeapon, startingWeapon.startingAmmo);
                 GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
                 GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
-                GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
             }
         }
 
@@ -58,11 +56,10 @@ namespace SteelRain.Player
                 return;
 
             nextFireTime = Time.time + 1f / fireRate;
-            // 应用角色伤害倍率 + 商店永久武器强化加成
+            // 应用角色伤害倍率
             var charDef = characterRuntime?.Definition;
             var dmgMultiplier = charDef != null ? charDef.damageMultiplier : 1f;
-            var shopBoost = 1f + ShopManager.WeaponBoostMultiplier;
-            var finalDamage = Mathf.RoundToInt(currentWeapon.GetDamage() * dmgMultiplier * shopBoost);
+            var finalDamage = Mathf.RoundToInt(currentWeapon.GetDamage() * dmgMultiplier);
             FirePattern(currentWeapon.CurrentForm, finalDamage);
             AudioManager.Play("sfx_gunshot", 0.7f);
             if (muzzleFlash != null && controller != null)
@@ -71,10 +68,6 @@ namespace SteelRain.Player
             // 弹壳粒子
             if (muzzle != null && controller != null)
                 ParticleSpawner.SpawnShell(muzzle.position, controller.AimDirection);
-
-            // 突破姿态 buff
-            if (CharacterSkill.BreakthroughBuff)
-                nextFireTime -= 1f / fireRate * 0.4f;
 
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
         }
@@ -113,42 +106,25 @@ namespace SteelRain.Player
         {
             if (newWeapon == null) return;
             currentWeapon = new WeaponRuntime(newWeapon, ammo < 0 ? newWeapon.startingAmmo : ammo);
-            var savedLevel = SaveSystem.LoadWeaponLevel(newWeapon.id);
-            for (var i = 0; i < savedLevel; i++)
-                currentWeapon.Upgrade();
             GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
-            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
         }
 
-        public void UpgradeCurrentWeapon()
+        /// <summary>
+        /// 死亡复活后重置为初始武器（手枪）。
+        /// 合金弹头风格：死亡后失去拾取的武器，回到手枪。
+        /// </summary>
+        public void ResetToStartingWeapon()
         {
-            if (currentWeapon == null) return;
-            currentWeapon.Upgrade();
-            characterRuntime?.SetWeaponLevel(currentWeapon.Definition.id, currentWeapon.Level);
-            SaveSystem.SaveWeaponLevel(currentWeapon.Definition.id, currentWeapon.Level);
-            GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
+            if (startingWeapon == null) return;
+            currentWeapon = new WeaponRuntime(startingWeapon, startingWeapon.startingAmmo);
+            GameEvents.RaiseWeaponFormChanged(currentWeapon.CurrentForm.displayName);
             GameEvents.RaiseAmmoChanged(currentWeapon.Definition.displayName, currentWeapon.Ammo);
-
-            // 升级视觉反馈：金色爆发 + 持续光环
-            SkillVFX.SpawnBurst(transform.position, new Color(1f, 0.85f, 0.2f, 1f), 2.5f);
-            StartCoroutine(SkillVFX.AuraLoop(transform, new Color(1f, 0.85f, 0.2f, 0.4f), 2f, 1.8f));
-            AudioManager.Play("sfx_upgrade", 1f);
         }
 
         public void ApplyCharacterRuntime(CharacterRuntime runtime)
         {
             characterRuntime = runtime;
-            if (currentWeapon != null)
-            {
-                currentWeapon.ResetUpgrades();
-                var savedLevel = SaveSystem.LoadWeaponLevel(currentWeapon.Definition.id);
-                var targetLevel = runtime?.GetWeaponLevel(currentWeapon.Definition.id) ?? 0;
-                var finalLevel = Mathf.Max(savedLevel, targetLevel);
-                for (var i = 0; i < finalLevel; i++)
-                    currentWeapon.Upgrade();
-                GameEvents.RaiseWeaponLevelChanged(currentWeapon.Level);
-            }
         }
     }
 }

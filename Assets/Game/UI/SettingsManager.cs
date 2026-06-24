@@ -27,6 +27,14 @@ namespace SteelRain.UI
                 applyButton.onClick.AddListener(ApplySettings);
             if (backButton != null)
                 backButton.onClick.AddListener(() => gameObject.SetActive(false));
+
+            // 实时预览：滑块变化时立即应用音量，无需点确认
+            if (masterSlider != null)
+                masterSlider.onValueChanged.AddListener(v => { AudioManager.SetMasterVolume(v); });
+            if (musicSlider != null)
+                musicSlider.onValueChanged.AddListener(v => { AudioManager.SetMusicVolume(v); });
+            if (sfxSlider != null)
+                sfxSlider.onValueChanged.AddListener(v => { AudioManager.SetSfxVolume(v); });
         }
 
         private void OnEnable()
@@ -63,6 +71,9 @@ namespace SteelRain.UI
             AudioManager.SetSfxVolume(sfxVolume);
 
             Screen.fullScreen = isFullscreen;
+            if (isFullscreen)
+                Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, true);
+
             SaveSystem.SaveVolume(masterVolume, musicVolume, sfxVolume);
             SaveSystem.SaveDisplaySettings(isFullscreen, Screen.width, Screen.height);
         }

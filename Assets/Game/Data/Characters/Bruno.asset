@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: SteelRain.Game::SteelRain.Player.CharacterDefinition
   id: bruno
   displayName: Bruno
-  skillId: 1
   maxHealth: 8
   moveSpeed: 6
   jumpVelocity: 10
@@ -34,4 +33,3 @@ MonoBehaviour:
   projectileColor: {r: 1, g: 0.4, b: 0.2, a: 1}
   projectileScale: 1.6
   damageMultiplier: 1.5
-  skillCooldown: 7

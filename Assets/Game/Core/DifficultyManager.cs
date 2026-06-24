@@ -63,21 +63,6 @@ namespace SteelRain.Core
         }
 
         /// <summary>
-        /// Easy 难度自动回血间隔（秒）。返回 0 表示不自动回血。
-        /// 为新手玩家提供容错，避免卡关挫败。
-        /// </summary>
-        public static float GetAutoHealInterval()
-        {
-            return currentDifficulty switch
-            {
-                Difficulty.Easy => 5f,
-                Difficulty.Normal => 0f,
-                Difficulty.Hard => 0f,
-                _ => 0f
-            };
-        }
-
-        /// <summary>
         /// Hard 难度下 Boss 是否启用额外阶段（第四阶段）。
         /// 为硬核玩家提供机制层面的挑战，而非单纯数值堆叠。
         /// </summary>

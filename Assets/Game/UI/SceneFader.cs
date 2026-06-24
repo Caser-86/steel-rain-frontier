@@ -30,7 +30,6 @@ namespace SteelRain.UI
 
         public static void FadeToScene(string sceneName)
         {
-            Debug.Log("[SceneFader] FadeToScene called: " + sceneName + ", instance=" + (instance != null));
             if (instance != null)
                 instance.StartCoroutine(instance.FadeRoutine(sceneName));
             else
@@ -42,12 +41,9 @@ namespace SteelRain.UI
 
         private IEnumerator FadeRoutine(string sceneName)
         {
-            Debug.Log("[SceneFader] FadeRoutine start: " + sceneName);
             yield return StartCoroutine(Fade(0f, 1f));
-            Debug.Log("[SceneFader] Loading scene: " + sceneName);
             SceneManager.LoadScene(sceneName);
             yield return StartCoroutine(Fade(1f, 0f));
-            Debug.Log("[SceneFader] FadeRoutine complete: " + sceneName);
         }
 
         private IEnumerator Fade(float from, float to)

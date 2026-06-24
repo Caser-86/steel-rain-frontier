@@ -151,6 +151,11 @@ namespace SteelRain.Enemies
             // 补全击杀分数和成就追踪
             ScoreManager.AddKill(scoreValue);
             AchievementTracker.OnEnemyKilled(scoreValue);
+
+            // Boss掉落
+            var loot = GetComponent<Pickups.LootDrop>();
+            if (loot != null) loot.SpawnLoot(transform.position);
+
             GameEvents.RaiseBossDefeated();
             Destroy(gameObject);
         }

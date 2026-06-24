@@ -77,7 +77,7 @@ namespace SteelRain.Core
             if (dead || invincible || info.Amount <= 0 || info.SourceTeam == team)
                 return;
 
-            if (team == Team.Player && CharacterSkill.ShieldActive)
+            if (team == Team.Player && TempBuffState.ShieldActive)
             {
                 var player = GetComponent<PlayerController2D>();
                 if (player != null)

@@ -7,7 +7,6 @@
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 TestResults/
-*.log
 
 # Visual Studio / Rider
 .vs/
@@ -31,6 +30,20 @@ crashlytics-build.properties
 *.app
 ExportedObj/
 game_screenshot.bmp
-*.log
 objects.txt
 scene_objects.txt
+
+# Logs
+*.log
+
+# Temp test/debug output
+test_results.xml
+test-results.xml
+commit_msg.txt
+compile-*.txt
+import-log.txt
+test-*.txt
+
+# Temp debug scripts (Python/PowerShell)
+*.py
+*.ps1

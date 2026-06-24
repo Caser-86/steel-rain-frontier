@@ -40,12 +40,10 @@ namespace SteelRain.Player
         public Vector2 AimDirection { get; private set; } = Vector2.right;
         public CharacterDefinition Character => character;
         public Health Health => health;
-        public bool MovementLocked => dodgeLock || skillLock;
+        public bool MovementLocked => dodgeLock;
         private bool dodgeLock;
-        private bool skillLock;
 
         public void SetDodgeLock(bool locked) => dodgeLock = locked;
-        public void SetSkillLock(bool locked) => skillLock = locked;
 
         private void Awake()
         {
@@ -103,6 +101,7 @@ namespace SteelRain.Player
 
         private void Update()
         {
+            TempBuffState.Tick();
             moveInput.x = Input.GetAxisRaw("Horizontal");
             moveInput.y = Input.GetAxisRaw("Vertical");
 
@@ -142,13 +141,15 @@ namespace SteelRain.Player
             var velocity = body.linearVelocity;
 
             // 速度：prone 最慢，crouch 中等，正常最快
+            // SpeedBoost 拾取物加速
             float speed;
+            float speedMultiplier = TempBuffState.SpeedBoostActive ? TempBuffState.SpeedBoostMultiplier : 1f;
             if (prone)
                 speed = character.moveSpeed * 0.2f;
             else if (crouching)
-                speed = character.moveSpeed * character.crouchSpeedMultiplier;
+                speed = character.moveSpeed * character.crouchSpeedMultiplier * speedMultiplier;
             else
-                speed = character.moveSpeed;
+                speed = character.moveSpeed * speedMultiplier;
 
             if (!MovementLocked && (dodge == null || !dodge.IsDodging))
                 velocity.x = moveInput.x * speed;
@@ -206,7 +207,7 @@ namespace SteelRain.Player
 
         /// <summary>
         /// 根据当前状态（prone/crouch/jump/normal）和角色定义切换精灵图。
-        /// 这是让 5 个角色看起来有差别的关键。
+        /// 这是让 4 个角色看起来有差别的关键。
         /// </summary>
         private void UpdateVisualSprite()
         {
@@ -271,12 +272,10 @@ namespace SteelRain.Player
 
             if (spriteRenderer != null) spriteRenderer.color = character.tintColor;
 
-            // 切换角色时立即更换精灵图（这是让 5 个角色看起来有差别的关键）
+            // 切换角色时立即更换精灵图（这是让 4 个角色看起来有差别的关键）
             UpdateVisualSprite();
 
-            // 应用商店购买的最大血量加成
-            var hpBonus = SaveSystem.LoadMaxHealthBonus();
-            var maxHealth = character.maxHealth + hpBonus;
+            var maxHealth = character.maxHealth;
             health.InitializeWithCurrent(maxHealth, Team.Player, currentHealth);
         }
 
