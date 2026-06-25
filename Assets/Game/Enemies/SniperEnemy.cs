@@ -1,4 +1,3 @@
-using System.Collections;
 using SteelRain.Audio;
 using SteelRain.Core;
 using SteelRain.Player;

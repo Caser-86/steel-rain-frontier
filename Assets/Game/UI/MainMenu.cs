@@ -1,6 +1,5 @@
 using SteelRain.Core;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace SteelRain.UI
