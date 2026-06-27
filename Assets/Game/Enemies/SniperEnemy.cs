@@ -23,7 +23,6 @@ namespace SteelRain.Enemies
         [SerializeField] private int scoreValue = 250;
 
         [Header("Projectile")]
-        [SerializeField] private float projectileSpeed = 22f;
         [SerializeField] private Color laserColor = new(1f, 0.2f, 0.2f, 0.5f);
 
         [Header("Movement")]
@@ -91,7 +90,10 @@ namespace SteelRain.Enemies
             {
                 case State.Idle:
                     if (dist < detectRange && Time.time >= nextActionTime)
+                    {
+                        nextActionTime = Time.time + aimTime;
                         state = State.Aiming;
+                    }
                     break;
 
                 case State.Aiming:

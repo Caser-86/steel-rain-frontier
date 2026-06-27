@@ -3,6 +3,7 @@ using System.IO;
 using SteelRain.Audio;
 using SteelRain.Core;
 using SteelRain.Enemies;
+using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Pickups;
 using SteelRain.Player;
@@ -24,7 +25,7 @@ namespace SteelRain.Editor
     /// </summary>
     public static class LevelBuilder
     {
-        private const string LevelDir = "Assets/Game/Scenes";
+        private const string LevelDir = "Assets/Scenes";
 
         // ─── 预制体目录 ───
         private const string PrefabDir = "Assets/Game/Prefabs";
@@ -1208,7 +1209,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel01()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1250,7 +1251,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel02()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1288,7 +1289,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel03()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1326,7 +1327,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel04()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1364,7 +1365,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel05()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1467,7 +1468,7 @@ namespace SteelRain.Editor
             canvas.gameObject.AddComponent<AchievementNotification>();
 
             // 成就跟踪器（确保每个场景都有）
-            if (FindFirstObjectByType<SteelRain.UI.AchievementTracker>() == null)
+            if (UnityEngine.Object.FindFirstObjectByType<SteelRain.UI.AchievementTracker>() == null)
             {
                 var trackerGo = new GameObject("AchievementTracker");
                 trackerGo.AddComponent<SteelRain.UI.AchievementTracker>();

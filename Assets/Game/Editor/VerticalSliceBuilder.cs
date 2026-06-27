@@ -2201,7 +2201,7 @@ namespace SteelRain.EditorTools
             levelEnd.transform.position = new Vector3(165f, 2f, 0f);
 
             // Level02 也添加对象池和叙事管理器
-            BuildObjectPool(projectilePrefab);
+            BuildObjectPool(projectile);
             BuildStoryManagerLevel02();
 
             EditorSceneManager.SaveScene(scene, "Assets/Scenes/Level02_Factory.unity");
