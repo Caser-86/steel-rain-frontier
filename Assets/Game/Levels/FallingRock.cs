@@ -29,7 +29,7 @@ namespace SteelRain.Levels
         {
             body = GetComponent<Rigidbody2D>();
             body.gravityScale = 0;
-            body.isKinematic = true;
+            body.bodyType = RigidbodyType2D.Kinematic;
             origin = transform.position;
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
@@ -59,7 +59,7 @@ namespace SteelRain.Levels
                 {
                     warning = false;
                     falling = true;
-                    body.isKinematic = false;
+                    body.bodyType = RigidbodyType2D.Dynamic;
                 }
                 return;
             }
@@ -98,7 +98,7 @@ namespace SteelRain.Levels
         private void ResetRock()
         {
             falling = false;
-            body.isKinematic = true;
+            body.bodyType = RigidbodyType2D.Kinematic;
             body.linearVelocity = Vector2.zero;
             transform.position = origin;
             resetTimer = resetDelay;

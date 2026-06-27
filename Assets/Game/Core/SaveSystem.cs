@@ -34,9 +34,41 @@ namespace SteelRain.Core
 
         public static void SetQuitting() => isQuitting = true;
 
+        private static bool CanWrite => !isQuitting;
+
+        private static float LoadFloat(string key, float fallback)
+        {
+            try { return PlayerPrefs.GetFloat(key, fallback); }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveSystem] LoadFloat '{key}' failed: {e.Message}");
+                return fallback;
+            }
+        }
+
+        private static int LoadInt(string key, int fallback)
+        {
+            try { return PlayerPrefs.GetInt(key, fallback); }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveSystem] LoadInt '{key}' failed: {e.Message}");
+                return fallback;
+            }
+        }
+
+        private static bool HasKey(string key)
+        {
+            try { return PlayerPrefs.HasKey(key); }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveSystem] HasKey '{key}' failed: {e.Message}");
+                return false;
+            }
+        }
+
         public static void SaveCheckpoint(Vector3 position)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetFloat(KeyCheckpointX, position.x);
@@ -53,10 +85,10 @@ namespace SteelRain.Core
         {
             try
             {
-                if (!PlayerPrefs.HasKey(KeyCheckpointX))
+                if (!HasKey(KeyCheckpointX))
                     return fallback;
-                var x = PlayerPrefs.GetFloat(KeyCheckpointX, fallback.x);
-                var y = PlayerPrefs.GetFloat(KeyCheckpointY, fallback.y);
+                var x = LoadFloat(KeyCheckpointX, fallback.x);
+                var y = LoadFloat(KeyCheckpointY, fallback.y);
                 return new Vector3(x, y, 0f);
             }
             catch (Exception e)
@@ -68,7 +100,7 @@ namespace SteelRain.Core
 
         public static void SaveVolume(float master, float music, float sfx)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetFloat(KeyMasterVolume, master);
@@ -84,23 +116,20 @@ namespace SteelRain.Core
 
         public static float LoadMasterVolume()
         {
-            try { return PlayerPrefs.GetFloat(KeyMasterVolume, 1f); }
-            catch { return 1f; }
+            return LoadFloat(KeyMasterVolume, 1f);
         }
         public static float LoadMusicVolume()
         {
-            try { return PlayerPrefs.GetFloat(KeyMusicVolume, 0.7f); }
-            catch { return 0.7f; }
+            return LoadFloat(KeyMusicVolume, 0.7f);
         }
         public static float LoadSfxVolume()
         {
-            try { return PlayerPrefs.GetFloat(KeySfxVolume, 1f); }
-            catch { return 1f; }
+            return LoadFloat(KeySfxVolume, 1f);
         }
 
         public static void SaveDisplaySettings(bool fullscreen, int width, int height)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetInt(KeyFullscreen, fullscreen ? 1 : 0);
@@ -116,23 +145,20 @@ namespace SteelRain.Core
 
         public static bool LoadFullscreen()
         {
-            try { return PlayerPrefs.GetInt(KeyFullscreen, 1) == 1; }
-            catch { return true; }
+            return LoadInt(KeyFullscreen, 1) == 1;
         }
         public static int LoadResolutionW()
         {
-            try { return PlayerPrefs.GetInt(KeyResolutionW, 1920); }
-            catch { return 1920; }
+            return LoadInt(KeyResolutionW, 1920);
         }
         public static int LoadResolutionH()
         {
-            try { return PlayerPrefs.GetInt(KeyResolutionH, 1080); }
-            catch { return 1080; }
+            return LoadInt(KeyResolutionH, 1080);
         }
 
         public static void SaveScreenShakeIntensity(float intensity)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetFloat(KeyScreenShake, intensity);
@@ -146,19 +172,17 @@ namespace SteelRain.Core
 
         public static float LoadScreenShakeIntensity()
         {
-            try { return PlayerPrefs.GetFloat(KeyScreenShake, 1f); }
-            catch { return 1f; }
+            return LoadFloat(KeyScreenShake, 1f);
         }
 
         public static int LoadHighScore()
         {
-            try { return PlayerPrefs.GetInt(KeyHighScore, 0); }
-            catch { return 0; }
+            return LoadInt(KeyHighScore, 0);
         }
 
         public static void SaveHighScore(int score)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 if (score > LoadHighScore())
@@ -175,7 +199,7 @@ namespace SteelRain.Core
 
         public static void ClearAll()
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.DeleteAll();
@@ -191,7 +215,7 @@ namespace SteelRain.Core
 
         public static void SaveSquadState(int aliveMask, int activeIndex, int[] healths)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetInt(KeySquadAlive, aliveMask);
@@ -211,36 +235,32 @@ namespace SteelRain.Core
 
         public static int LoadSquadAliveMask()
         {
-            try { return PlayerPrefs.GetInt(KeySquadAlive, 0b1111); }
-            catch { return 0b1111; }
+            return LoadInt(KeySquadAlive, 0b1111);
         }
 
         public static int LoadSquadActiveIndex()
         {
-            try { return PlayerPrefs.GetInt(KeySquadActiveIndex, 0); }
-            catch { return 0; }
+            return LoadInt(KeySquadActiveIndex, 0);
         }
 
         public static int LoadSquadHealth(int index)
         {
-            try { return PlayerPrefs.GetInt(KeySquadHealth + index, -1); }
-            catch { return -1; }
+            return LoadInt(KeySquadHealth + index, -1);
         }
 
         public static bool HasSquadSave()
         {
-            try { return PlayerPrefs.HasKey(KeySquadAlive); }
-            catch { return false; }
+            return HasKey(KeySquadAlive);
         }
 
         public static bool HasCheckpointSave()
         {
-            try { return PlayerPrefs.HasKey(KeyCheckpointX); }
-            catch { return false; }
+            return HasKey(KeyCheckpointX);
         }
 
         public static void ClearSquadSave()
         {
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.DeleteKey(KeySquadAlive);
@@ -257,7 +277,7 @@ namespace SteelRain.Core
 
         public static void SaveLevelScore(int score)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetInt(KeyLevelScore, score);
@@ -271,13 +291,12 @@ namespace SteelRain.Core
 
         public static int LoadLevelScore()
         {
-            try { return PlayerPrefs.GetInt(KeyLevelScore, 0); }
-            catch { return 0; }
+            return LoadInt(KeyLevelScore, 0);
         }
 
         public static void SaveLevelIndex(int index)
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetInt(KeyLevelIndex, index);
@@ -291,21 +310,19 @@ namespace SteelRain.Core
 
         public static int LoadLevelIndex()
         {
-            try { return PlayerPrefs.GetInt(KeyLevelIndex, 0); }
-            catch { return 0; }
+            return LoadInt(KeyLevelIndex, 0);
         }
 
         // ===== 无尽模式解锁 =====
 
         public static bool IsEndlessUnlocked()
         {
-            try { return PlayerPrefs.GetInt(KeyEndlessUnlocked, 0) == 1; }
-            catch { return false; }
+            return LoadInt(KeyEndlessUnlocked, 0) == 1;
         }
 
         public static void UnlockEndlessMode()
         {
-            if (isQuitting) return;
+            if (!CanWrite) return;
             try
             {
                 PlayerPrefs.SetInt(KeyEndlessUnlocked, 1);
@@ -322,8 +339,7 @@ namespace SteelRain.Core
         /// </summary>
         public static int GetEndlessBestWave()
         {
-            try { return PlayerPrefs.GetInt(KeyEndlessBestWave, 0); }
-            catch { return 0; }
+            return LoadInt(KeyEndlessBestWave, 0);
         }
 
         /// <summary>
@@ -331,10 +347,10 @@ namespace SteelRain.Core
         /// </summary>
         public static void UpdateEndlessBestWave(int wave)
         {
-            if (isQuitting || wave <= 0) return;
+            if (!CanWrite || wave <= 0) return;
             try
             {
-                var current = PlayerPrefs.GetInt(KeyEndlessBestWave, 0);
+                var current = LoadInt(KeyEndlessBestWave, 0);
                 if (wave > current)
                 {
                     PlayerPrefs.SetInt(KeyEndlessBestWave, wave);
