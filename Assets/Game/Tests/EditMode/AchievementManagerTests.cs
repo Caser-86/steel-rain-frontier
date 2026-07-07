@@ -227,7 +227,7 @@ namespace SteelRain.Tests
             var count = AchievementManager.GetTotalCount();
 
             // Assert
-            Assert.AreEqual(19, count);
+            Assert.AreEqual(23, count);
         }
 
         [Test]
