@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SteelRain.Core
 {
@@ -25,8 +26,8 @@ namespace SteelRain.Core
             Application.targetFrameRate = targetFrameRate;
             QualitySettings.vSyncCount = 0;
 
-            // 启动画面由 BootScreen 负责延时跳转
-            if (FindFirstObjectByType<BootScreen>() == null)
+            // Boot scene owns the startup flow; gameplay/menu scenes should not get a boot overlay.
+            if (SceneManager.GetActiveScene().name == "Boot" && FindFirstObjectByType<BootScreen>() == null)
             {
                 gameObject.AddComponent<BootScreen>();
             }
