@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace SteelRain.Core
 {
@@ -31,6 +33,21 @@ namespace SteelRain.Core
             {
                 gameObject.AddComponent<BootScreen>();
             }
+
+            EnsureEventSystemForSceneButtons();
+        }
+
+        private static void EnsureEventSystemForSceneButtons()
+        {
+            if (FindFirstObjectByType<EventSystem>() != null)
+                return;
+
+            if (FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length == 0)
+                return;
+
+            var eventSystem = new GameObject("EventSystem");
+            eventSystem.AddComponent<EventSystem>();
+            eventSystem.AddComponent<StandaloneInputModule>();
         }
 
         private void Update()
