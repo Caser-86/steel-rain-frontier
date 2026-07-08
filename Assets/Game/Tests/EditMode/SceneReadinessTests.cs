@@ -6,6 +6,7 @@ using SteelRain.Enemies;
 using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Player;
+using SteelRain.Pickups;
 using SteelRain.UI;
 using SteelRain.VFX;
 using UnityEditor;
@@ -37,6 +38,13 @@ namespace SteelRain.Tests
             "Assets/Scenes/Level03_Warzone.unity",
             "Assets/Scenes/Level04_Bunker.unity",
             "Assets/Scenes/Level05_Citadel.unity"
+        };
+
+        private static readonly string[] WeaponPickupPrefabs =
+        {
+            "Assets/Prefabs/Pickup_Upgrade.prefab",
+            "Assets/Prefabs/Pickup_Weapon_rocket_launcher.prefab",
+            "Assets/Prefabs/Pickup_Weapon_shotgun.prefab"
         };
 
         [TearDown]
@@ -117,6 +125,18 @@ namespace SteelRain.Tests
             AssertHasComponent<AchievementTracker>(scene);
             AssertPresentationReady(scene, requireCameraBounds: false);
             AssertEndlessModeReady(AssertHasComponent<EndlessMode>(scene));
+        }
+
+        [Test]
+        public void WeaponPickupPrefabs_HaveRuntimePickupComponent()
+        {
+            foreach (var prefabPath in WeaponPickupPrefabs)
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+                Assert.IsNotNull(prefab, $"Missing weapon pickup prefab: {prefabPath}");
+                Assert.IsNotNull(prefab.GetComponent<WeaponPickup>(),
+                    $"{prefabPath} must have a valid WeaponPickup component");
+            }
         }
 
         private static Scene OpenScene(string scenePath)
