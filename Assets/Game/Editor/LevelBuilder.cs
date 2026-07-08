@@ -1640,7 +1640,7 @@ namespace SteelRain.Editor
             CreateText(panel.transform, "SfxLabel", "SFX", 14, TextAnchor.MiddleLeft, new Vector2(-80, -20), new Vector2(80, 25));
             var sfxSlider = CreateSlider(panel.transform, "SfxSlider", new Vector2(40, -20), new Vector2(140, 20));
 
-            var pm = panel.AddComponent<PauseManager>();
+            var pm = parent.gameObject.AddComponent<PauseManager>();
             SetField(pm, "pausePanel", panel);
             SetField(pm, "pauseTitle", titleText);
             SetField(pm, "pauseHint", hintText);

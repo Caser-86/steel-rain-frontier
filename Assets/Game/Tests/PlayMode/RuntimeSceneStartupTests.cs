@@ -6,6 +6,7 @@ using SteelRain.Core;
 using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Player;
+using SteelRain.UI;
 using SteelRain.VFX;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -49,6 +50,9 @@ namespace SteelRain.Tests
 
         private static readonly FieldInfo CameraFollowTargetField =
             typeof(SimpleCameraFollow).GetField("target", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly FieldInfo PausePanelField =
+            typeof(PauseManager).GetField("pausePanel", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [SetUp]
         public void SetUp()
@@ -128,6 +132,30 @@ namespace SteelRain.Tests
                 var target = CameraFollowTargetField.GetValue(follow) as Transform;
                 Assert.IsNotNull(target, $"{sceneName} SimpleCameraFollow.target is not assigned at runtime.");
                 Assert.AreEqual("Player", target.tag, $"{sceneName} SimpleCameraFollow.target must reference the player.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayableScenes_CanPauseAndResumeAtRuntime()
+        {
+            foreach (var sceneName in GameplayScenes.Append("EndlessMode"))
+            {
+                yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+                yield return null;
+
+                var pause = Object.FindFirstObjectByType<PauseManager>();
+                Assert.IsNotNull(pause, $"{sceneName} must have a PauseManager.");
+
+                var panel = PausePanelField.GetValue(pause) as GameObject;
+                Assert.IsNotNull(panel, $"{sceneName} PauseManager.pausePanel is not assigned.");
+
+                pause.Pause();
+                Assert.AreEqual(0f, Time.timeScale, $"{sceneName} Pause must stop game time.");
+                Assert.IsTrue(panel.activeSelf, $"{sceneName} pause panel must show while paused.");
+
+                pause.Resume();
+                Assert.AreEqual(1f, Time.timeScale, $"{sceneName} Resume must restore game time.");
+                Assert.IsFalse(panel.activeSelf, $"{sceneName} pause panel must hide after resume.");
             }
         }
 
