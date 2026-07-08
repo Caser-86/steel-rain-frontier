@@ -1,6 +1,9 @@
+using System.Reflection;
 using NUnit.Framework;
 using SteelRain.Core;
+using SteelRain.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class HealthTests
 {
@@ -222,6 +225,22 @@ public sealed class HealthTests
         health.Heal(5);
 
         Assert.AreEqual(0, health.Current);
+        Object.DestroyImmediate(go);
+    }
+
+    [Test]
+    public void HealthBar_UsesLocalImageWhenFillReferenceIsMissing()
+    {
+        var go = new GameObject("healthBar");
+        var image = go.AddComponent<Image>();
+        var healthBar = go.AddComponent<HealthBar>();
+
+        typeof(HealthBar).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance)
+            .Invoke(healthBar, null);
+        typeof(HealthBar).GetMethod("OnHealthChanged", BindingFlags.NonPublic | BindingFlags.Instance)
+            .Invoke(healthBar, new object[] { 3, 6 });
+
+        Assert.AreEqual(0.5f, image.fillAmount);
         Object.DestroyImmediate(go);
     }
 }

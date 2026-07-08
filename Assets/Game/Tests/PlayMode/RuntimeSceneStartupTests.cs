@@ -6,6 +6,7 @@ using SteelRain.Core;
 using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Player;
+using SteelRain.VFX;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -45,6 +46,9 @@ namespace SteelRain.Tests
 
         private static readonly FieldInfo CheckpointPlayerField =
             typeof(CheckpointManager).GetField("player", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        private static readonly FieldInfo CameraFollowTargetField =
+            typeof(SimpleCameraFollow).GetField("target", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [SetUp]
         public void SetUp()
@@ -107,6 +111,23 @@ namespace SteelRain.Tests
                 var player = CheckpointPlayerField.GetValue(manager) as Transform;
                 Assert.IsNotNull(player, $"{sceneName} CheckpointManager.player is not assigned at runtime.");
                 Assert.AreEqual("Player", player.tag, $"{sceneName} CheckpointManager.player must reference the player.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayableScenes_CameraFollowBindsPlayerAtRuntime()
+        {
+            foreach (var sceneName in GameplayScenes.Append("EndlessMode"))
+            {
+                yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+                yield return null;
+
+                var follow = Object.FindFirstObjectByType<SimpleCameraFollow>();
+                Assert.IsNotNull(follow, $"{sceneName} must have a SimpleCameraFollow.");
+
+                var target = CameraFollowTargetField.GetValue(follow) as Transform;
+                Assert.IsNotNull(target, $"{sceneName} SimpleCameraFollow.target is not assigned at runtime.");
+                Assert.AreEqual("Player", target.tag, $"{sceneName} SimpleCameraFollow.target must reference the player.");
             }
         }
 

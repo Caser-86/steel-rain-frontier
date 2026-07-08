@@ -15,8 +15,14 @@ namespace SteelRain.UI
         private float displayHealth;
         private float damageLagSpeed = 5f;
 
+        private void Awake()
+        {
+            BindFallbackReferences();
+        }
+
         private void OnEnable()
         {
+            BindFallbackReferences();
             GameEvents.PlayerHealthChanged += OnHealthChanged;
             if (damageFillImage != null)
                 damageFillImage.fillAmount = 1f;
@@ -50,6 +56,15 @@ namespace SteelRain.UI
                 fillImage.fillAmount = max > 0 ? (float)current / max : 0f;
             if (healthText != null)
                 healthText.text = $"{current}/{max}";
+        }
+
+        private void BindFallbackReferences()
+        {
+            if (fillImage == null)
+                fillImage = GetComponent<Image>();
+
+            if (healthText == null)
+                healthText = GetComponentInChildren<Text>(true);
         }
     }
 }

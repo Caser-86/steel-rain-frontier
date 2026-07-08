@@ -7,6 +7,7 @@ using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Player;
 using SteelRain.UI;
+using SteelRain.VFX;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -87,6 +88,7 @@ namespace SteelRain.Tests
                 AssertHasComponent<GameLoop>(scene);
                 AssertHasComponent<AchievementTracker>(scene);
                 AssertCheckpointFlowReady(scene);
+                AssertPresentationReady(scene, requireCameraBounds: true);
             }
         }
 
@@ -113,6 +115,7 @@ namespace SteelRain.Tests
             AssertPlayablePlayerReady(scene);
             AssertHasComponent<GameLoop>(scene);
             AssertHasComponent<AchievementTracker>(scene);
+            AssertPresentationReady(scene, requireCameraBounds: false);
             AssertEndlessModeReady(AssertHasComponent<EndlessMode>(scene));
         }
 
@@ -162,6 +165,39 @@ namespace SteelRain.Tests
                 Assert.IsNotNull(checkpointSo.FindProperty("manager").objectReferenceValue,
                     $"{scene.path} checkpoint {checkpoint.name} is missing its manager reference");
             }
+        }
+
+        private static void AssertPresentationReady(Scene scene, bool requireCameraBounds)
+        {
+            AssertHasComponent<Camera>(scene);
+            if (requireCameraBounds)
+                AssertHasComponent<CameraBounds>(scene);
+            AssertHasComponent<SimpleCameraFollow>(scene);
+            AssertHasComponent<HudPresenter>(scene);
+            AssertHealthBarReady(scene, AssertHasComponent<HealthBar>(scene));
+            AssertPauseReady(scene, AssertHasComponent<PauseManager>(scene));
+        }
+
+        private static void AssertHealthBarReady(Scene scene, HealthBar healthBar)
+        {
+            var healthBarSo = new SerializedObject(healthBar);
+            var serializedFill = healthBarSo.FindProperty("fillImage").objectReferenceValue;
+            var fallbackFill = healthBar.GetComponent<UnityEngine.UI.Image>();
+
+            Assert.IsTrue(serializedFill != null || fallbackFill != null,
+                $"{scene.path} HealthBar must have a fill Image assigned or on the same GameObject");
+        }
+
+        private static void AssertPauseReady(Scene scene, PauseManager pause)
+        {
+            var pauseSo = new SerializedObject(pause);
+            AssertSerializedReference(pauseSo, "pausePanel", scene.path);
+        }
+
+        private static void AssertSerializedReference(SerializedObject serializedObject, string propertyName, string scenePath)
+        {
+            Assert.IsNotNull(serializedObject.FindProperty(propertyName).objectReferenceValue,
+                $"{scenePath} {serializedObject.targetObject.GetType().Name}.{propertyName} is not assigned");
         }
 
         private static T[] ComponentsInScene<T>(Scene scene) where T : Component
