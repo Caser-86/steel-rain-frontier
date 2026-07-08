@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using SteelRain.Core;
+using SteelRain.Enemies;
 using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Player;
@@ -89,6 +90,21 @@ namespace SteelRain.Tests
         }
 
         [Test]
+        public void GameplayScenes_HaveCombatAndOutcomeComponents()
+        {
+            foreach (var scenePath in GameplayScenes)
+            {
+                var scene = OpenScene(scenePath);
+
+                AssertHasCombatEncounter(scene);
+                AssertHasComponent<LevelEndTrigger>(scene);
+                AssertHasComponent<VictoryScreen>(scene);
+                AssertHasComponent<GameOverScreen>(scene);
+                AssertHasComponent<GameCompleteScreen>(scene);
+            }
+        }
+
+        [Test]
         public void EndlessScene_HasPlayerLoopAndEndlessModeComponents()
         {
             var scene = OpenScene("Assets/Scenes/EndlessMode.unity");
@@ -114,6 +130,23 @@ namespace SteelRain.Tests
 
             Assert.IsNotNull(component, $"{scene.path} is missing required component {typeof(T).Name}");
             return component;
+        }
+
+        private static void AssertHasCombatEncounter(Scene scene)
+        {
+            var enemyCount =
+                CountComponentsInScene<EnemyController>(scene) +
+                CountComponentsInScene<FlyingDroneEnemy>(scene) +
+                CountComponentsInScene<TurretBoss>(scene) +
+                CountComponentsInScene<MiniBossWalker>(scene);
+
+            Assert.Greater(enemyCount, 0, $"{scene.path} must include at least one combat encounter");
+        }
+
+        private static int CountComponentsInScene<T>(Scene scene) where T : Component
+        {
+            return Resources.FindObjectsOfTypeAll<T>()
+                .Count(found => found != null && found.gameObject.scene == scene);
         }
 
         private static void AssertPlayablePlayerReady(Scene scene)
