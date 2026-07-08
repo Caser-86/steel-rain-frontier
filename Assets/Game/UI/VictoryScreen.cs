@@ -45,6 +45,13 @@ namespace SteelRain.UI
 
             shown = true;
             if (panel != null) panel.SetActive(true);
+
+            var tracker = AchievementTracker.Instance != null
+                ? AchievementTracker.Instance
+                : FindFirstObjectByType<AchievementTracker>();
+            if (tracker != null)
+                tracker.OnLevelComplete();
+
             ScoreManager.Save();
             ScoreManager.CheckHighScore();
 

@@ -14,6 +14,7 @@ namespace SteelRain.UI
         private float levelStartTime;
         private static float gameStartTime; // 改为静态，跨场景持久化
         private bool hasKilledThisLevel;
+        private bool levelCompleted;
         private float saveTimer;
         private float cachedPlayTime; // 缓存游戏时间，避免每帧读 PlayerPrefs
         private bool veteranUnlocked;
@@ -164,6 +165,9 @@ namespace SteelRain.UI
         /// </summary>
         public void OnLevelComplete()
         {
+            if (levelCompleted) return;
+            levelCompleted = true;
+
             AchievementManager.AddStat(AchievementManager.StatId.LevelsCompleted);
 
             // 检查无死亡成就
