@@ -3,7 +3,9 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using SteelRain.Core;
+using SteelRain.Game;
 using SteelRain.Levels;
+using SteelRain.Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -34,8 +36,27 @@ namespace SteelRain.Tests
             "Level05_Citadel"
         };
 
+        private static readonly string[] LateCampaignScenes =
+        {
+            "Level03_Warzone",
+            "Level04_Bunker",
+            "Level05_Citadel"
+        };
+
         private static readonly FieldInfo CheckpointPlayerField =
             typeof(CheckpointManager).GetField("player", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        [SetUp]
+        public void SetUp()
+        {
+            Time.timeScale = 1f;
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Time.timeScale = 1f;
+        }
 
         [UnityTest]
         public IEnumerator NonBootScenes_DoNotCreateBootScreenAtRuntime()
@@ -87,6 +108,41 @@ namespace SteelRain.Tests
                 Assert.IsNotNull(player, $"{sceneName} CheckpointManager.player is not assigned at runtime.");
                 Assert.AreEqual("Player", player.tag, $"{sceneName} CheckpointManager.player must reference the player.");
             }
+        }
+
+        [UnityTest]
+        public IEnumerator LateCampaignScenes_RunForSeveralSecondsWithCoreLoop()
+        {
+            foreach (var sceneName in LateCampaignScenes)
+            {
+                yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+                yield return RunForSeconds(2f);
+
+                var scene = SceneManager.GetActiveScene();
+                Assert.AreEqual(sceneName, scene.name);
+                Assert.IsNotNull(Object.FindFirstObjectByType<GameLoop>(), $"{sceneName} must keep GameLoop alive.");
+                Assert.IsNotNull(Object.FindFirstObjectByType<PlayerSquad>(), $"{sceneName} must keep PlayerSquad alive.");
+                Assert.IsNotNull(Object.FindFirstObjectByType<LevelEndTrigger>(), $"{sceneName} must keep a level end trigger.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator EndlessMode_StartsFirstWaveAtRuntime()
+        {
+            yield return SceneManager.LoadSceneAsync("EndlessMode", LoadSceneMode.Single);
+            yield return RunForSeconds(4f);
+
+            var endless = Object.FindFirstObjectByType<EndlessMode>();
+            Assert.IsNotNull(endless, "EndlessMode scene must keep EndlessMode component alive.");
+            Assert.GreaterOrEqual(endless.CurrentWave, 1, "EndlessMode must start the first wave at runtime.");
+            Assert.IsNotNull(Object.FindFirstObjectByType<PlayerSquad>(), "EndlessMode must keep PlayerSquad alive.");
+        }
+
+        private static IEnumerator RunForSeconds(float seconds)
+        {
+            var endTime = Time.realtimeSinceStartup + seconds;
+            while (Time.realtimeSinceStartup < endTime)
+                yield return null;
         }
     }
 }
