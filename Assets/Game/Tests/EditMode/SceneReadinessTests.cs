@@ -86,6 +86,7 @@ namespace SteelRain.Tests
                 AssertPlayablePlayerReady(scene);
                 AssertHasComponent<GameLoop>(scene);
                 AssertHasComponent<AchievementTracker>(scene);
+                AssertCheckpointFlowReady(scene);
             }
         }
 
@@ -145,8 +146,29 @@ namespace SteelRain.Tests
 
         private static int CountComponentsInScene<T>(Scene scene) where T : Component
         {
+            return ComponentsInScene<T>(scene).Length;
+        }
+
+        private static void AssertCheckpointFlowReady(Scene scene)
+        {
+            AssertHasComponent<CheckpointManager>(scene);
+
+            var checkpoints = ComponentsInScene<Checkpoint>(scene);
+            Assert.Greater(checkpoints.Length, 0, $"{scene.path} must include at least one checkpoint");
+
+            foreach (var checkpoint in checkpoints)
+            {
+                var checkpointSo = new SerializedObject(checkpoint);
+                Assert.IsNotNull(checkpointSo.FindProperty("manager").objectReferenceValue,
+                    $"{scene.path} checkpoint {checkpoint.name} is missing its manager reference");
+            }
+        }
+
+        private static T[] ComponentsInScene<T>(Scene scene) where T : Component
+        {
             return Resources.FindObjectsOfTypeAll<T>()
-                .Count(found => found != null && found.gameObject.scene == scene);
+                .Where(found => found != null && found.gameObject.scene == scene)
+                .ToArray();
         }
 
         private static void AssertPlayablePlayerReady(Scene scene)
