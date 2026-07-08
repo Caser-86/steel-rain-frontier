@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using SteelRain.Core;
+using SteelRain.Levels;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -22,6 +24,18 @@ namespace SteelRain.Tests
             "Level05_Citadel",
             "EndlessMode"
         };
+
+        private static readonly string[] GameplayScenes =
+        {
+            "Level01_VerticalSlice",
+            "Level02_Factory",
+            "Level03_Warzone",
+            "Level04_Bunker",
+            "Level05_Citadel"
+        };
+
+        private static readonly FieldInfo CheckpointPlayerField =
+            typeof(CheckpointManager).GetField("player", BindingFlags.NonPublic | BindingFlags.Instance);
 
         [UnityTest]
         public IEnumerator NonBootScenes_DoNotCreateBootScreenAtRuntime()
@@ -55,6 +69,23 @@ namespace SteelRain.Tests
 
                 if (hasButtons)
                     Assert.IsTrue(hasEventSystem, $"{sceneName} has UI buttons but no runtime EventSystem.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator GameplayScenes_CheckpointManagerBindsPlayerAtRuntime()
+        {
+            foreach (var sceneName in GameplayScenes)
+            {
+                yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+                yield return null;
+
+                var manager = Object.FindFirstObjectByType<CheckpointManager>();
+                Assert.IsNotNull(manager, $"{sceneName} must have a CheckpointManager.");
+
+                var player = CheckpointPlayerField.GetValue(manager) as Transform;
+                Assert.IsNotNull(player, $"{sceneName} CheckpointManager.player is not assigned at runtime.");
+                Assert.AreEqual("Player", player.tag, $"{sceneName} CheckpointManager.player must reference the player.");
             }
         }
     }

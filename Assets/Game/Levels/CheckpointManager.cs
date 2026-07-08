@@ -14,6 +14,16 @@ namespace SteelRain.Levels
 
         private void Awake()
         {
+            if (player == null)
+            {
+                var playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null)
+                    player = playerObject.transform;
+            }
+
+            if (fallbackSpawn == Vector3.zero && player != null)
+                fallbackSpawn = player.position;
+
             currentSpawn = SaveSystem.LoadCheckpoint(fallbackSpawn);
             GameEvents.PlayerDied += RespawnPlayer;
         }
