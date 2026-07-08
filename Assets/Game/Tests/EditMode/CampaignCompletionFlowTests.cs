@@ -1,6 +1,7 @@
 using System.Reflection;
 using NUnit.Framework;
 using SteelRain.Core;
+using SteelRain.Levels;
 using SteelRain.UI;
 using UnityEditor;
 using UnityEngine;
@@ -19,6 +20,9 @@ namespace SteelRain.Tests
         private static readonly FieldInfo IsQuittingField =
             typeof(SaveSystem).GetField("isQuitting", BindingFlags.NonPublic | BindingFlags.Static);
 
+        private static readonly MethodInfo LevelEndTriggerEnterMethod =
+            typeof(LevelEndTrigger).GetMethod("OnTriggerEnter2D", BindingFlags.NonPublic | BindingFlags.Instance);
+
         [SetUp]
         public void SetUp()
         {
@@ -36,6 +40,9 @@ namespace SteelRain.Tests
             Object.DestroyImmediate(GameObject.Find("Tracker"));
             Object.DestroyImmediate(GameObject.Find("Victory"));
             Object.DestroyImmediate(GameObject.Find("Complete"));
+            Object.DestroyImmediate(GameObject.Find("CompletePanel"));
+            Object.DestroyImmediate(GameObject.Find("LevelEnd"));
+            Object.DestroyImmediate(GameObject.Find("Player"));
             SetLevelState(0, false);
             IsQuittingField.SetValue(null, false);
             AchievementManager.ResetAll();
@@ -69,6 +76,34 @@ namespace SteelRain.Tests
 
             victory.Show();
 
+            Assert.AreEqual(LevelManager.TotalLevels,
+                AchievementManager.GetStat(AchievementManager.StatId.LevelsCompleted));
+            Assert.IsTrue(AchievementManager.IsUnlocked(AchievementManager.AchievementId.GameComplete));
+            Assert.IsTrue(SaveSystem.IsEndlessUnlocked());
+        }
+
+        [Test]
+        public void FinalLevelEndTrigger_ShowsCompletionAndUnlocksEndlessMode()
+        {
+            AchievementManager.AddStat(AchievementManager.StatId.LevelsCompleted, LevelManager.TotalLevels - 1);
+            SetLevelState(LevelManager.TotalLevels - 1, false);
+
+            new GameObject("Tracker").AddComponent<AchievementTracker>();
+            var complete = new GameObject("Complete").AddComponent<GameCompleteScreen>();
+            var completePanel = new GameObject("CompletePanel");
+            AssignSerializedField(complete, "panel", completePanel);
+
+            var victory = new GameObject("Victory").AddComponent<VictoryScreen>();
+            AssignSerializedField(victory, "gameCompleteScreen", complete);
+
+            var trigger = new GameObject("LevelEnd").AddComponent<LevelEndTrigger>();
+            var player = new GameObject("Player");
+            player.tag = "Player";
+            var collider = player.AddComponent<BoxCollider2D>();
+
+            LevelEndTriggerEnterMethod.Invoke(trigger, new object[] { collider });
+
+            Assert.IsTrue(completePanel.activeSelf);
             Assert.AreEqual(LevelManager.TotalLevels,
                 AchievementManager.GetStat(AchievementManager.StatId.LevelsCompleted));
             Assert.IsTrue(AchievementManager.IsUnlocked(AchievementManager.AchievementId.GameComplete));
