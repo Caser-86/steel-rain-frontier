@@ -127,7 +127,7 @@ namespace SteelRain.Tests
         }
 
         [UnityTest]
-        public IEnumerator EndlessMode_StartsFirstWaveAtRuntime()
+        public IEnumerator EndlessMode_StartsFirstWaveAndSpawnsEnemiesAtRuntime()
         {
             yield return SceneManager.LoadSceneAsync("EndlessMode", LoadSceneMode.Single);
             yield return RunForSeconds(4f);
@@ -135,6 +135,7 @@ namespace SteelRain.Tests
             var endless = Object.FindFirstObjectByType<EndlessMode>();
             Assert.IsNotNull(endless, "EndlessMode scene must keep EndlessMode component alive.");
             Assert.GreaterOrEqual(endless.CurrentWave, 1, "EndlessMode must start the first wave at runtime.");
+            Assert.Greater(endless.EnemiesAlive, 0, "EndlessMode must spawn enemies during the first wave.");
             Assert.IsNotNull(Object.FindFirstObjectByType<PlayerSquad>(), "EndlessMode must keep PlayerSquad alive.");
         }
 
