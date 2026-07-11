@@ -75,10 +75,10 @@ namespace SteelRain.Enemies
             {
                 // 悬浮追踪
                 var xDir = dx == 0f ? 0f : Mathf.Sign(dx);
-                var speedMultiplier = DifficultyManager.GetEnemySpeedMultiplier() * slowMultiplier;
+                var speedMultiplier = DifficultyManager.GetEnemySpeedMultiplier();
                 var targetVel = new Vector2(
                     xDir * definition.moveSpeed * 0.6f * speedMultiplier,
-                    dy * 2f * slowMultiplier
+                    dy * 2f
                 );
                 body.linearVelocity = targetVel;
 

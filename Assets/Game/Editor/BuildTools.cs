@@ -21,7 +21,8 @@ namespace SteelRain.EditorTools
                 "Assets/Scenes/Level02_Factory.unity",
                 "Assets/Scenes/Level03_Warzone.unity",
                 "Assets/Scenes/Level04_Bunker.unity",
-                "Assets/Scenes/Level05_Citadel.unity"
+                "Assets/Scenes/Level05_Citadel.unity",
+                "Assets/Scenes/EndlessMode.unity"
             };
 
             foreach (var s in scenes)

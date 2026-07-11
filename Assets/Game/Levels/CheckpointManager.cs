@@ -14,7 +14,19 @@ namespace SteelRain.Levels
 
         private void Awake()
         {
-            currentSpawn = SaveSystem.LoadCheckpoint(fallbackSpawn);
+            if (player == null)
+            {
+                var playerObject = GameObject.FindGameObjectWithTag("Player");
+                if (playerObject != null)
+                    player = playerObject.transform;
+            }
+
+            if (fallbackSpawn == Vector3.zero && player != null)
+                fallbackSpawn = player.position;
+
+            currentSpawn = HasCheckpointForCurrentLevel()
+                ? SaveSystem.LoadCheckpoint(fallbackSpawn)
+                : fallbackSpawn;
             GameEvents.PlayerDied += RespawnPlayer;
         }
 
@@ -28,6 +40,11 @@ namespace SteelRain.Levels
             currentSpawn = position;
             SaveSystem.SaveCheckpoint(position);
             SaveSystem.SaveLevelIndex(LevelManager.CurrentLevel);
+        }
+
+        private static bool HasCheckpointForCurrentLevel()
+        {
+            return SaveSystem.HasCheckpointSave() && SaveSystem.LoadLevelIndex() == LevelManager.CurrentLevel;
         }
 
         private void RespawnPlayer()

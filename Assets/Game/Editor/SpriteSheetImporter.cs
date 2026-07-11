@@ -177,7 +177,9 @@ namespace SteelRain.Editor
             importer.mipmapEnabled = false;
 
             var spriteRects = GenerateSpriteRects(spec);
+#pragma warning disable CS0618 // Unity still imports these generated sheets correctly through the legacy metadata API.
             importer.spritesheet = spriteRects;
+#pragma warning restore CS0618
 
             importer.SaveAndReimport();
             RenameSubSprites(targetPath, spec);

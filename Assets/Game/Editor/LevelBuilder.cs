@@ -3,6 +3,7 @@ using System.IO;
 using SteelRain.Audio;
 using SteelRain.Core;
 using SteelRain.Enemies;
+using SteelRain.Game;
 using SteelRain.Levels;
 using SteelRain.Pickups;
 using SteelRain.Player;
@@ -24,12 +25,10 @@ namespace SteelRain.Editor
     /// </summary>
     public static class LevelBuilder
     {
-        private const string LevelDir = "Assets/Game/Scenes";
+        private const string LevelDir = "Assets/Scenes";
 
         // ─── 预制体目录 ───
-        private const string PrefabDir = "Assets/Game/Prefabs";
-        private const string EnemyPrefabDir = PrefabDir + "/Enemies";
-        private const string PickupPrefabDir = PrefabDir + "/Pickups";
+        private const string PrefabDir = "Assets/Prefabs";
 
         [MenuItem("Steel Rain/Build Levels/Build All Levels")]
         public static void BuildAllLevels()
@@ -122,6 +121,7 @@ namespace SteelRain.Editor
             var musicGo = new GameObject("MusicPlayer");
             musicGo.AddComponent<MusicPlayer>();
 
+            CreateSceneFader();
             SaveScene(scene, "MainMenu");
         }
 
@@ -875,14 +875,7 @@ namespace SteelRain.Editor
             CreateGround(groundParent.transform, "EndlessGround", new Vector3(0, -2f, 0), new Vector2(200f, 2f));
 
             // 玩家
-            var playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/Player_Aila.prefab");
-            GameObject player;
-            if (playerPrefab != null)
-                player = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
-            else
-                player = new GameObject("Player");
-            player.tag = "Player";
-            player.transform.position = new Vector3(0, 1f, 0);
+            var player = CreatePlayer(new Vector3(0, 1f, 0));
 
             // 无尽模式管理器
             var endlessGo = new GameObject("--- EndlessMode ---");
@@ -969,6 +962,19 @@ namespace SteelRain.Editor
         // ═══════════════════════════════════════════
         private static GameObject CreatePlayer(Vector3 position)
         {
+            var playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{PrefabDir}/Player_Aila.prefab");
+            if (playerPrefab != null)
+            {
+                var instance = PrefabUtility.InstantiatePrefab(playerPrefab) as GameObject;
+                if (instance != null)
+                {
+                    instance.name = "Player";
+                    instance.tag = "Player";
+                    instance.transform.position = position;
+                    return instance;
+                }
+            }
+
             var player = new GameObject("Player");
             player.tag = "Player";
             player.layer = 7; // Player layer
@@ -983,10 +989,10 @@ namespace SteelRain.Editor
 
             // 游戏组件
             player.AddComponent<Health>();
-            player.AddComponent<PlayerController2D>();
-            player.AddComponent<PlayerCombat>();
-            player.AddComponent<PlayerDodge>();
-            player.AddComponent<PlayerSquad>();
+            var controller = player.AddComponent<PlayerController2D>();
+            var combat = player.AddComponent<PlayerCombat>();
+            var dodge = player.AddComponent<PlayerDodge>();
+            var squad = player.AddComponent<PlayerSquad>();
 
             // 视觉
             var sr = player.AddComponent<SpriteRenderer>();
@@ -1003,7 +1009,63 @@ namespace SteelRain.Editor
             groundCheck.transform.SetParent(player.transform);
             groundCheck.transform.localPosition = new Vector3(0, -0.7f, 0);
 
+            ConfigureFallbackPlayer(controller, combat, dodge, squad, muzzle.transform, groundCheck.transform);
+
             return player;
+        }
+
+        private static void ConfigureFallbackPlayer(PlayerController2D controller, PlayerCombat combat, PlayerDodge dodge,
+            PlayerSquad squad, Transform muzzle, Transform groundCheck)
+        {
+            var characters = LoadSquadCharacters();
+            var startingWeapon = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/AssaultRifle.asset");
+            var projectile = AssetDatabase.LoadAssetAtPath<Projectile>($"{PrefabDir}/Projectile.prefab");
+
+            var controllerSo = new SerializedObject(controller);
+            controllerSo.FindProperty("character").objectReferenceValue = characters.Length > 0 ? characters[0] : null;
+            controllerSo.FindProperty("groundCheck").objectReferenceValue = groundCheck;
+            controllerSo.FindProperty("groundMask").intValue = 1 << 6;
+            controllerSo.ApplyModifiedProperties();
+
+            var combatSo = new SerializedObject(combat);
+            combatSo.FindProperty("controller").objectReferenceValue = controller;
+            combatSo.FindProperty("muzzle").objectReferenceValue = muzzle;
+            combatSo.FindProperty("startingWeapon").objectReferenceValue = startingWeapon;
+            combatSo.FindProperty("projectilePrefab").objectReferenceValue = projectile;
+            combatSo.ApplyModifiedProperties();
+
+            var dodgeSo = new SerializedObject(dodge);
+            dodgeSo.FindProperty("controller").objectReferenceValue = controller;
+            dodgeSo.ApplyModifiedProperties();
+
+            var squadSo = new SerializedObject(squad);
+            squadSo.FindProperty("controller").objectReferenceValue = controller;
+            squadSo.FindProperty("combat").objectReferenceValue = combat;
+            var members = squadSo.FindProperty("members");
+            members.arraySize = characters.Length;
+            for (var i = 0; i < characters.Length; i++)
+                members.GetArrayElementAtIndex(i).objectReferenceValue = characters[i];
+            squadSo.ApplyModifiedProperties();
+        }
+
+        private static CharacterDefinition[] LoadSquadCharacters()
+        {
+            var paths = new[]
+            {
+                "Assets/Game/Data/Characters/Aila.asset",
+                "Assets/Game/Data/Characters/Bruno.asset",
+                "Assets/Game/Data/Characters/Mara.asset",
+                "Assets/Game/Data/Characters/Niko.asset"
+            };
+
+            var characters = new List<CharacterDefinition>();
+            foreach (var path in paths)
+            {
+                var character = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(path);
+                if (character != null)
+                    characters.Add(character);
+            }
+            return characters.ToArray();
         }
 
         private static GameObject CreateGround(Transform parent, string name, Vector3 position, Vector2 size)
@@ -1208,7 +1270,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel01()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1250,7 +1312,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel02()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1288,7 +1350,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel03()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1326,7 +1388,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel04()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1364,7 +1426,7 @@ namespace SteelRain.Editor
 
         private static void ConfigureStoryManagerLevel05()
         {
-            var story = FindFirstObjectByType<StoryManager>();
+            var story = UnityEngine.Object.FindFirstObjectByType<StoryManager>();
             if (story == null) return;
             var so = new SerializedObject(story);
 
@@ -1467,7 +1529,7 @@ namespace SteelRain.Editor
             canvas.gameObject.AddComponent<AchievementNotification>();
 
             // 成就跟踪器（确保每个场景都有）
-            if (FindFirstObjectByType<SteelRain.UI.AchievementTracker>() == null)
+            if (UnityEngine.Object.FindFirstObjectByType<SteelRain.UI.AchievementTracker>() == null)
             {
                 var trackerGo = new GameObject("AchievementTracker");
                 trackerGo.AddComponent<SteelRain.UI.AchievementTracker>();
@@ -1479,6 +1541,32 @@ namespace SteelRain.Editor
             SetField(hud, "waveText", waveText);
 
             return canvas;
+        }
+
+        private static void CreateSceneFader()
+        {
+            var go = new GameObject("SceneFader");
+            var canvas = go.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 999;
+            go.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            go.AddComponent<GraphicRaycaster>();
+
+            var imgGo = new GameObject("FadeImage");
+            imgGo.transform.SetParent(go.transform);
+            var img = imgGo.AddComponent<Image>();
+            img.color = new Color(0, 0, 0, 0);
+            img.raycastTarget = false;
+            var imgRt = imgGo.GetComponent<RectTransform>();
+            imgRt.anchorMin = Vector2.zero;
+            imgRt.anchorMax = Vector2.one;
+            imgRt.offsetMin = Vector2.zero;
+            imgRt.offsetMax = Vector2.zero;
+
+            var fader = go.AddComponent<SceneFader>();
+            var so = new SerializedObject(fader);
+            so.FindProperty("fadeImage").objectReferenceValue = img;
+            so.ApplyModifiedProperties();
         }
 
         private static GameOverScreen CreateGameOverScreen(Transform parent)
@@ -1552,7 +1640,7 @@ namespace SteelRain.Editor
             CreateText(panel.transform, "SfxLabel", "SFX", 14, TextAnchor.MiddleLeft, new Vector2(-80, -20), new Vector2(80, 25));
             var sfxSlider = CreateSlider(panel.transform, "SfxSlider", new Vector2(40, -20), new Vector2(140, 20));
 
-            var pm = panel.AddComponent<PauseManager>();
+            var pm = parent.gameObject.AddComponent<PauseManager>();
             SetField(pm, "pausePanel", panel);
             SetField(pm, "pauseTitle", titleText);
             SetField(pm, "pauseHint", hintText);

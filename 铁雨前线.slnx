@@ -2,4 +2,5 @@
   <Project Path="SteelRain.Game.csproj" />
   <Project Path="SteelRain.EditorTools.csproj" />
   <Project Path="SteelRain.Tests.EditMode.csproj" />
+  <Project Path="SteelRain.Tests.PlayMode.csproj" />
 </Solution>

@@ -17,5 +17,17 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Level02_Factory.unity
     guid: 97715d3822fb3834c82f3008446dd950
+  - enabled: 1
+    path: Assets/Scenes/Level03_Warzone.unity
+    guid: 80cf78dc67ff2fb40a21097f51c9959b
+  - enabled: 1
+    path: Assets/Scenes/Level04_Bunker.unity
+    guid: 32d7f654ad9ac8149a4351550f4d12f7
+  - enabled: 1
+    path: Assets/Scenes/Level05_Citadel.unity
+    guid: b7c90e77cba4cf34dbebf1f16b4d36a6
+  - enabled: 1
+    path: Assets/Scenes/EndlessMode.unity
+    guid: 83c6b74cbfa355845853b8473b9a7dcf
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

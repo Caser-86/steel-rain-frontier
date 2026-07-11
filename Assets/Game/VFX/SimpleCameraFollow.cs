@@ -20,10 +20,14 @@ namespace SteelRain.VFX
         private void Awake()
         {
             cameraShake = GetComponent<CameraShake>();
+            TryBindPlayer();
         }
 
         private void LateUpdate()
         {
+            if (target == null)
+                TryBindPlayer();
+
             if (target == null) return;
 
             // 先减去上一帧的抖动偏移，得到"纯净"的相机位置
@@ -47,6 +51,13 @@ namespace SteelRain.VFX
             {
                 lastShakeOffset = Vector3.zero;
             }
+        }
+
+        private void TryBindPlayer()
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+                target = player.transform;
         }
     }
 }

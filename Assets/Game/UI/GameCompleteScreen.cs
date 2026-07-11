@@ -29,7 +29,7 @@ namespace SteelRain.UI
         {
             if (shown) return;
 
-            var levelsCompleted = AchievementManager.GetFloatStat(AchievementManager.StatId.LevelsCompleted);
+            var levelsCompleted = AchievementManager.GetStat(AchievementManager.StatId.LevelsCompleted);
             if (levelsCompleted < LevelManager.TotalLevels) return;
 
             shown = true;

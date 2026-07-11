@@ -2201,7 +2201,7 @@ namespace SteelRain.EditorTools
             levelEnd.transform.position = new Vector3(165f, 2f, 0f);
 
             // Level02 也添加对象池和叙事管理器
-            BuildObjectPool(projectilePrefab);
+            BuildObjectPool(projectile);
             BuildStoryManagerLevel02();
 
             EditorSceneManager.SaveScene(scene, "Assets/Scenes/Level02_Factory.unity");
@@ -3282,6 +3282,7 @@ namespace SteelRain.EditorTools
             // 明确挂载 BootScreen，使其在编辑器中可见、可调整参数
             go.AddComponent<BootScreen>();
 
+            BuildSceneFader();
             EditorSceneManager.SaveScene(scene, "Assets/Scenes/Boot.unity");
             Debug.Log("[VerticalSliceBuilder] Boot scene created with Camera + GameBootstrap + BootScreen.");
         }
@@ -3296,7 +3297,8 @@ namespace SteelRain.EditorTools
                 new EditorBuildSettingsScene("Assets/Scenes/Level02_Factory.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/Level03_Warzone.unity", true),
                 new EditorBuildSettingsScene("Assets/Scenes/Level04_Bunker.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/Level05_Citadel.unity", true)
+                new EditorBuildSettingsScene("Assets/Scenes/Level05_Citadel.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/EndlessMode.unity", true)
             };
             EditorBuildSettings.scenes = scenes;
             Debug.Log("[VerticalSliceBuilder] Build scenes registered.");

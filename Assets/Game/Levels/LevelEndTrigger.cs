@@ -19,6 +19,24 @@ namespace SteelRain.Levels
             var tracker = FindFirstObjectByType<AchievementTracker>();
             if (tracker != null) tracker.OnLevelComplete();
 
+            if (!LevelManager.InEndlessMode && LevelManager.CurrentLevel >= LevelManager.TotalLevels - 1)
+            {
+                var victory = FindFirstObjectByType<VictoryScreen>();
+                if (victory != null)
+                {
+                    victory.Show();
+                    return;
+                }
+
+                var complete = FindFirstObjectByType<GameCompleteScreen>();
+                if (complete != null)
+                {
+                    complete.TryShow();
+                    Time.timeScale = 0f;
+                    return;
+                }
+            }
+
             if (nextLevelIndex >= 0)
                 LevelManager.LoadLevel(nextLevelIndex);
             else

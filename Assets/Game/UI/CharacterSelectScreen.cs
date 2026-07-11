@@ -25,8 +25,6 @@ namespace SteelRain.UI
         [SerializeField] private CharacterDefinition[] characters;
 
         private int selectedIndex;
-        private bool shown;
-
         private const string KeyPreferredCharacter = "Save_PreferredCharacter";
 
         private void Awake()
@@ -51,7 +49,6 @@ namespace SteelRain.UI
         public void Show()
         {
             if (panel == null) return;
-            shown = true;
             panel.SetActive(true);
             Time.timeScale = 0f;
 
@@ -74,7 +71,6 @@ namespace SteelRain.UI
 
         public void Hide()
         {
-            shown = false;
             if (panel != null) panel.SetActive(false);
             Time.timeScale = 1f;
         }

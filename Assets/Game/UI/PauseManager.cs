@@ -2,7 +2,6 @@ using SteelRain.Audio;
 using SteelRain.Core;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 namespace SteelRain.UI
 {
