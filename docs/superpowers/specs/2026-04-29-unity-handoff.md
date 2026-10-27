@@ -1,5 +1,7 @@
 # Unity Handoff Notes
 
+> 历史设计/执行草案（2026 年 4 月）；2026-10-27 仅补充适用范围说明。下文目标、工具与进度属于当时，不作为当前 LocalV1 状态或完成证据。最新范围见 [项目现状](https://github.com/Caser-86/steel-rain-frontier/blob/main/CONTEXT.md)。保留原文供追溯，不自动执行其中步骤。
+
 Date: 2026-04-29
 
 Project: Steel Rain Frontier / 《钢雨前线》

@@ -1,5 +1,7 @@
 # Metal Slug-Like Vertical Slice Implementation Plan
 
+> 历史设计/执行草案（2026 年 4 月）；2026-10-27 仅补充适用范围说明。下文目标、工具与进度属于当时，不作为当前 LocalV1 状态或完成证据。最新范围见 [项目现状](https://github.com/Caser-86/steel-rain-frontier/blob/main/CONTEXT.md)。保留原文供追溯，不自动执行其中步骤。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build an 8-10 minute Unity vertical slice for 《钢雨前线》 with one playable character, three weapons, nine weapon forms, core enemy AI, checkpoints, HUD, and a grayboxed first-level segment.
