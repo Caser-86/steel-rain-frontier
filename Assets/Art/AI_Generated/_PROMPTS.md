@@ -2,25 +2,12 @@
 
 ## 使用方法
 
-1. 打开 AI 图像生成工具：
-   - Bing Image Creator: https://www.bing.com/images/create （免费，推荐）
-   - 或 ChatGPT DALL-E、Midjourney、Stable Diffusion 等
+> 历史四角色逐帧美术方案，2026-10-27 整理。下文的数量、尺寸和风格是设计约定，不是当前已经生成或验收的资源清单；LocalV1 的两人首关以其来源清单和游戏内验收为准。
 
-2. 复制下方每个提示词，生成图片
-
-3. 下载图片，重命名为指定文件名，放到：
-   ```
-   d:\大模型学习\铁雨前线\Assets\Art\AI_Generated\
-   ```
-
-4. 全部下载完成后，在 Unity 中执行菜单：
-   ```
-   Steel Rain > Check AI Art Status   # 先检查完整性
-   Steel Rain > Import AI Art         # 导入资源
-   Steel Rain > Build All             # 重新构建场景
-   ```
-
-5. 脚本会自动：导入图片 → 切割精灵 → 替换占位图 → 重新构建场景
+1. 使用实际可访问的 AI 工具离线生成，保留原图与完整提示词。这里不再推荐未经核实的免费服务或价格。
+2. 旧导入流程使用本目录的指定命名；执行前核对所在分支的 `AIArtImporter.cs`，本地与 GitHub 旧版的输出目录并不相同。
+3. 导入和运行绑定分别验证。提示词存在、文件齐全或状态为 bound，都不等于资源已经合格。
+4. `Build All` 是可能重写内容的生成命令，不作为导入后或启动游戏的自动步骤。
 
 ---
 
@@ -1411,7 +1398,7 @@ transparent background, clean black outline, metal slug style, 256x256
 
 把所有图片放到：
 ```
-d:\大模型学习\铁雨前线\Assets\Art\AI_Generated\
+Assets/Art/AI_Generated/
 ```
 
 然后在 Unity 中执行：
@@ -1425,7 +1412,7 @@ Steel Rain > Build All             # 重新构建场景
 
 ## 小贴士
 
-1. **批量生成**：Bing Image Creator 每天有 15 次免费加速额度，普通速度无限
+1. **批量生成**：先用少量角色样本验证一致性，再按当前工具的实际额度与授权安排批次；这里不承诺免费次数或无限用量。
 2. **去背景**：用 https://www.remove.bg 批量去除背景
 3. **分批导入**：可以先生成几个测试效果，满意后再批量生成
 4. **文件名必须准确**：脚本按文件名匹配，文件名错误会导致替换失败
@@ -1713,7 +1700,7 @@ clean black outline, 64x64
 **音乐（3个）**:
 - music_beach, music_village, music_boss
 
-如需替换，将音频文件放入 `Assets/Audio/Generated/` 目录。
+如需替换原型音频，将音频文件放入 `Assets/Prototypes/Audio/Generated/` 目录。
 
 ---
 

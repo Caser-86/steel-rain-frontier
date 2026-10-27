@@ -1,195 +1,98 @@
-# Steel Rain: Frontier
+# Steel Rain: Frontier · 钢铁雨：边境
 
-A 2D side-scrolling action shooter built in Unity 6, inspired by classic run-and-gun games like Metal Slug. Command a 4-person squad, switch between characters in real-time, fight through five zones to defeat bosses, and pick up weapons along the way.
+Unity 6 / C# 的 2D 横版射击项目，当前目标是一个可在本机 Windows 游玩的单人任务。项目仍在开发，不是已验收成品。
 
-## Quick Start
+> 文档核对：2026-10-27。GitHub 的游戏代码与本地开发工作区尚未同步；本次只整理说明文档。下面分别说明两者，避免把本地进展写成下载仓库后就有的功能。
 
-1. Open the project in **Unity 6000.3.18f1** or later
-2. Run **Steel Rain > Build All** from the menu bar to generate all assets, prefabs, and scenes
-3. Press Play in the `Level01_VerticalSlice` scene
+## 当前有哪两个版本
 
-## Controls
+| 范围 | 实际内容 | 验证边界 |
+|---|---|---|
+| GitHub `main` | 较早的四人原型；已提交场景为 Boot、MainMenu、Level01、Level02 | 构建代码还引用未提交的 Level03–05；不能凭旧功能清单宣称五关完整可打包 |
+| 本地 LocalV1 工作区 | 两名队员、三枪固定库存、四场遭遇、灰盒路线、中文菜单/HUD、暂停/起点重试、分阶段提示 | 仅做了有限窗口检查；全程战斗、失败闭环、检查点、首领及全 AI 视听尚未完成 |
 
-| Action | Key |
-|--------|-----|
-| Move | WASD / Arrow Keys |
-| Jump | Space |
-| Shoot | Left Mouse / J |
-| Cycle Weapon Form | E |
-| Dodge | Left Shift |
-| Switch Character 1-4 | 1 / 2 / 3 / 4 |
-| Rotate Character | Tab |
-| Pause | ESC |
-| Restart (paused) | R |
-| Return to Menu (paused) | Q |
+详细事实与证据见 [CONTEXT.md](CONTEXT.md)；下一步见 [TODO.md](TODO.md)。本地新代码、资源、验证日志和 EXE 不随这次文档同步上传。
 
-## Characters
+## 在本机打开
 
-| Character | Description |
-|-----------|-------------|
-| **Aila** | Balanced assault specialist |
-| **Bruno** | Heavy defense operator |
-| **Mara** | Long-range sniper |
-| **Niko** | High-mobility skirmisher |
+### 已有本地开发工作区
 
-All 4 characters are available from the start. Switch between them in real-time — each has independent health. If one falls, switch to another and keep fighting.
+当前推荐的教程预览：
 
-## Weapons
+`Builds/ManagedPreview/managed-20261021-181113-26632/SteelRainFrontierLocalGraybox.exe`
 
-| Weapon | Forms |
-|--------|-------|
-| Assault Rifle | Auto / Pierce / Grenade |
-| Shotgun | Scatter / Slug / Burning |
-| Rocket Launcher | Direct / Split / Seeker |
+这是以此前 Windows Player 为基础更新 C# 程序集的独立预览，不是新的完整 Unity 打包，也不代表资源重新导入成功。路径只在本地工作区存在，GitHub 没有提供这个 EXE。
 
-Pick up weapon crates dropped by enemies or found in the level to switch your current weapon. **Death resets to the pistol.** Press E to cycle between weapon forms.
+Unity 中的本地入口为 `Assets/Production/Scenes/LocalV1/LocalBoot.unity`，流转到 LocalMainMenu 和 LocalFirstMission。详细记录见 [本地切片验证](docs/production/local-v1-slice-playtest.md)。
 
-## Difficulty
+### 从 GitHub 下载的代码
 
-Choose Easy / Normal / Hard from the main menu. Difficulty affects enemy damage, health, and speed multipliers.
+使用项目记录的 **Unity 6000.3.18f1**，先检查 Console 与资源引用，再打开已提交的 `Assets/Scenes/Boot.unity` 或 `Level01_VerticalSlice.unity`。本次文档整理没有重新运行该远端代码的 Unity 工程。
 
-## Level Structure
+远端 `BuildTools.BuildWindows` 使用固定场景表，其中 Level03–05 当前未提交，因此不能承诺直接构建成功。不要把 `Build All` 当作普通启动步骤：它是内容生成命令，执行前应保全已有内容。
 
-### Level 1: Beach → Village → Trench
-- **Zone A (Beach)**: Rifle soldier tutorial, 2-3 enemy waves
-- **Zone B (Village)**: Shield soldier introduction, mixed waves
-- **Zone C (Trench)**: Drone + mixed enemy gauntlet
-- **Boss Arena**: Turret Boss (stationary turret with bullet patterns)
+## LocalV1 键鼠操作
 
-### Level 2: Factory
-- Industrial themed level with moving platforms, crumbling platforms, explosive barrels, and spike hazards
-- More enemy variety and tougher waves
-- **Boss Arena**: Mini-Boss Walker (3 phases: machine gun sweep, jump slam, core exposed)
+以下是本地 `LocalInput.inputactions` 的绑定，不适用于远端旧输入实现。
 
-### Level 3: Warzone
-- Ruined cityscape with rubble, craters, and sandbag emplacements
-- Mixed enemy gauntlet with snipers and heavy gunners
-- **Boss Arena**: Turret Boss
+| 操作 | 按键 |
+|---|---|
+| 移动 / 方向 | WASD / 方向键 |
+| 跳跃 | 空格 |
+| 射击 | J / 鼠标左键 |
+| 闪避 | 左 Shift |
+| 换存活队员 | Tab |
+| 切换 / 直选武器 | E / 1–3 |
+| 切换射击形态 | Q |
+| 暂停 / 继续 | Esc |
+| 交互预留 | G；补给为接触拾取 |
+| 援护预留 | F；完整援护行为尚未实现 |
 
-### Level 4: Bunker
-- Tight corridors and confined rooms with limited cover
-- Close-quarters combat with shield soldiers and grenadiers
-- **Boss Arena**: Mini-Boss Walker
+完整键位可在暂停菜单“操作说明”查看。短提示按移动、遇敌、受伤和取得特殊武器的条件出现，每条最多两秒，暂停不推进计时。
 
-### Level 5: Citadel
-- Final assault on the enemy stronghold with layered defenses
-- All enemy types in sustained pressure waves
-- **Boss Arena**: Turret Boss (final showdown)
+步枪为无限基础弹药；霰弹枪和火箭筒使用独立有限弹药。当前 LocalV1 是两名队员，不应套用旧版“四名角色、死亡回手枪”的说明。
 
-Checkpoints are placed between zones. Health packs and weapon pickups are scattered throughout.
+## 本地构建与检查
 
-## Features
+以下脚本目前仅在本地开发工作区存在：
 
-- **4-person squad system** with per-character health and real-time switching
-- **9 enemy types**: Rifle Soldier, Shield Soldier, Drone, Grenadier, Sniper, Heavy Gunner, Charger, Mini-Boss Walker, Turret Boss
-- **Environmental hazards**: Spike traps, explosive barrels, moving platforms, crumbling platforms
-- **Score system** with combo multiplier and local leaderboard (Top 10)
-- **Achievement system**: unlockable achievements + tracked statistics
-- **Endless Mode**: Wave-based survival mode unlocked after completing the campaign — every 5 waves spawns a boss
-- **Save system**: Checkpoints and settings persist via PlayerPrefs
-- **Procedural content**: All art, audio, and music are generated at build time — zero external assets
-- **HUD**: Health bar, ammo display, squad roster, score, combo counter, boss health bar, damage numbers
-- **Scene transitions**: Fade-to-black between scenes
-- **Settings**: Master/Music/SFX volume, fullscreen toggle, screen shake intensity
-- **Boot screen**: Loading progress + random game tips displayed on startup
-- **Menu animations**: Floating star particles on the main menu
-- **Interactive UI**: Button hover/press feedback, click sound effects
-- **Character switch toast**: Shows current character name when switching
-- **Low health vignette**: Red screen edge when health is below 30%
-- **Damage direction indicator**: Arrows showing where damage came from
-- **Camera shake**: Screen shake on player damage and explosions
-- **Tutorial system**: Contextual prompts teaching controls in Level 1
+```powershell
+# 实际运行不依赖 Unity 引擎的教程逻辑测试
+./scripts/Invoke-LocalLogicTests.ps1
 
-## Building
+# 需要有效 Unity Editor 许可证；串行执行
+./scripts/Invoke-LocalVerification.ps1 -Mode EditMode -TaskId E06
+./scripts/Invoke-LocalVerification.ps1 -Mode PlayMode -TaskId E06
+./scripts/Invoke-LocalVerification.ps1 -Mode BuildLocalGraybox -TaskId E06
 
-### Editor Build
-```
-Steel Rain > Build All        # Generate all assets + scenes
-Steel Rain > Build Windows    # Generate + build Windows executable
+# 基于已有 Player / 编译缓存的程序集预览，不替代完整构建
+./scripts/Invoke-LocalManagedPreview.ps1 -CheckTests
 ```
 
-### Command Line Build
-```
-Unity.exe -batchmode -executeMethod SteelRain.EditorTools.BuildTools.BuildWindows -quit
-```
+最近一次 Editor 尝试是 **2026-10-21**：因许可证无效退出 198，未生成测试 XML。2026-10-27 本轮只整理文档，没有重新测试许可证、编译或游戏。
 
-Output: `Builds/Windows/SteelRainFrontier.exe`
+已记录的结果：
 
-## Project Structure
+- 2026-10-02：EditMode 202/202、PlayMode 111/111，LocalGraybox 构建成功；这是历史版本的结果。
+- 2026-10-21：教程纯逻辑测试 7/7 实际执行通过；运行时代码与 PlayMode 测试程序集编译成功。
+- 2026-10-21：窗口中观察并操作了菜单、显示设置、灰盒渲染、暂停/起点重试、首次提示与操作说明；未完成全关战斗试玩。
+- 新增真实步枪子弹遭遇测试已写并编译，尚未在 Unity 中执行；受控射击测试也不等于路线或生存通关。
 
-```
-Assets/
-  Game/
-    Core/        - Health, Damage, Team, GameEvents, SaveSystem, ScoreManager, DifficultyManager, LevelManager, TempBuffState
-    Player/      - Controller, Combat, Dodge, Squad, CharacterRuntime
-    Enemies/     - AI controllers (Rifle, Shield, Drone, Grenadier, MiniBoss, Turret)
-    Weapons/     - Weapon definitions, projectiles, patterns
-    Levels/      - Checkpoints, triggers, destructibles, hazards, platforms
-    Pickups/     - Health, weapon pickups, shield, invincible
-    UI/          - HUD, pause, settings, game over, victory, boss bar, health bar, damage numbers, tutorial
-    Audio/       - Procedural SFX + music generation, crossfade music player
-    VFX/         - Explosions, muzzle flash, camera shake, particles, sprite animator, damage numbers
-    Editor/      - One-click build tools
-    Data/        - ScriptableObject assets (auto-generated)
-    Tests/       - NUnit edit-mode tests
-  Art/Generated/ - Procedural sprites (auto-generated)
-  Audio/Generated/ - Procedural audio (auto-generated)
-  Scenes/        - Boot, MainMenu, Level01-05, EndlessMode (auto-generated)
-  Prefabs/       - All prefabs (auto-generated)
-```
+## AI 资源要求与现状
 
-## Technical Notes
+原创美术、动画、音效和音乐以真实 AI 生成为目标，运行时不调用生成服务。当前尚未全部满足：资源清单中 11 项为 `bound`，不等于 `accepted`；旧角色精灵、程序化灰盒和音频仍存在。
 
-- All art, audio, and prefabs are procedurally generated at build time
-- Zero external asset dependencies
-- Single assembly (`SteelRain.Game`) with clean namespace separation
-- Event-driven architecture via `GameEvents` static event bus
-- URP rendering pipeline with Linear color space
+旧 `Assets/Art/AI_Generated/_PROMPTS*.md` 是历史提示词/导入约定，不是已经生成资源的证明，也不是当前 LocalV1 的完成清单。
 
-## Requirements
+## 目录与文档
 
-- Unity 6000.3.18f1 (Unity 6 LTS)
-- Universal Render Pipeline (URP) 17.3.0
-- Windows 10+ (for built executable)
+- `Assets/Game`：运行时、Editor 构建工具和测试。
+- `Assets/Scenes`、`Assets/Art`、`Assets/Prefabs`：旧版内容；不因缺少直接引用自动删除。
+- 本地 `Assets/Prototypes`：可生成的对照原型；`Assets/Production/.../LocalV1`：当前独立切片。
+- [CONTEXT.md](CONTEXT.md)：状态摘要与本地/远端边界。
+- [TODO.md](TODO.md)：当前优先级。
+- [AGENTS.md](AGENTS.md)：协作、保护和验证规则。
+- [本地切片验证](docs/production/local-v1-slice-playtest.md)：带日期的验证记录。
+- [RELEASE_NOTES.md](RELEASE_NOTES.md)：历史版本记录，不作为当前验收声明。
 
-## Version History
-
-### v2.1.0 (2026-06-21)
-- **Added**: Endless Mode scene generation (wave-based survival, boss every 5 waves)
-- **Added**: Character Select screen in main menu (choose preferred starting character)
-- **Fixed**: Death no longer preserves picked-up weapons — resets to pistol (Metal Slug style)
-- **Fixed**: Character selection now actually applies to the starting character in-game
-- **Fixed**: VictoryScreen now properly links to GameCompleteScreen for campaign completion
-- **Added**: Scenes auto-added to BuildSettings during level generation
-- **Added**: TempBuffState unit tests
-
-### v2.0.0 (2026-06-21)
-- **Major simplification**: Removed shop, currency, skill system, weapon upgrades, character unlocks, and NGP progression
-- **Metal Slug-style gameplay**: Classic run-and-gun with weapon pickups that switch weapons
-- **Weapon switching**: Pick up weapon crates to swap weapons; death resets to pistol
-- **Squad system retained**: 4 characters available from the start, switch in real-time
-- **Streamlined HUD**: Focus on health, ammo, and score
-- **Removed**: CharacterSkill, CurrencyManager, WeaponUpgradePickup, WeaponSwapPickup, NGP system, skill animations
-
-### v1.0.2 (2026-06-19)
-- Fixed: Level02 scene missing HUD, GameOver, Victory, BossHealthBar, and DamageIndicator UI components
-- Fixed: Level01 scene missing LevelEndTrigger — level end logic now complete
-- Added: Achievement system with unlockable achievements and tracked statistics
-- Added: Achievement notification UI (slide-in animation on unlock)
-- Added: Tutorial prompt system in Level 1 (contextual control tutorials)
-- Improved: Level02 now has full UI parity with Level01
-
-### v1.0.1 (2026-06-19)
-- Fixed: Main menu SceneFader `fadeImage` not set — scene transitions now work correctly
-- Fixed: Shield pickup caused permanent invincibility — shield timer now properly counts down
-- Fixed: Invincible pickup caused permanent invincibility — coroutine now runs on player object
-- Added: Boot screen with loading progress and random game tips
-- Added: Menu background animations (floating star particles)
-- Added: UI button hover/press visual feedback and click sound effects
-- Added: Low health vignette (red screen edge when health below 30%)
-- Added: Damage direction indicator (arrows showing where damage came from)
-- Added: Camera shake on player damage and explosions
-- Improved: UI color palette system for consistent visual styling
-
-### v1.0.0
-- Initial release: Full 2D squad shooter with 5 levels, 4 characters, 9 enemy types
+本地详细设计/任务分册保留在 `docs/superpowers`，旧方案保留在 `docs/archive`。历史计划、程序化素材、旧五关和无尽内容都不能用来推断当前 LocalV1 已经完成。
