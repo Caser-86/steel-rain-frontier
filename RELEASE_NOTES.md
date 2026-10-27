@@ -1,5 +1,7 @@
 # Steel Rain: Frontier v2.1.0 Release Notes
 
+> 历史版本记录，非当前发布或验收声明（2026-10-27 整理）。以下保留原有版本内容，不逐条背书其在当前代码中的适用性。旧四人、五关、无尽、死亡回手枪等说明不适用于本地 LocalV1；当前状态见 [CONTEXT.md](https://github.com/Caser-86/steel-rain-frontier/blob/main/CONTEXT.md)，使用入口见 [README.md](https://github.com/Caser-86/steel-rain-frontier/blob/main/README.md)。README 不再重复这些版本段落。
+
 Release Date: 2026-06-21
 
 ## Overview

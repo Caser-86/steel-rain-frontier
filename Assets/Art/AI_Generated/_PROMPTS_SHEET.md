@@ -1,18 +1,18 @@
 # Sprite Sheet 生成提示词清单（v3.0）
 
-> 本清单用于 AI 生成 Sprite Sheet（大图含多帧），导入时由 `SpriteSheetImporter.cs` 自动切割。
-> v3.0 对齐代码中实际角色（Aila/Bruno/Mara/Niko），补全逐帧提示词。
-> **25 张大图，326 个子精灵**。
+> 历史四角色 Sprite Sheet 方案，2026-10-27 整理。布局供旧 `SpriteSheetImporter.cs` 参考，不能当作当前 LocalV1 的生产或验收清单。
+> 方案角色为 Aila/Bruno/Mara/Niko；当前本地切片只使用两名队员。
+> 设计规模为 **25 张大图、326 个子精灵**，不是已经生成或验收的数量。
 
 ---
 
 ## 使用方法
 
-1. 复制提示词到 **ZSky AI**（https://zsky.ai/ ，无限免费）或 **Bing Image Creator**
+1. 使用实际可访问的 AI 工具离线生成，保留原件与提示词；不依赖未经核实的“无限免费”等宣传。
 2. 下载图片，**重命名为指定文件名**
 3. 放入 `Assets/Art/AI_Generated/`
-4. Unity 菜单 `Steel Rain > Import Sprite Sheets`
-5. 执行 `Steel Rain > Build All`
+4. 核对当前分支的 `SpriteSheetImporter.cs`、切片布局和输出目录后，再执行导入并检查绑定。
+5. 不把 `Build All` 当作导入后的自动步骤；它会重新生成内容。原图、导入、绑定和游戏内验收分别记录。
 
 ---
 
@@ -786,13 +786,9 @@ metal slug military style, consistent color palette:
 4. **第四批（Boss）**：2个Boss（2张）
 5. **第五批（地形）**：7个地形（7张）+ 6个UI元素
 
-## 推荐工具
+## 工具选择
 
-| 工具 | 特点 | 链接 |
-|------|------|------|
-| ZSky AI | 无限免费，1080p | https://zsky.ai/ |
-| Bing Image Creator | 每天15次加速 | https://www.bing.com/images/create |
-| Easy-Peasy.AI | 专做 sprite sheet | https://easy-peasy.ai/ai-image-generator/sprite-sheet |
+原服务推荐和免费额度宣传已移除。以当前实际可访问的生成能力、授权和样本质量为准；先验证角色一致性、透明背景和网格，再选择是否批量生成。
 
 ## 注意事项
 
@@ -800,4 +796,4 @@ metal slug military style, consistent color palette:
 2. **网格必须对齐**：AI 生成的可能不严格对齐，需检查后用 Photoshop/GIMP 微调
 3. **背景必须透明**：提示词已强调 `PURE transparent background`
 4. **无文字标签**：提示词已强调 `NO labels, NO text, NO watermarks`
-5. **如果网格不齐**：用 https://www.remove.bg 去背景后重新拼接
+5. **如果网格不齐**：分别处理透明背景、帧裁切、对齐和固定枢轴；单纯去背景不能修复网格与动作漂移。
